@@ -1,0 +1,27 @@
+{
+  "context": "vessels.urn:mrn:imo:mmsi:234567890",
+  "updates": [
+    {
+      "source": {
+        "label": "N2000-01",
+        "type": "NMEA2000",
+        "src": "115",
+        "pgn": 128275
+      },
+      "values": [
+        {
+          "path": "navigation.courseRhumbline.crossTrackError",
+          "value": -120
+        },
+        {
+          "path": "navigation.speedOverGround",
+          "value": 5.1
+        },
+        {
+          "path": "navigation.courseOverGroundTrue",
+          "value": 1.26
+        }
+      ]
+    }
+  ]
+}

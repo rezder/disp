@@ -1,0 +1,29 @@
+{
+  "tabs": {
+    "Default": {
+      "environment.depth.belowTransducer": 0,
+      "navigation.speedOverGround": 1,
+      "navigation.courseOverGroundTrue": 2,
+      "navigation.speedThroughWater": 3
+    },
+    "Route1": {
+      "environment.depth.belowTransducer": 0,
+      "navigation.courseOverGroundTrue": 1,
+      "navigation.courseRhumbline.crossTrackError": 2,
+      "navigation.courseRhumbline.nextPoint.bearingTrue": 3
+    },
+    "Route2": {
+      "environment.depth.belowTransducer": 0,
+      "navigation.courseRhumbline.crossTrackError": 1,
+      "navigation.courseRhumbline.nextPoint.bearingTrue": 2,
+      "navigation.courseRhumbline.nextPoint.distance": 3
+    },
+    "None": {}
+  },
+  "curTabs": {
+    "1": "Default"
+  },
+  "macs": {},
+  "broadcastPort": 9090,
+  "interface": "wlp2s0"
+}
