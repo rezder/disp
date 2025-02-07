@@ -251,7 +251,7 @@ async def serve(status: Status,
                 await ws.close()
 
             await cleanTask(dones, runnings, status)
-            if done.is_set() or True:  # TODO remove True
+            if done.is_set() or True:  # TODO remove True for restart after crash
                 await skData.clearTask()
                 ok = await displays.close()
                 if not ok:

@@ -291,7 +291,7 @@ class SkData:
             skData = json.load(f)
         return skData
 
-    def default() -> dict:
+    def default() -> dict:  # TODO update to current choice
         skData = {
             "paths": {
                 "environment.depth.belowTransducer": {

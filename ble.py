@@ -50,7 +50,8 @@ class Display:
     async def display(self, dp: DispData, path: str):
         self.checkConnTask()
         if self.on and path in self.tab:
-            isPaused = await self.client.read_gatt_char(self.pauseCharId)
+            buff = await self.client.read_gatt_char(self.pauseCharId)
+            isPaused = bool(int.from_bytes(buff))
             if not isPaused:
                 pos = self.tab[path]
                 buff = dp.encode(pos)

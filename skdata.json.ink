@@ -6,12 +6,12 @@
       "units": 0,
       "dispUnits": 0,
       "label": "DBT",
-      "bufSize": 0,
-      "bufFreq": 0,
+      "bufSize": 3,
+      "bufFreq": 3,
       "min": 5.0
     },
     "navigation.speedOverGround": {
-      "minPeriod": 500,
+      "minPeriod": 1000,
       "decimals": 1,
       "units": 10,
       "dispUnits": 11,
@@ -20,7 +20,7 @@
       "bufFreq": 4
     },
     "navigation.courseOverGroundTrue": {
-      "minPeriod": 500,
+      "minPeriod": 1000,
       "decimals": 0,
       "units": 20,
       "dispUnits": 21,
@@ -29,7 +29,7 @@
       "bufFreq": 4
     },
     "navigation.speedThroughWater": {
-      "minPeriod": 2000,
+      "minPeriod": 4000,
       "decimals": 1,
       "units": 10,
       "dispUnits": 11,
@@ -47,7 +47,7 @@
       "bufFreq": 0
     },
     "navigation.courseRhumbline.nextPoint.bearingTrue": {
-      "minPeriod": 500,
+      "minPeriod": 1000,
       "decimals": 0,
       "units": 20,
       "dispUnits": 21,
