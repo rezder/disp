@@ -60,7 +60,7 @@ def formatNo(dec: int, x: float) -> (str, bool):
     All text numbers is 3 char left aligned.
     With \0 as extension.
     Eksample -1.2 to 12\0,True.
-    :Eksample 2 to 2\0\0,False
+    Eksample 2 to 2\0\0,False
     :param dec: Numbers of decimals.
     :param x: the float value.
     :return: A tumble of the text and sign

@@ -3,6 +3,7 @@ import ble
 from status import Status
 from dispdata import DispData
 
+
 class Displays:
     """
     Displays holds the displays that is on or
@@ -22,26 +23,55 @@ class Displays:
         res = id in self.udpDisps or id in self.bleDisps
         return res
 
-    def setTab(self, id: str, newTab: dict):
+    def setTab(self, id: str, newTab: dict) -> dict:
+        disp = self.getDisp(id)
+        oldTab = disp.getTab()
+        disp.setTab(newTab)
+        return oldTab
+
+    def getDisp(self, id):
+        """
+        Returns a display ble or udp if the
+        display id match a display else None
+        :param id: The id of display
+        :return: udpDisplay/bleDisplay/None
+        """
         disp = None
         if id in self.udpDisps:
             disp = self.udpDisps.get(id)
         else:
             disp = self.bleDisps.get(id)
-        oldTab = disp.getTab()
-        disp.setTab(newTab)
-        return oldTab
+        return disp
 
-    def addBleDisp(self, disps: dict) -> set:
+    def getDispTab(self, id):
+        disp = self.getDisp(id)
+        tab = disp.getTab()
+        return tab
+
+    def addBleDisps(self, disps: dict) -> set:
         """
         Construct and add the ids to the displays.
         :return: The added id as a set
         :rtype: set[str]
         """
-        for (id, mac) in disps.items():
-            d = ble.Display(id, mac, self.status)
-            self.bleDisps[id] = d
-        return set(disps.keys())
+        ids = set()
+        for (id, macObj) in disps.items():
+            if not macObj["isDisable"]:
+                self.addBleDisp(id, macObj)
+                ids.add(id)
+        return ids
+
+    def addBleDisp(self, id, macObj):
+        """
+        Construct and add a ble displays.
+        """
+        d = ble.Display(id, macObj["addr"], self.status)
+        self.bleDisps[id] = d
+
+    async def removeBleDisp(self, id):
+        d = self.bleDisps[id]
+        del self.bleDisps[id]
+        await d.turnOff()
 
     def add(self, id, ip, port) -> bool:
         isNew = True

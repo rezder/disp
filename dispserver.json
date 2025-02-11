@@ -21,9 +21,16 @@
     "None": {}
   },
   "curTabs": {
+    "b1": "Default",
     "1": "Default"
   },
-  "macs": {},
+  "macs": {
+    "b1": {
+      "addr": "f0:f5:bd:76:91:9d",
+      "isDisable": false
+    }
+  },
   "broadcastPort": 9090,
-  "interface": "wlp2s0"
+  "interface": "wlp2s0",
+  "disableSubServer": True
 }

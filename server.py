@@ -145,6 +145,27 @@ class DispServer:
             self.conf.addMac(id, mac)
         return upd
 
+    def disableDisp(self, id: str, isDisable: bool) -> bool:
+        """
+        Disable a display. Not posible for udp displays.
+        If server is busy with something else return
+        false
+        """
+        ok = False
+        if not self.exist():
+            self.conf.setBleDispDisable(id, isDisable)
+            ok = True
+        else:
+            ok = self.status.setDisableDisp(id, isDisable)
+            if ok:
+                self.conf.setBleDispDisable(id, isDisable)
+                req = gr.GuiReq(gr.disDisp, id)
+                _ = self.loop.call_soon_threadsafe(queueAdd,
+                                                   self.queue,
+                                                   req,
+                                                   self.status)
+        return ok
+
     def changeDisp(self, id, tabId) -> bool:
         """
         Change current tab used by display
@@ -158,7 +179,7 @@ class DispServer:
             self.conf.setCurTabId(tabId, id)
             ok = True
         else:
-            ok = self.status.setUpdateQueue(id, tabId)
+            ok = self.status.setChgTab(id, tabId)
             if ok:
                 self.conf.setCurTabId(tabId, id)
                 req = gr.GuiReq(gr.chgTab, id)
@@ -200,7 +221,7 @@ async def serve(status: Status,
     :param conf: Object holds the configured data.
     """
     displays = Displays(status)
-    ids = displays.addBleDisp(conf.getMacs())
+    ids = displays.addBleDisps(conf.getMacs())
     for dpId in ids:
         req = gr.GuiReq(gr.chgTab, dpId)
         queue.put_nowait(req)
@@ -230,12 +251,12 @@ async def serve(status: Status,
                                                         status,
                                                         displays),
                                          name="Gui queue"))
-
-            tasks.append(ass.create_task(handler.udpSubscribe(displays,
-                                                              conf,
-                                                              status,
-                                                              queue),
-                                         name="Subscriber"))
+            if conf.getSubUdpServerIsEnable():
+                tasks.append(ass.create_task(handler.udpSubscribe(displays,
+                                                                  conf,
+                                                                  status,
+                                                                  queue),
+                                             name="Subscriber"))
             dones, runnings = await ass.wait(tasks,
                                              return_when=ass.FIRST_COMPLETED)
 

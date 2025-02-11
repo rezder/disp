@@ -1,5 +1,6 @@
 chgTab = 1
 alarmDis = 2
+disDisp = 3
 
 
 class GuiReq:

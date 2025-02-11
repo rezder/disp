@@ -86,7 +86,7 @@ class DisTableGui:
 
     def checkFn(self, path, label, checkVar: tk.IntVar):
         if checkVar.get() == 1:
-            self.disActFn(path, label, True)  
+            self.disActFn(path, label, True)
         else:
             self.disActFn(path, label, False)
 
@@ -144,32 +144,56 @@ class ConfTabGui:
                  parent: tk.Frame,
                  ids: dict,
                  values: list,
+                 macs: dict,
                  defaultVal: str,
-                 cb):
+                 cbTabChg,
+                 cbDisable):
         self.parent = parent
         self.mainFrame = tk.Frame(self.parent)
         self.radios = list()
         self.ons = set()
-        self.cb = cb
+        self.cbTabChg = cbTabChg
+        self.cbDisable = cbDisable
         self.values = values
         self.ids = ids
         self.defaultVal = defaultVal
+        self.macs = macs
 
     def create(self):
+        title = tk.Label(self.mainFrame, text="Displays")
+        title.pack()
         for id, tabId in self.ids.items():
-            r = RadioTab(self.mainFrame, id, self.values, tabId, self.cb)
+            macAddr = None
+            isDisable = False
+            if id in self.macs:
+                macObj = self.macs[id]
+                macAddr = macObj["addr"]
+                isDisable = macObj["isDisable"]
+
+            r = RadioTab(self.mainFrame,
+                         id,
+                         self.values,
+                         tabId,
+                         macAddr,
+                         isDisable,
+                         self.cbTabChg,
+                         self.cbDisable)
             r.create()
-            r.mainFrame.pack(pady=(0, 5))
+            r.mainFrame.pack(pady=(0, 5), anchor=tk.W)
             self.radios.append(r)
 
-    def newId(self, id: str):
+    def newId(self, id: str, macAddr=None):
+        isDisable = False
         r = RadioTab(self.mainFrame,
                      id,
                      self.values,
                      self.defaultVal,
-                     self.cb)
+                     macAddr,
+                     isDisable,
+                     self.cbTabChg,
+                     self.cbDisable)
         r.create()
-        r.mainFrame.pack()
+        r.mainFrame.pack(pady=(0, 5), anchor=tk.W)
         self.radios.append(r)
 
     def serverOns(self, ons: set):
@@ -193,32 +217,62 @@ class RadioTab:
                  id: str,
                  values: list,
                  currentValue: str,
-                 cb):
+                 macAddr: str,
+                 isDisable,
+                 cbTabChg,
+                 cbDisable):
+
         self.parent = parent
         self.id = id
         self.oldValue = currentValue
         self.valueVar = None
         self.radioFrame = None
         self.values = values
-        self.cb = cb
+        self.cbTabChg = cbTabChg
         self.mainFrame = tk.Frame(
             self.parent,
             highlightthickness=BORDER_WIDTH,
             highlightbackground=BORDER_COLOR)
         self.bgColor = self.mainFrame.cget("bg")
         self.selectColor = "blue"
-
+        self.macAddr = macAddr
+        self.isDisableOld = isDisable
         self.idLabel = None
+        self.cbDisable = cbDisable
 
     def create(self):
-        idTxt = "Display: {}".format(self.id)
-        self.idVar = tk.StringVar(value=idTxt)
-        self.idLabel = tk.Label(self.mainFrame, textvariable=self.idVar)
-        self.idLabel.pack(anchor=tk.CENTER)
+        f = tk.Frame(self.mainFrame)
+        f.columnconfigure(1, weight=1)
+        f.columnconfigure(0, weight=0)
+        f.pack(fill="x")
+        lH = tk.Label(f, text="Id:")
+        lH.grid(row=0, column=0)
+        lId = tk.Label(f, text=self.id)
+        lId.grid(sticky="e", row=0, column=1)
+
+        if self.macAddr is not None:
+            macAddrTxt = "Mac Address:   {}".format(self.macAddr)
+            macVar = tk.StringVar(value=macAddrTxt)
+            macLabel = tk.Label(self.mainFrame, textvariable=macVar)
+            macLabel.pack(anchor=tk.CENTER)
+            v = 0
+            if self.isDisableOld:
+                v = 1
+            self.disableVar = tk.IntVar(value=v)
+            self.disableB = tk.Checkbutton(self.mainFrame,
+                                           variable=self.disableVar,
+                                           onvalue=1,
+                                           offvalue=0,
+                                           text="Disable",
+                                           command=self.checkBoxDisable,
+                                           selectcolor="grey10")
+            self.disableB.pack(anchor=tk.W)
 
         self.valueVar = tk.StringVar(value=self.oldValue)
-        self.radioFrame = tk.Frame(self.mainFrame)
-        self.radioFrame.pack()
+        self.radioFrame = tk.Frame(self.mainFrame,
+                                   highlightthickness=BORDER_WIDTH,
+                                   highlightbackground=BORDER_COLOR)
+        self.radioFrame.pack(anchor=tk.W)
         for header in self.values:
             r = tk.Radiobutton(
                 self.radioFrame,
@@ -231,16 +285,32 @@ class RadioTab:
 
     def radioCb(self):
         newValue = self.valueVar.get()
-        if not self.cb(self.id, newValue):
+        if not self.cbTabChg(self.id, newValue):
             self.valueVar.set(self.oldValue)
         else:
             self.oldValue = newValue
 
     def setOnOff(self, on: bool):
         if on is True:
-            self.idLabel.config(bg=self.selectColor)
+            self.mainFrame.config(highlightbackground=self.selectColor)
+            self.mainFrame.config(highlightthickness=4)
+
         else:
-            self.idLabel.config(bg=self.bgColor)
+            self.mainFrame.config(highlightbackground=BORDER_COLOR)
+            self.mainFrame.config(highlightthickness=BORDER_WIDTH)
+
+    def checkBoxDisable(self):
+        newValue = False
+        if self.disableVar.get() == 1:
+            newValue = True
+
+        if self.cbDisable(self.id, newValue):
+            self.isDisableOld = newValue
+        else:  # reset
+            v = 1
+            if newValue:
+                v = 0
+            self.disableVar.set(v)
 
 
 class StartButton:
@@ -345,7 +415,7 @@ class TxtGui:
             self.executeAlarms(dms)
 
 
-class UpdGui:
+class UdpGui:
 
     def __init__(self, parent: tk.Frame, port, cb, logger):
         self.subNewIdsList = list()
@@ -505,9 +575,9 @@ class BleGui:
     def subScribeNewIds(self, fn):
         self.subNewIdsList.append(fn)
 
-    def executeNewIds(self, newId):
+    def executeNewIds(self, newId, macAddr):
         for f in self.subNewIdsList:
-            f(newId)
+            f(newId, macAddr)
 
     def serverOn(self, isOn: bool):
         if isOn:
@@ -536,14 +606,81 @@ class BleGui:
                     self.logger("Mac data recieved: {}".format(mac))
                     id = self.idVar.get()
                     if self.cb(id, mac):  # Only adds if server not running
-                        for f in self.subNewIdsList:
-                            f(id)
+                        self.executeNewIds(id, mac)
 
             except serial.SerialException as ex:
                 txt = "\nConnection failed with: {}".format(ex)
                 self.logger(txt)
         else:
             self.logger("No device connect")
+
+
+def createWindow(parent, title) -> tuple[tk.Toplevel, tk.Frame]:
+    w = tk.Toplevel(parent)
+    w.title(title)
+    w.protocol("WM_DELETE_WINDOW", w.withdraw)
+    wf = tk.Frame(w)
+    wf.pack()
+    return (w, wf)
+
+
+class MenuRegGui:
+    def __init__(self,
+                 parent,
+                 parentMenu,
+                 port,
+                 addNewUdpDisp,
+                 addNewBleDisp,
+                 logger):
+        self.parent = parent
+        self.parentMenu = parentMenu
+        self.port = port
+        self.addNewUdpDisp = addNewUdpDisp
+        self.addNewBleDisp = addNewBleDisp
+        self.logger = logger
+
+    def create(self):
+        self.udpWindow, windowFrame = createWindow(self.parent,
+                                                   "Udp Display Registor")
+        self.udpGui = UdpGui(windowFrame,
+                             self.port,
+                             self.addNewUdpDisp,
+                             self.logger)
+        self.udpGui.create()
+        self.udpGui.mainFrame.pack(pady=(10, 0))
+
+        self.bleWindow, windowFrame = createWindow(self.parent,
+                                                   "Ble Display Registor")
+        self.bleGui = BleGui(windowFrame,
+                             self.port,
+                             self.addNewUdpDisp,
+                             self.logger)
+        self.bleGui.create()
+        self.bleGui.mainFrame.pack(pady=(10, 0))
+
+        self.menuRegistor = tk.Menu(self.parentMenu, tearoff=0)
+        self.menuRegistor.add_command(label="Ble", command=self.bleRegistor)
+        self.menuRegistor.add_command(label="Udp", command=self.udpRegistor)
+        self.udpWindow.withdraw()
+        self.bleWindow.withdraw()
+
+    def bleRegistor(self):
+        self.bleWindow.deiconify()
+        print("Ble window")
+
+    def udpRegistor(self):
+        self.udpWindow.deiconify()
+        print("Udp window")
+
+
+class MenuBarGui:
+    def __init__(self, menuBar: tk.Menu, menuReg: tk.Menu):
+        self.menuBar = menuBar
+        self.menuRegistor = menuReg
+
+    def createMenuBar(self):
+        self.menuBar.add_cascade(label="Registor Display",
+                                 menu=self.menuRegistor)
 
 
 class DispGui:
@@ -586,8 +723,10 @@ class DispGui:
         self.confTabGui = ConfTabGui(self.radioFrame,
                                      self.server.conf.getCurTabs(),
                                      self.server.conf.getTabNames(),
+                                     self.server.conf.getMacs(),
                                      self.server.conf.defaultTab,
-                                     self.server.changeDisp)
+                                     self.server.changeDisp,
+                                     self.server.disableDisp)
 
         self.confTabGui.create()
         self.confTabGui.mainFrame.pack()
@@ -598,29 +737,30 @@ class DispGui:
         self.disTabGui.create()
         self.disTabGui.mainFrame.pack()
 
-        self.updGui = UpdGui(self.updFrame,
-                             self.server.conf.getSubPort(),
-                             self.server.addNewUdpDisp,
-                             self.logger)
-        self.updGui.create()
-        self.updGui.mainFrame.pack(pady=(10, 0))
+        self.menuBar = tk.Menu(self.window, tearoff=0)
+        self.menuRegGui = MenuRegGui(self.window,
+                                     self.menuBar,
+                                     self.server.conf.getSubPort(),
+                                     self.server.addNewUdpDisp,
+                                     self.server.addNewBleDisp,
+                                     self.logger)
+        self.menuRegGui.create()
 
-        self.bleGui = BleGui(self.updFrame,
-                             self.server.conf.getSubPort(),
-                             self.server.addNewBleDisp,
-                             self.logger)
-        self.bleGui.create()
-        self.bleGui.mainFrame.pack(pady=(10, 0))
+        self.menuBarGui = MenuBarGui(self.menuBar,
+                                     self.menuRegGui.menuRegistor)
+        self.menuBarGui.createMenuBar()
 
-        self.stButton.subscribeOnOff(self.updGui.serverOn)
-        self.stButton.subscribeOnOff(self.bleGui.serverOn)
+        self.window.config(menu=self.menuBarGui.menuBar)
+
+        self.stButton.subscribeOnOff(self.menuRegGui.udpGui.serverOn)
+        self.stButton.subscribeOnOff(self.menuRegGui.bleGui.serverOn)
         self.stButton.subscribeOnOff(self.disTabGui.setOnOff)
 
         self.txtGui.subscribeOns(self.confTabGui.serverOns)
         self.txtGui.subscribeAlarms(self.disTabGui.alarmMsg)
 
-        self.updGui.subScribeNewIds(self.confTabGui.newId)
-        self.bleGui.subScribeNewIds(self.confTabGui.newId)
+        self.menuRegGui.udpGui.subScribeNewIds(self.confTabGui.newId)
+        self.menuRegGui.bleGui.subScribeNewIds(self.confTabGui.newId)
 
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
 

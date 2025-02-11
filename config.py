@@ -33,7 +33,8 @@ class Config:
             "curTabs": {},
             "macs": {},
             "broadcastPort": 9090,
-            "interface": "wlp2s0"
+            "interface": "wlp2s0",
+            "disableSubServer": False
         }
         return conf
 
@@ -67,13 +68,19 @@ class Config:
         return upd
 
     def addMac(self, id, mac):
-        self.conf["macs"][id] = mac
+        mo = dict()
+        mo["addr"] = mac
+        mo["isDisable"] = False
+        self.conf["macs"][id] = mo
 
     def getMacs(self) -> dict:
         return dict(self.conf["macs"])
 
     def setCurTabId(self, tabId, id):
         self.conf["curTabs"][id] = tabId
+
+    def setBleDispDisable(self, id: str, isDisable: bool):
+        self.conf["macs"][id]["isDisable"] = isDisable
 
     def getCurTabId(self, id) -> str:
         tabId = self.conf["curTabs"][id]
@@ -91,6 +98,9 @@ class Config:
 
     def getTabNames(self) -> list:
         return list(self.conf["tabs"].keys())
+
+    def getSubUdpServerIsEnable(self) -> bool:
+        return not self.conf["disableSubServer"]
 
     def getBroadcastIp(self) -> str:
         b = None

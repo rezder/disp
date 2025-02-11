@@ -96,6 +96,33 @@ async def guiMsg(ws: wsclient.ClientConnection,
             status.setTxt(txt.format(pd.label, atxt))
             status.setDoneCmd()
 
+        if req.tp == gr.disDisp:
+            isDisable = conf.getMacs()[req.id]["isDisable"]
+            isIn = displays.isIn(req.id)
+            txt = "Display: {} was not disabled/enabled".format(id)
+            if isIn and isDisable:
+                status.removeOn(req.id)
+                txt = "Disabling display: {}".format(id)
+                tab = displays.getDispTab(req.id)
+                await displays.removeBleDisp(req.id)
+                unsubSet = sub.remove(set(tab.keys()))
+                if len(unsubSet) > 0:
+                    subSet = sub.subscribers()
+                    await skSub(subSet, skData, ws)
+            if not isIn and not isDisable:
+                status.addOn(req.id)
+                txt = "Enabling display: {}".format(id)
+                macObj = conf.getMacs()[req.id]
+                displays.addBleDisp(req.id, macObj)
+                tab = conf.getCurTabPaths(req.id)
+                _ = displays.setTab(req.id, tab)
+                newSubSet = sub.add(set(tab.keys()))
+                if len(newSubSet) > 0:
+                    subSet = sub.subscribers()
+                    await skSub(subSet, skData, ws)
+            status.setTxt(txt)
+            status.setDoneCmd()
+
 
 async def skSub(subSet: set,
                 skData: SkData,

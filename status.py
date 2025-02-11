@@ -58,17 +58,27 @@ class Status:
             self.lock.release()
         return ok
 
-    def setUpdateQueue(self, id, tab) -> bool:
+    def setUpdateQueue(self, txt) -> bool:
         ok = False
         isMine = self.lock.acquire()  # blocks
         if isMine:
             if self.cmd == cmd.none and self.state == state.running:
                 self.cmd = cmd.queue  # TODO Is it necessary limits queue to one
-                txt = "User request display: {} change to: {}".format(id, tab)
                 self.txt = self.txt + "\n" + txt
                 ok = True
             self.lock.release()
         return ok
+
+    def setChgTab(self, id, tab) -> bool:
+        txt = "User request display: {} change to: {}".format(id, tab)
+        return self.setUpdateQueue(txt)
+
+    def setDisableDisp(self, id, isDisable) -> bool:
+        disTxt = "Enable"
+        if isDisable:
+            disTxt = "Disable"
+        txt = "{} display: {}".format(disTxt, id)
+        return self.setUpdateQueue(txt)
 
     def setAlarmDis(self, label: str, isDis: bool):
         ok = False
@@ -115,6 +125,12 @@ class Status:
         isMine = self.lock.acquire()  # blocks
         if isMine:
             self.dispOnSet.add(id)
+            self.lock.release()
+
+    def removeOn(self, id: str):
+        isMine = self.lock.acquire()  # blocks
+        if isMine:
+            self.dispOnSet.remove(id)
             self.lock.release()
 
     def getStatus(self) -> (bool, str, int, int, set, list):
