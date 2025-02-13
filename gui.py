@@ -1,0 +1,2 @@
+BORDER_WIDTH = 1
+BORDER_COLOR = "grey14"

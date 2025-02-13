@@ -32,5 +32,5 @@
   },
   "broadcastPort": 9090,
   "interface": "wlp2s0",
-  "disableSubServer": True
+  "disableSubServer": true
 }
