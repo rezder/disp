@@ -9,32 +9,24 @@ DEFAULT_BAUDRATE = 115200
 
 class Udp:
 
-    def __init__(self, parent: tk.Frame, port, cb, logger):
+    def __init__(self, parent: tk.Frame, cb, logger):
         self.subNewIdsList = list()
         self.parent = parent
         self.logger = logger
-        self.port = port
         self.mainFrame = tk.Frame(self.parent,
                                   highlightthickness=BORDER_WIDTH,
                                   highlightbackground=BORDER_COLOR)
-        self.path = getSerialPath()
+
         self.cb = cb
 
-        self.pwVar = tk.StringVar(value="")
-        self.portVar = tk.StringVar(value=str(self.port))
-        self.ssidVar = tk.StringVar(value="")
-        self.idVar = tk.StringVar(value="")
-        self.pathVar = tk.StringVar(value="")
+        self.pwVar = tk.StringVar()
+        self.portVar = tk.StringVar()
+        self.ssidVar = tk.StringVar()
+        self.idVar = tk.StringVar()
+        self.pathVar = tk.StringVar()
 
-        self.updBut = None
-
-    def create(self):
         gridFrame = tk.Frame(self.mainFrame)
         gridFrame.pack()
-        txt = ""
-        if self.path is not None:
-            txt = self.path
-        self.pathVar = tk.StringVar(value=txt)
 
         pathLab = tk.Label(gridFrame, text="Id:")
         pathLab.grid(row=0, column=0)
@@ -69,6 +61,11 @@ class Udp:
                                 text="Update",
                                 command=self.updateCb)
         self.updBut.pack()
+
+    def show(self, port):
+        self.portVar.set(port)
+        path = getSerialPath()
+        self.pathVar.set(path)
 
     def subScribeNewIds(self, fn):
         self.subNewIdsList.append(fn)
@@ -115,8 +112,7 @@ class Udp:
 
 
 class Ble:
-
-    def __init__(self, parent: tk.Frame, port, cb, logger):
+    def __init__(self, parent: tk.Frame, cb, logger):
         self.subNewIdsList = list()
         self.parent = parent
         self.logger = logger
@@ -126,20 +122,12 @@ class Ble:
         self.path = getSerialPath()
         self.cb = cb
 
-        self.macVar = tk.StringVar(value="")
-        self.idVar = tk.StringVar(value="")
-        self.pathVar = tk.StringVar(value="")
+        self.macVar = tk.StringVar()
+        self.idVar = tk.StringVar()
+        self.pathVar = tk.StringVar()
 
-        self.updBut = None
-
-    def create(self):
         gridFrame = tk.Frame(self.mainFrame)
         gridFrame.pack()
-        txt = ""
-        if self.path is not None:
-            txt = self.path
-        self.pathVar = tk.StringVar(value=txt)
-
         pathLab = tk.Label(gridFrame, text="Id:")
         pathLab.grid(row=0, column=0)
         pathEnt = tk.Entry(gridFrame, textvariable=self.idVar)
@@ -163,6 +151,10 @@ class Ble:
                                 text="Update",
                                 command=self.updateCb)
         self.updBut.pack()
+
+    def show(self):
+        path = getSerialPath()
+        self.pathVar.set(path)  # Hope None works
 
     def subScribeNewIds(self, fn):
         self.subNewIdsList.append(fn)

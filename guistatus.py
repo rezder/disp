@@ -9,13 +9,9 @@ class State:
     def __init__(self, parent: tk.Frame):
         self.parent = parent
         self.mainFrame = tk.Frame(self.parent)
-        self.stateVar = tk.StringVar(value="")
-        self.stateLabel = None
-        self.cmdVar = tk.StringVar(value="")
-        self.cmdLabel = None
+        self.stateVar = tk.StringVar()
+        self.cmdVar = tk.StringVar()
         self.bgColor = self.parent.cget("bg")
-
-    def create(self):
         self.stateLabel = tk.Label(self.mainFrame, textvariable=self.stateVar)
         self.stateLabel.grid(row=0, column=0)
         self.cmdLabel = tk.Label(self.mainFrame, textvariable=self.cmdVar)
@@ -42,7 +38,7 @@ class Button:
         self.subOnOffList = list()
         self.window = window
 
-    def create(self, frame: tk.Frame):
+    def create(self, frame):
         self.button = tk.Button(frame,
                                 textvariable=self.butVar,
                                 command=self.butCb)
@@ -81,17 +77,11 @@ class Status:
     def __init__(self, parent: tk.Frame, stButton: Button, statusCb):
         self.parent = parent
         self.statusCb = statusCb
-        self.stateGui = None
-        self.butVar = None
         self.mainFrame = tk.Frame(self.parent)
-        self.statusTbox = None
         self.bottomFrame = tk.Frame(self.mainFrame)
         self.startButton = stButton
         self.subOnsList = list()
         self.subAlarmsList = list()
-
-    def create(self):
-
         self.statusTbox = scrolledtext.ScrolledText(self.mainFrame, undo=True)
         self.statusTbox['font'] = ('consolas', '12')
         self.statusTbox.pack(fill=tk.BOTH, expand=True)
@@ -102,7 +92,6 @@ class Status:
         self.startButton.getButton().pack(side=tk.LEFT)
 
         self.stateGui = State(self.bottomFrame)
-        self.stateGui.create()
         self.stateGui.mainFrame.pack(side=tk.RIGHT)
 
         self.bottomFrame.pack(expand=True, fill=tk.BOTH)

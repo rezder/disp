@@ -47,37 +47,33 @@ class GuiDispServer:
         self.statusGui = guistatus.Status(self.rightFrame,
                                           self.stButton,
                                           self.server.getStatus)
-        self.statusGui.create()
         self.statusGui.mainFrame.pack()
 
         # Left Frame
         self.dispListGui = guidisp.List(self.leftFrame,
-                                        self.server.conf.getCurTabs(),
-                                        self.server.conf.getTabNames(),
-                                        self.server.conf.getMacs(),
-                                        self.server.conf.defaultTab,
                                         self.server.changeDisp,
                                         self.server.disableDisp)
 
-        self.dispListGui.create()
+        self.dispListGui.show(self.server.conf.defaultTab,
+                              self.server.conf.getCurTabs(),
+                              self.server.conf.getTabNames(),
+                              self.server.conf.getMacs())
         self.dispListGui.mainFrame.pack()
 
         # Centre Frame
         self.disTabGui = guidisable.Table(self.centreFrame,
-                                          self.server.getPathsConfig(),
                                           self.server.alarmDisable)
-        self.disTabGui.create()
+        self.disTabGui.show(self.server.getPathsConfig())
         self.disTabGui.mainFrame.pack()
 
         # Menu bar
         self.menuBar = tk.Menu(self.window, tearoff=0)
         self.menuRegGui = guimenu.Registor(self.window,
                                            self.menuBar,
-                                           self.server.conf.getSubPort(),
                                            self.server.addNewUdpDisp,
                                            self.server.addNewBleDisp,
                                            self.logger)
-        self.menuRegGui.create()
+        self.menuRegGui.show(self.server.conf.getSubPort())
 
         self.menuBarGui = guimenu.Bar(self.menuBar,
                                       self.menuRegGui.menuRegistor)

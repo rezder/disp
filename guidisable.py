@@ -6,36 +6,35 @@ from gui import BORDER_COLOR, BORDER_WIDTH
 
 
 class Table:
-    def __init__(self, parent: tk.Frame, pathJson: dict, disActFn):
+    def __init__(self, parent: tk.Frame, disActFn):
         self.disActFn = disActFn
         self.pathsGui = dict()
-        self.pathsJson = pathJson
         self.parent = parent
         self.mainFrame = tk.Frame(self.parent)
+        title = tk.Label(self.mainFrame, text="Alarms")
+        title.pack()
         self.tabFrame = tk.Frame(self.mainFrame,
                                  highlightthickness=BORDER_WIDTH,
                                  highlightbackground=BORDER_COLOR)
         self.bgColor = self.parent.cget("bg")
 
-    def create(self):
-        title = tk.Label(self.mainFrame, text="Alarms")
-        title.pack()
+    def show(self, pathsJson: dict):
+        self.pathsGui.clear()
+        for c in self.tabFrame.winfo_children():
+            c.destroy()
         la = tk.Label(self.tabFrame, text="Label")
         la.grid(row=0, column=0)
         la = tk.Label(self.tabFrame, text="Min", width=6)
         la.grid(row=0, column=1)
         la = tk.Label(self.tabFrame, text="Value")
         la.grid(row=0, column=2)
-        la = tk.Label(self.tabFrame,
-                      text="Max",
-                      width=6)
+        la = tk.Label(self.tabFrame, text="Max", width=6)
         la.grid(row=0, column=3)
-        la = tk.Label(self.tabFrame,
-                      text="Disable")
+        la = tk.Label(self.tabFrame, text="Disable")
 
         la.grid(row=0, column=4)
         i = 1
-        for (path, data) in self.pathsJson.items():
+        for (path, data) in pathsJson.items():
             if "max" in data or "min" in data:
                 label = tk.Label(self.tabFrame, text=data["label"])
                 label.grid(row=i, column=0)

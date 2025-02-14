@@ -6,63 +6,63 @@ class List:
 
     def __init__(self,
                  parent: tk.Frame,
-                 ids: dict,
-                 values: list,
-                 macs: dict,
-                 defaultVal: str,
                  cbTabChg,
                  cbDisable):
         self.parent = parent
         self.mainFrame = tk.Frame(self.parent)
-        self.radios = list()
+        self.items: list[Item] = list()
         self.ons = set()
         self.cbTabChg = cbTabChg
         self.cbDisable = cbDisable
-        self.values = values
-        self.ids = ids
-        self.defaultVal = defaultVal
-        self.macs = macs
 
-    def create(self):
+    def show(self,
+             defaultTab: str,
+             ids: dict,
+             tabs: list,
+             macs: dict):
+        self.tabs = tabs
+        self.defaultTab = defaultTab
+        for c in self.mainFrame.winfo_children():
+            c.destroy()
+        self.items.clear()
+
         title = tk.Label(self.mainFrame, text="Displays")
         title.pack()
-        for id, tabId in self.ids.items():
+        for id, tabId in ids.items():
             macAddr = None
             isDisable = False
-            if id in self.macs:
-                macObj = self.macs[id]
+            if id in macs:
+                macObj = macs[id]
                 macAddr = macObj["addr"]
                 isDisable = macObj["isDisable"]
 
             r = Item(self.mainFrame,
-                     id,
-                     self.values,
-                     tabId,
-                     macAddr,
-                     isDisable,
                      self.cbTabChg,
                      self.cbDisable)
-            r.create()
+            r.show(id,
+                   self.tabs,
+                   tabId,
+                   macAddr,
+                   isDisable)
             r.mainFrame.pack(pady=(0, 5), anchor=tk.W)
-            self.radios.append(r)
+            self.items.append(r)
 
     def newId(self, id: str, macAddr=None):
         isDisable = False
         r = Item(self.mainFrame,
-                 id,
-                 self.values,
-                 self.defaultVal,
-                 macAddr,
-                 isDisable,
                  self.cbTabChg,
                  self.cbDisable)
-        r.create()
+        r.show(id,
+               self.tabs,
+               self.defaultTab,
+               macAddr,
+               isDisable)
         r.mainFrame.pack(pady=(0, 5), anchor=tk.W)
-        self.radios.append(r)
+        self.items.append(r)
 
     def serverOns(self, ons: set):
         if self.ons != ons:
-            for r in self.radios:
+            for r in self.items:
                 found = False
                 for o in ons:
                     if r.id == o:
@@ -78,52 +78,66 @@ class Item:
 
     def __init__(self,
                  parent: tk.Frame,
-                 id: str,
-                 values: list,
-                 currentValue: str,
-                 macAddr: str,
-                 isDisable,
                  cbTabChg,
                  cbDisable):
 
         self.parent = parent
-        self.id = id
-        self.oldValue = currentValue
-        self.valueVar = None
-        self.radioFrame = None
-        self.values = values
         self.cbTabChg = cbTabChg
         self.mainFrame = tk.Frame(
             self.parent,
             highlightthickness=BORDER_WIDTH,
             highlightbackground=BORDER_COLOR)
-        self.bgColor = self.mainFrame.cget("bg")
-        self.selectColor = "blue"
-        self.macAddr = macAddr
-        self.isDisableOld = isDisable
-        self.idLabel = None
-        self.cbDisable = cbDisable
 
-    def create(self):
-        f = tk.Frame(self.mainFrame)
-        f.columnconfigure(1, weight=1)
-        f.columnconfigure(0, weight=0)
-        f.pack(fill="x")
-        lH = tk.Label(f, text="Id:")
+        self.idFrame = tk.Frame(self.mainFrame)
+        self.idFrame.columnconfigure(1, weight=1)
+        self.idFrame.columnconfigure(0, weight=0)
+        self.idFrame.pack(fill="x")
+        lH = tk.Label(self.idFrame, text="Id:")
         lH.grid(row=0, column=0)
-        lId = tk.Label(f, text=self.id)
+        self.idVar = tk.StringVar()
+        lId = tk.Label(self.idFrame, textvariable=self.idVar)
         lId.grid(sticky="e", row=0, column=1)
 
-        if self.macAddr is not None:
-            macAddrTxt = "Mac Address:   {}".format(self.macAddr)
+        self.bleFrame = tk.Frame(self.mainFrame)
+        self.bleFrame.pack()
+
+        self.radioFrame = tk.Frame(self.mainFrame,
+                                   highlightthickness=BORDER_WIDTH,
+                                   highlightbackground=BORDER_COLOR)
+        self.radioFrame.pack(anchor=tk.W)
+        self.selTabVar = tk.StringVar()
+
+        self.bgColor = self.mainFrame.cget("bg")
+        self.selectColor = "blue"
+        self.cbDisable = cbDisable
+
+    def show(self,
+             id: str,
+             tabs: list,
+             selectedTab: str,
+             macAddr: str,
+             isDisable):
+
+        self.idVar.set(id)
+        self.isDisableOld = isDisable
+        self.oldSelTab = selectedTab
+        self.selTabVar.set(self.oldSelTab)
+
+        for c in self.bleFrame.winfo_children():
+            c.destroy()
+        for c in self.radioFrame.winfo_children():
+            c.destroy()
+
+        if macAddr is not None:
+            macAddrTxt = "Mac Address:   {}".format(macAddr)
             macVar = tk.StringVar(value=macAddrTxt)
-            macLabel = tk.Label(self.mainFrame, textvariable=macVar)
+            macLabel = tk.Label(self.bleFrame, textvariable=macVar)
             macLabel.pack(anchor=tk.CENTER)
             v = 0
             if self.isDisableOld:
                 v = 1
             self.disableVar = tk.IntVar(value=v)
-            self.disableB = tk.Checkbutton(self.mainFrame,
+            self.disableB = tk.Checkbutton(self.bleFrame,
                                            variable=self.disableVar,
                                            onvalue=1,
                                            offvalue=0,
@@ -132,27 +146,22 @@ class Item:
                                            selectcolor="grey10")
             self.disableB.pack(anchor=tk.W)
 
-        self.valueVar = tk.StringVar(value=self.oldValue)
-        self.radioFrame = tk.Frame(self.mainFrame,
-                                   highlightthickness=BORDER_WIDTH,
-                                   highlightbackground=BORDER_COLOR)
-        self.radioFrame.pack(anchor=tk.W)
-        for header in self.values:
+        for header in tabs:
             r = tk.Radiobutton(
                 self.radioFrame,
                 text=header,
                 selectcolor='grey',
-                variable=self.valueVar,
+                variable=self.selTabVar,
                 value=header,
                 command=self.radioCb)
             r.pack(anchor=tk.W)
 
     def radioCb(self):
-        newValue = self.valueVar.get()
-        if not self.cbTabChg(self.id, newValue):
-            self.valueVar.set(self.oldValue)
+        newValue = self.selTabVar.get()
+        if not self.cbTabChg(self.idVar.get(), newValue):
+            self.selTabVar.set(self.oldSelTab)
         else:
-            self.oldValue = newValue
+            self.oldSelTab = newValue
 
     def setOnOff(self, on: bool):
         if on is True:
@@ -168,7 +177,7 @@ class Item:
         if self.disableVar.get() == 1:
             newValue = True
 
-        if self.cbDisable(self.id, newValue):
+        if self.cbDisable(self.idVar.get(), newValue):
             self.isDisableOld = newValue
         else:  # reset
             v = 1
