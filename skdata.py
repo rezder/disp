@@ -105,6 +105,17 @@ class Buffer:
                           self.no, self.ix,
                           self.fregIx, self.last, self.buf)
 
+    def clear(self):
+        if self.size > 1:
+            for i in range(self.size):
+                self.buff = None
+
+        self.sum = 0.0
+        self.no = 0
+        self.ix = 0
+        self.fregIx = 0
+        self.last = None
+
     def add(self, value: float, dec: int) -> (bool, float):
         if self.size > 1:
             if self.buf[self.ix] is not None:
@@ -281,6 +292,10 @@ class SkData:
         for pd in self.paths.values():
             if pd.alarm is not None:
                 await pd.alarm.clearTask()
+
+    def clearBuffers(self):
+        for po in self.paths.values():
+            po.buffer.clear()
 
     def load(fileName) -> dict:
         if not os.path.isfile(fileName):

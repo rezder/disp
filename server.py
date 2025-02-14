@@ -106,6 +106,7 @@ class DispServer:
                 self.queue = None
                 self.queueShutDownEvent = None
                 self.serverThread = None
+                self.skData.clearBuffers()
                 done = True
                 self.conf.save()
         return done

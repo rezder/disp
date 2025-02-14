@@ -85,7 +85,7 @@ class GuiDispServer:
 
         self.window.config(menu=self.menuBarGui.menuBar)
 
-        # Gui connection
+        # Gui inter connectioncs
         self.stButton.subscribeOnOff(self.menuRegGui.udpGui.serverOn)
         self.stButton.subscribeOnOff(self.menuRegGui.bleGui.serverOn)
         self.stButton.subscribeOnOff(self.disTabGui.setOnOff)
@@ -96,6 +96,7 @@ class GuiDispServer:
         self.menuRegGui.udpGui.subScribeNewIds(self.dispListGui.newId)
         self.menuRegGui.bleGui.subScribeNewIds(self.dispListGui.newId)
 
+        # window callbacks
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def logger(self, txt):
