@@ -31,7 +31,7 @@ class DispData:
                          self.sign,
                          self.isAlarm))
         # txt have full size padded with \0
-        txt = units.shorts[self.units] + self.label + self.valueTxt
+        txt = units.shorts4[self.units] + self.label + self.valueTxt
         res.extend(txt.encode("ascii"))
         return res
 
@@ -49,7 +49,7 @@ class DispData:
         value = float(valueTxt)/(dec*10)
         if sign:
             value = value*-1
-        unit = units.noShort(unitsTxt)
+        unit = units.noShort4(unitsTxt)
         dp = DispData(value, dec, label, unit, isAlarm)
         return dp
 

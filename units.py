@@ -8,25 +8,48 @@ knot = 11
 rad = 20
 deg = 21
 
-shorts = {0: "m\0\0\0",
-          1: "nm\0\0",
-          10: "m/s\0",
+shorts4 = {0: "m\0\0\0",
+           1: "nm\0\0",
+           10: "m/s\0",
+           11: "knot",
+           20: "rad\0",
+           21: "deg\0"
+           }
+
+invShorts4 = {"m\0\0\0": 0,
+              "nm\0\0": 1,
+              "m/s\0": 10,
+              "knot": 11,
+              "rad\0": 20,
+              "deg\0": 21
+              }
+shorts = {0: "m",
+          1: "nm",
+          10: "m/s",
           11: "knot",
-          20: "rad\0",
-          21: "deg\0"
+          20: "rad",
+          21: "deg"
           }
 
-invShorts = {"m\0\0\0": 0,
-             "nm\0\0": 1,
-             "m/s\0": 10,
+invShorts = {"m": 0,
+             "nm": 1,
+             "m/s": 10,
              "knot": 11,
-             "rad\0": 20,
-             "deg\0": 21
+             "rad": 20,
+             "deg": 21
              }
 
 
 def all() -> set[int]:
-    return set(shorts.keys())
+    return set(shorts4.keys())
+
+
+def shortTxt4(no) -> str:
+    return shorts4[no]
+
+
+def noShort4(txt) -> int:
+    return invShorts4[txt]
 
 
 def shortTxt(no) -> str:
