@@ -26,7 +26,8 @@ class DispServer:
 
     def __init__(self):
         self.status = Status()
-        self.skData = SkData(self.status)
+        self.conf = Config()
+        self.skData = SkData(self.conf.getPathJson(), self.status)
         self.conf = Config()
         self.loop = None
         self.queue = None
@@ -116,9 +117,6 @@ class DispServer:
         Not implemented I do not know if I need it.
         """
         pass
-
-    def getPathsConfig(self) -> dict:
-        return self.skData.getPathsJson()
 
     def addNewUdpDisp(self, id: str) -> bool:
         """

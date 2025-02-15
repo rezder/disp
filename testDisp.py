@@ -8,7 +8,8 @@ from dispdata import DispData
 
 def main():
     status = Status()
-    skData = SkData(status)
+    conf = Config()
+    skData = SkData(conf.getPathJson(), status)
     print(skData.msgUnsubAll())
     paths = ["environment.depth.belowTransducer",
              "navigation.courseRhumbline.crossTrackError"]
@@ -16,9 +17,9 @@ def main():
     print(skData.msgUnsubPaths(paths))
 
     path = "environment.depth.belowTransducer"
-    value = 1.834
-    for i in range(2):
-        createDispMsq(skData, path, value)
+    value = 7.0
+    # for i in range(2):
+    # createDispMsq(skData, path, value)
     dd = createDispMsq(skData, path, value)
     print(dd.encode(2))
 
@@ -79,7 +80,7 @@ def main():
             print("expect 1.5 got {}".format(value))
     if b.fregIx != 0 or b.ix != 0 or b.sum != 4.5 or b.no != 3:
         print("Failed add")
-    conf = Config()
+    
     print(conf.getBroadcastIp())
     pos = 1
     dp = DispData(1.2, 1, "SOG", 0, False)

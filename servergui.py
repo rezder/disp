@@ -63,7 +63,7 @@ class GuiDispServer:
         # Centre Frame
         self.disTabGui = guidisable.Table(self.centreFrame,
                                           self.server.alarmDisable)
-        self.disTabGui.show(self.server.getPathsConfig())
+        self.disTabGui.show(self.server.conf.getPathJson())
         self.disTabGui.mainFrame.pack()
 
         # Menu bar

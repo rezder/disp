@@ -215,20 +215,14 @@ class SkData:
     pointer and that have a dot notaion. May have to add it later if
     I get multible source problems.
     """
-    def __init__(self, status):
-        self.fileName = "./skdata.json"
-        skData = SkData.load(self.fileName)
-        pathsJson = skData["paths"]
+    def __init__(self, pathJson: dict, status):
+        self.pathsJson = pathJson
         self.paths: dict[str, PathData] = dict()
-        for (p, d) in pathsJson.items():
+        for (p, d) in self.pathsJson.items():
             self.paths[p] = PathData(d, p, status)
         for d in self.paths.values():
             if d.largePath is not None:
                 d.largePathData = self.paths[d.largePath]
-        self.pathsJson = pathsJson
-
-    def getPathsJson(self) -> dict:
-        return self.pathsJson
 
     def msgUnsubAll(self) -> str:
         jsonDict = {
@@ -296,92 +290,3 @@ class SkData:
     def clearBuffers(self):
         for po in self.paths.values():
             po.buffer.clear()
-
-    def load(fileName) -> dict:
-        if not os.path.isfile(fileName):
-            skData = SkData.default()
-            with open(fileName, "w") as f:
-                f.write(json.dumps(skData))
-        with open(fileName, "r") as f:
-            skData = json.load(f)
-        return skData
-
-    def default() -> dict:  # TODO update to current choice
-        skData = {
-            "paths": {
-                "environment.depth.belowTransducer": {
-                    "minPeriod": 1000,
-                    "decimals": 1,
-                    "units": 0,
-                    "dispUnits": 0,
-                    "label": "DBT",
-                    "bufSize": 4,
-                    "bufFreq": 4
-                    },
-                "navigation.speedOverGround": {
-                    "minPeriod": 1000,
-                    "decimals": 1,
-                    "units": 10,
-                    "dispUnits": 11,
-                    "label": "SOG",
-                    "bufSize": 4,
-                    "bufFreq": 4
-                    },
-                "navigation.courseOverGroundTrue": {
-                    "minPeriod": 1000,
-                    "decimals": 0,
-                    "units": 20,
-                    "dispUnits": 21,
-                    "label": "COG",
-                    "bufSize": 4,
-                    "bufFreq": 4
-                    },
-                "navigation.speedThroughWater": {
-                    "minPeriod": 2000,
-                    "decimals": 1,
-                    "units": 10,
-                    "dispUnits": 11,
-                    "label": "STW",
-                    "bufSize": 0,
-                    "bufFreq": 0
-                    },
-                "navigation.courseRhumbline.crossTrackError": {
-                    "minPeriod": 4000,
-                    "decimals": 0,
-                    "units": 0,
-                    "dispUnits": 0,
-                    "label": "XTE",
-                    "bufSize": 0,
-                    "bufFreq": 0
-                    },
-                "navigation.courseRhumbline.nextPoint.bearingTrue": {
-                    "minPeriod": 1000,
-                    "decimals": 0,
-                    "units": 20,
-                    "dispUnits": 21,
-                    "label": "BEA",
-                    "bufSize": 4,
-                    "bufFreq": 4
-                    },
-                "navigation.courseRhumbline.nextPoint.distance": {
-                    "minPeriod": 4000,
-                    "decimals": 0,
-                    "units": 0,
-                    "dispUnits": 0,
-                    "label": "DIS",
-                    "bufSize": 0,
-                    "bufFreq": 0,
-                    "largeValue": 999,
-                    "largePath": "1"
-                    },
-                "1": {
-                    "decimals": 1,
-                    "units": 0,
-                    "dispUnits": 1,
-                    "label": "DIS",
-                    "bufSize": 0,
-                    "bufFreq": 0
-                    }
-            }
-        }
-        return skData
