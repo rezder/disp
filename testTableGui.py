@@ -1,5 +1,5 @@
 import tkinter as tk
-import guijsontable as gt
+import guijson as gt
 import units
 
 

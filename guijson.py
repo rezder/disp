@@ -2,6 +2,72 @@ import tkinter as tk
 from functools import partial
 
 
+class Fld:
+    def __init__(self,
+                 parent: tk.Frame,
+                 header: str,
+                 toStr,
+                 fromStr,
+                 ):
+        self.toStr = toStr
+        self.fromStr = fromStr
+        self.parent = parent
+        self.mainFrame = tk.Frame(self.parent)
+        self.mainFrame.columnconfigure(1, weight=1)
+        self.mainFrame.columnconfigure(0, weight=0)
+        self.mainFrame.pack(fill="x")
+        txt = "{}:  ".format(header)
+        self.fldLabel = tk.Label(self.mainFrame, text=txt)
+        self.fldLabel.grid(row=0, column=0)
+        self.fldVar = tk.StringVar()
+        self.fldEntry = tk.Entry(self.mainFrame, textvariable=self.fldVar, justify="right")
+        self.fldEntry.grid(sticky="e", row=0, column=1)
+
+    def show(self, data):
+        self.fldVar.set(self.toStr(data))
+
+    def get(self):
+        return self.fromStr(self.fldVar.get())
+
+
+class FldOpt:
+    def __init__(self,
+                 parent: tk.Frame,
+                 header: str,
+                 default,
+                 toStr,
+                 fromStr,
+                 options: list
+                 ):
+
+        self.toStr = toStr
+        self.fromStr = fromStr
+        self.default = toStr(default)
+        self.options: list[str] = list()
+        for i in options:
+            self.options.append(self.toStr(i))
+
+        self.parent = parent
+        self.mainFrame = tk.Frame(self.parent)
+        self.mainFrame.columnconfigure(1, weight=1)
+        self.mainFrame.columnconfigure(0, weight=0)
+        self.mainFrame.pack(fill="x")
+        txt = "{}:  ".format(header)
+        self.fldLabel = tk.Label(self.mainFrame, text=txt)
+        self.fldLabel.grid(row=0, column=0)
+        self.fldVar = tk.StringVar(value=self.default)
+        self.fldOpt = tk.OptionMenu(self.mainFrame,
+                                    self.fldVar,
+                                    *self.options)
+        self.fldOpt.grid(sticky="e", row=0, column=1)
+
+    def show(self, data):
+        self.fldVar.set(self.toStr(data))
+
+    def get(self):
+        return self.fromStr(self.fldVar.get())
+
+
 class Table:
     def __init__(self,
                  parent: tk.Frame,
