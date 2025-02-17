@@ -1,6 +1,7 @@
 import tkinter as tk
 import guijson as gt
 import units
+import guipaths as gp
 
 
 def cb(path, head):
@@ -110,6 +111,13 @@ class TestTable:
                               self.cb)
         self.table.show(self.jsonObj)
         self.table.mainFrame.pack()
+
+        path = "navigation.courseRhumbline.nextPoint.bearingTrue"
+        self.rowFrame = tk.Frame(self.window)
+        self.rowFrame.pack()
+        self.row = gp.Path(self.rowFrame)
+        self.row.show(path, self.jsonObj[path])
+        self.row.mainFrame.pack()
 
     def cb(self, path, head):
         if head != "path":
