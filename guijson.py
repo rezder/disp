@@ -3,24 +3,52 @@ from functools import partial
 from gui import BORDER_COLOR_ERR as BCE
 
 
+def strJson(txt: str) -> str:
+    if txt == "":
+        raise ValueError()
+    return txt
+
+
+def compJson(json1: dict, json2: dict) -> bool:
+    isEqual = True
+    for k, v in json1.items():
+        if json2[k] != v:
+            isEqual = False
+            break
+    if isEqual:
+        for k, v in json2.items():
+            if json1[k] != v:
+                isEqual = False
+                break
+    return isEqual
+
+
 class Fld:
     def __init__(self,
                  parent: tk.Frame,
                  header: str,
                  width: int,
+                 isMandatory: bool,
                  toStr,
                  fromStr,
+                 default=None
                  ):
+        self.header = header
         self.toStr = toStr
         self.fromStr = fromStr
         self.parent = parent
         self.width = width
+        self.isMan = isMandatory
+        if default is None:
+            self.defaultStr = ""
+        else:
+            self.defaultStr = self.toStr(default)
         self.mainFrame = tk.Frame(self.parent)
         self.mainFrame.columnconfigure(1, weight=1)
         self.mainFrame.columnconfigure(0, weight=0)
         self.mainFrame.config(highlightbackground=BCE)
         self.mainFrame.config(highlightthickness=0)
-        txt = "{}:  ".format(header)
+        txt = "{}:  ".format(self.header)
         self.fldLabel = tk.Label(self.mainFrame, text=txt)
         self.fldLabel.grid(row=0, column=0)
         self.fldVar = tk.StringVar()
@@ -35,7 +63,41 @@ class Fld:
         self.fldVar.set(self.toStr(data))
 
     def get(self):
+        """
+        translate the string value if possible and
+        retuns it. Even if validated this function
+        may fails in case of optional int.
+        str will never fail use strJson
+        :raises: ValueError if translation fails
+        """
         return self.fromStr(self.fldVar.get())
+
+    def clear(self):
+        self.fldVar.set(self.defaultStr)
+
+    def getHeader(self) -> str:
+        return self.header
+
+    def validate(self) -> bool:
+        isOk = True
+        txt = self.fldVar.get()
+        txt = txt.strip()
+        self.fldVar.set(txt)
+        if txt == "":
+            if self.isMan:
+                if self.defaultStr == "":
+                    self.setError(True)
+                    isOk = False
+                else:
+                    self.fldVar.set(self.defaultStr)
+        else:
+            try:
+                self.fromStr(txt)
+            except ValueError:
+                self.setError(True)
+                isOk = False
+
+        return isOk
 
     def setError(self, isError: bool):
         if isError:
@@ -54,10 +116,11 @@ class FldOpt:
                  fromStr,
                  options: list
                  ):
-        self.width= width
+        self.header = header
+        self.width = width
         self.toStr = toStr
         self.fromStr = fromStr
-        self.default = toStr(default)
+        self.defaultStr = toStr(default)
         self.options: list[str] = list()
         for i in options:
             self.options.append(self.toStr(i))
@@ -68,21 +131,30 @@ class FldOpt:
         self.mainFrame.columnconfigure(0, weight=0)
         self.mainFrame.config(highlightbackground=BCE)
         self.mainFrame.config(highlightthickness=0)
-        txt = "{}:  ".format(header)
+        txt = "{}:  ".format(self.header)
         self.fldLabel = tk.Label(self.mainFrame, text=txt)
         self.fldLabel.grid(row=0, column=0)
-        self.fldVar = tk.StringVar(value=self.default)
+        self.fldVar = tk.StringVar(value=self.defaultStr)
         self.fldOpt = tk.OptionMenu(self.mainFrame,
                                     self.fldVar,
                                     *self.options)
         self.fldOpt.config(width=self.width)
         self.fldOpt.grid(sticky="e", row=0, column=1)
 
+    def getHeader(self) -> str:
+        return self.header
+
     def show(self, data):
         self.fldVar.set(self.toStr(data))
 
     def get(self):
         return self.fromStr(self.fldVar.get())
+
+    def clear(self):
+        self.fldVar.set(self.defaultStr)
+
+    def validate(self) -> bool:
+        return True
 
     def setError(self, isError: bool):
         if isError:
@@ -129,14 +201,17 @@ class Table:
                  keyHeader: str,
                  sortHeader: str,
                  conv: dict,
-                 rowClickCb):
+                 rowClickCb,
+                 dpHeaders: dict | None = None):
         self.parent = parent
         self.mainFrame = tk.Frame(self.parent)
+        self.dpHeaders = dpHeaders
         self.keyHead = keyHeader
         self.conv = conv
         self.sortHead = sortHeader
         self.rowsNo = len(jsonObj)
         self.rowClickCb = rowClickCb
+        #  Get all fields
         value = None
         vl = 0
         bigk = None
@@ -164,7 +239,13 @@ class Table:
         self.headers.extend(value.keys())
         for i in range(self.columnsNo):
             label, sVar = self.labels[0][i]
-            sVar.set(self.headers[i])
+            sVar.set(self.headXhead(self.headers[i]))
+
+    def headXhead(self, jsonHead) -> str:
+        if self.dpHeaders is None:
+            return jsonHead
+        else:
+            return self.dpHeaders[jsonHead]
 
     def show(self, jsonObj: dict):
         sjsonObj = None

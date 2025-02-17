@@ -2,6 +2,7 @@ import tkinter as tk
 import guijson as gt
 import units
 import guipaths as gp
+import guijson as gj
 
 
 def cb(path, head):
@@ -14,7 +15,6 @@ class TestTable:
     def __init__(self):
         self.window = tk.Tk()
         self.window.title("Test table")
-
         self.jsonObj = {
             "environment.depth.belowTransducer": {
                 "minPeriod": 1000,
@@ -90,6 +90,23 @@ class TestTable:
                 "bufFreq": 0
             }
         }
+        path = "navigation.courseRhumbline.nextPoint.bearingTrue"
+        self.rowFrame = tk.Frame(self.window)
+        self.rowFrame.pack()
+        self.row = gp.Path(self.rowFrame)
+        self.row.show(path, self.jsonObj[path])
+        if not self.row.validateFlds():
+            print("Faild data should be fine")
+        path2, jsonObj2 = self.row.get()
+        if path2 != path:
+            print("failed there should be no change")
+        if not gj.compJson(jsonObj2, self.jsonObj[path]):
+            print("failed there should be no change")
+
+        self.row.clear()
+        if not self.row.validateFlds():
+            print("Faild data should be fine")
+        self.row.mainFrame.pack()
 
         conv = {"path": str,
                 "minPeriod": int,
@@ -108,16 +125,21 @@ class TestTable:
                               "path",
                               "path",
                               conv,
-                              self.cb)
+                              self.cb,
+                              dpHeaders=self.row.jsonNameXFldHead()
+                              )
         self.table.show(self.jsonObj)
         self.table.mainFrame.pack()
 
-        path = "navigation.courseRhumbline.nextPoint.bearingTrue"
-        self.rowFrame = tk.Frame(self.window)
-        self.rowFrame.pack()
-        self.row = gp.Path(self.rowFrame)
-        self.row.show(path, self.jsonObj[path])
-        self.row.mainFrame.pack()
+        self.table2 = gt.Table(self.window,
+                               self.jsonObj,
+                               "path",
+                               "path",
+                               conv,
+                               self.cb
+                               )
+        self.table2.show(self.jsonObj)
+        self.table2.mainFrame.pack()
 
     def cb(self, path, head):
         if head != "path":

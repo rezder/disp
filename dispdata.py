@@ -63,7 +63,7 @@ def formatNo(dec: int, x: float) -> (str, bool):
     Eksample 2 to 2\0\0,False
     :param dec: Numbers of decimals.
     :param x: the float value.
-    :return: A tumble of the text and sign
+    :return: A tuple of the text and sign
     """
     if x is not None:
         sign = False

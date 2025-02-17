@@ -11,11 +11,39 @@ class TestFlds:
         self.fld = gt.Fld(self.window,
                           "test",
                           10,
+                          True,
                           str,
                           int)
         self.fld.show(4)
         self.fld.setError(True)
         self.fld.mainFrame.pack(fill="x")
+        self.fld2 = gt.Fld(self.window,
+                           "test2",
+                           10,
+                           True,
+                           str,
+                           gt.strJson)
+        self.fld2.show("")
+        self.fld2.validate()
+        self.fld2.mainFrame.pack(fill="x")
+        self.fld3 = gt.Fld(self.window,
+                           "test2",
+                           10,
+                           False,
+                           str,
+                           gt.strJson)
+        self.fld3.show("")
+        self.fld3.validate()
+        lx = True
+        try:
+            self.fld3.get()
+        except ValueError:
+            lx = False
+        if lx:
+            print("Failed ValueError raise on str")
+
+        self.fld3.mainFrame.pack(fill="x")
+
         self.fldOpt = gt.FldOpt(self.window,
                                 "Units",
                                 4,
