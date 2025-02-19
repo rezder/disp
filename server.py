@@ -201,6 +201,62 @@ class DispServer:
     def getStatus(self) -> (bool, str, int, int, set, list):
         return self.status.getStatus()
 
+    def pathsSave(self, path, itemJson):
+        """
+        Saves a path setting.
+        Validate before saving:
+        Buffer frequenz must be less or equal to buffer size.
+        Reference paths must exist and not be deleted,
+        reference  paths and tabs holds reference.
+        No self reference.
+        Secondary paths (big value) must not have an alarm
+        Saving: save to file, update conf create new skData
+        :param path: the path that is being saved
+        :param itemJson: The path json object
+        :returns:
+        - isOk     - If path saved
+        - errFlds  - List of json fld headers causing the error
+        - errTxt   - Error text
+        - pathJson - The update paths json object(all paths)
+        """
+        if not self.exist():
+            pathsJson = self.conf.getPathJson()
+            if path in pathsJson.keys():
+
+                # Modifying
+                pass
+            else:
+                # Creating new
+                pass
+            isOk = False
+            errFlds = ["minPeriod", "path"]
+            errTxt = "Bad blod"
+            pathJson = None
+        else:
+            isOk = False
+            errFlds = list()
+            errTxt = "Server is running do not update settings"
+            pathJson = None
+        return isOk, errFlds, errTxt, pathJson
+
+    def pathsDelete(self, path):
+        """
+        Deletes a path setting.
+        Validate before deleting:
+        Reference paths not be deleted,
+        reference  paths and tabs holds reference.
+        deleting: save to file, update conf create new skData
+        :param path: the path that is being saved
+        :returns:
+        - isOk     - If path deleted
+        - errTxt   - Error text
+        - pathJson - The update paths json object(all paths)
+        """
+        isOk = False
+        errTxt = "Bad blod"
+        pathJson = None
+        return isOk, errTxt, pathJson
+
 
 async def serve(status: Status,
                 done: ass.Event,
@@ -271,7 +327,7 @@ async def serve(status: Status,
                 await ws.close()
 
             await cleanTask(dones, runnings, status)
-            if done.is_set() or True:  # TODO remove True for restart after crash
+            if done.is_set() or True:  # TODOremoveTrue for restart after crash
                 await skData.clearTask()
                 ok = await displays.close()
                 if not ok:

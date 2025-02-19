@@ -68,6 +68,7 @@ class GuiDispServer:
 
         # Menu bar
         self.menuBar = tk.Menu(self.window, tearoff=0)
+
         self.menuRegGui = guimenu.Registor(self.window,
                                            self.menuBar,
                                            self.server.addNewUdpDisp,
@@ -75,15 +76,23 @@ class GuiDispServer:
                                            self.logger)
         self.menuRegGui.show(self.server.conf.getSubPort())
 
+        self.menuSettGui = guimenu.Settings(self.window,
+                                            self.menuBar,
+                                            self.server.pathsSave,
+                                            self.server.pathsDelete,
+                                            self.server.conf.getPathJson(),
+                                            self.logger)
+
         self.menuBarGui = guimenu.Bar(self.menuBar,
-                                      self.menuRegGui.menuRegistor)
+                                      self.menuRegGui.getMenu(),
+                                      self.menuSettGui.getMenu())
         self.menuBarGui.createMenuBar()
 
         self.window.config(menu=self.menuBarGui.menuBar)
 
         # Gui inter connectioncs
-        self.stButton.subscribeOnOff(self.menuRegGui.udpGui.serverOn)
-        self.stButton.subscribeOnOff(self.menuRegGui.bleGui.serverOn)
+        self.stButton.subscribeOnOff(self.menuRegGui.serverOn)
+        self.stButton.subscribeOnOff(self.menuSettGui.serverOn)
         self.stButton.subscribeOnOff(self.disTabGui.setOnOff)
 
         self.statusGui.subscribeOns(self.dispListGui.serverOns)

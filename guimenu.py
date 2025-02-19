@@ -1,5 +1,42 @@
 import tkinter as tk
 import guiserial
+import guipaths
+
+
+class Settings:
+    def __init__(self,
+                 parent,
+                 parentMenu,
+                 savePath,
+                 deletePath,
+                 pathJson,
+                 logger):
+        self.parent = parent
+        self.parentMenu = parentMenu
+        self.savePath = savePath
+        self.deletePath = deletePath
+        self.logger = logger
+        self.pathsWindow, windowFrame = createWindow(self.parent,
+                                                     "Paths")
+        self.pathsGui = guipaths.Paths(windowFrame,
+                                       pathJson,
+                                       self.logger,
+                                       self.deletePath,
+                                       self.savePath)
+        self.pathsGui.mainFrame.pack()
+        self.pathsGui.show(pathJson)
+        self.menuSettings = tk.Menu(self.parentMenu, tearoff=0)
+        self.menuSettings.add_command(label="Paths", command=self.pathCreaWin)
+        self.pathsWindow.withdraw()
+
+    def pathCreaWin(self):
+        self.pathsWindow.deiconify()
+
+    def getMenu(self) -> tk.Menu:
+        return self.menuSettings
+
+    def serverOn(self, isOn: bool):
+        self.pathsGui(isOn)
 
 
 class Registor:
@@ -34,7 +71,10 @@ class Registor:
         self.udpWindow.withdraw()
         self.bleWindow.withdraw()
 
-    def show(self, port):
+    def getMenu(self) -> tk.Menu:
+        return self.menuRegistor
+
+    def show(self, port):  # TODO move to init
         self.udpGui.show(port)
         self.bleGui.show()
 
@@ -44,15 +84,25 @@ class Registor:
     def udpRegistor(self):
         self.udpWindow.deiconify()
 
+    def serverOn(self, isOn: bool):
+        self.bleGui.serverOn(isOn)
+        self.udpGui.serverOn(isOn)
+
 
 class Bar:
-    def __init__(self, menuBar: tk.Menu, menuReg: tk.Menu):
+    def __init__(self,
+                 menuBar: tk.Menu,
+                 menuReg: tk.Menu,
+                 menuSett: tk.Menu):
         self.menuBar = menuBar
         self.menuRegistor = menuReg
+        self.menuSett = menuSett
 
     def createMenuBar(self):
         self.menuBar.add_cascade(label="Registor Display",
                                  menu=self.menuRegistor)
+        self.menuBar.add_cascade(label="Settings",
+                                 menu=self.menuSett)
 
 
 def createWindow(parent, title) -> tuple[tk.Toplevel, tk.Frame]:

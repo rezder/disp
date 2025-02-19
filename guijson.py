@@ -51,7 +51,7 @@ class Fld:
         txt = "{}:  ".format(self.header)
         self.fldLabel = tk.Label(self.mainFrame, text=txt)
         self.fldLabel.grid(row=0, column=0)
-        self.fldVar = tk.StringVar()
+        self.fldVar = tk.StringVar(value=self.defaultStr)
         self.fldEntry = tk.Entry(self.mainFrame,
                                  textvariable=self.fldVar,
                                  justify="right",
@@ -74,12 +74,17 @@ class Fld:
 
     def clear(self):
         self.fldVar.set(self.defaultStr)
+        self.mainFrame.config(highlightthickness=0)
 
     def getHeader(self) -> str:
         return self.header
 
+    def getToStr(self):
+        return self.toStr
+
     def validate(self) -> bool:
         isOk = True
+        self.setError(isOk)
         txt = self.fldVar.get()
         txt = txt.strip()
         self.fldVar.set(txt)
@@ -144,6 +149,9 @@ class FldOpt:
     def getHeader(self) -> str:
         return self.header
 
+    def getToStr(self):
+        return self.toStr
+
     def show(self, data):
         self.fldVar.set(self.toStr(data))
 
@@ -152,8 +160,10 @@ class FldOpt:
 
     def clear(self):
         self.fldVar.set(self.defaultStr)
+        self.mainFrame.config(highlightthickness=0)
 
     def validate(self) -> bool:
+        self.setError(False)
         return True
 
     def setError(self, isError: bool):
@@ -229,7 +239,6 @@ class Table:
             row: list[tuple[tk.Label, tk.StringVar]] = list()
             for c in range(self.columnsNo):
                 sVar = tk.StringVar()
-                sVar.set
                 lable = tk.Label(self.mainFrame, textvariable=sVar)
                 lable.grid(row=r, column=c)
                 row.append((lable, sVar))
@@ -261,7 +270,6 @@ class Table:
                 row: list[tuple[tk.Label, tk.StringVar]] = list()
                 for c in range(self.columnsNo):
                     sVar = tk.StringVar()
-                    sVar.set
                     lable = tk.Label(self.mainFrame, textvariable=sVar)
                     lable.grid(row=r, column=c)
                     row.append((lable, sVar))

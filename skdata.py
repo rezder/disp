@@ -1,6 +1,5 @@
 import units
 import json
-import os
 import asyncio as ass
 from status import Status
 from status import AlarmMsg
@@ -215,10 +214,9 @@ class SkData:
     pointer and that have a dot notaion. May have to add it later if
     I get multible source problems.
     """
-    def __init__(self, pathJson: dict, status):
-        self.pathsJson = pathJson
+    def __init__(self, pathsJson: dict, status):
         self.paths: dict[str, PathData] = dict()
-        for (p, d) in self.pathsJson.items():
+        for (p, d) in pathsJson.items():
             self.paths[p] = PathData(d, p, status)
         for d in self.paths.values():
             if d.largePath is not None:
