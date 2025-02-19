@@ -12,114 +12,125 @@ class Path:
         self.mainFrame = tk.Frame(self.parent)
         self.mainFrame.columnconfigure(1, weight=1)
         self.mainFrame.columnconfigure(0, weight=1)
-        self.flds = dict()
+        self.flds: dict[str, gj.Fld] = dict()
         self.phJson = "path"
-
-        pathFld = gj.Fld(self.mainFrame,
-                         "Path",
-                         45,
-                         True,
-                         str,
-                         str)
+        fldDef = gj.FldDef("Path",
+                           45,
+                           True,
+                           str,
+                           str,
+                           "w")
+        pathFld = gj.FldEntry(self.mainFrame, fldDef)
         pathFld.mainFrame.grid(row=0,
                                column=0,
                                columnspan=2,
                                sticky="w")
         self.flds[self.phJson] = pathFld
-
-        minPerFld = gj.Fld(self.mainFrame,
-                           "Min Period",
+        fldDef = gj.FldDef("Min Period",
                            10,
                            True,
                            str,
                            int,
+                           "e",
                            default=1000)
+        minPerFld = gj.FldEntry(self.mainFrame, fldDef)
         minPerFld.mainFrame.grid(row=1,
                                  column=0,
                                  sticky="ew",
                                  padx=(0, 5))
         self.flds["minPeriod"] = minPerFld
 
-        decFld = gj.Fld(self.mainFrame,
-                        "Decimals",
-                        10,
-                        True,
-                        str,
-                        int,
-                        default=0)
+        fldDef = gj.FldDef("Decimals",
+                           10,
+                           True,
+                           str,
+                           int,
+                           "e",
+                           default=0)
+        decFld = gj.FldEntry(self.mainFrame, fldDef)
         decFld.mainFrame.grid(row=2, column=0, sticky="ew", padx=(0, 5))
         self.flds["decimals"] = decFld
 
-        labelFld = gj.Fld(self.mainFrame,
-                          "Label",
-                          10,
-                          True,
-                          str,
-                          str)
+        fldDef = gj.FldDef("Label",
+                           10,
+                           True,
+                           str,
+                           str,
+                           "w")
+        labelFld = gj.FldEntry(self.mainFrame, fldDef)
         labelFld.mainFrame.grid(row=2, column=1, sticky="ew")
         #  label adde later to keep order
-        unitFld = gj.FldOpt(self.mainFrame,
-                            "Sk Unit",
-                            4,
-                            units.m,
-                            units.shortTxt,
-                            units.noShort,
-                            units.all())
+        fldDef = gj.FldDef("Sk Unit",
+                           4,
+                           True,
+                           units.shortTxt,
+                           units.noShort,
+                           "w",
+                           units.m)
+        unitFld = gj.FldOpt(self.mainFrame, fldDef, units.all())
+
         unitFld.mainFrame.grid(row=3, column=0, sticky="ew", padx=(0, 5))
         self.flds["units"] = unitFld
 
-        dpUnitFld = gj.FldOpt(self.mainFrame,
-                              "Tab Unit",
-                              4,
-                              units.m,
-                              units.shortTxt,
-                              units.noShort,
-                              units.all())
+        fldDef = gj.FldDef("Tab Unit",
+                           4,
+                           True,
+                           units.shortTxt,
+                           units.noShort,
+                           "w",
+                           units.m)
+
+        dpUnitFld = gj.FldOpt(self.mainFrame, fldDef, units.all())
         dpUnitFld.mainFrame.grid(row=3, column=1, sticky="ew")
         self.flds["dispUnits"] = dpUnitFld
-        self.flds["label"] = labelFld
 
-        buffSizeFld = gj.Fld(self.mainFrame,
-                             "Buff size",
-                             10,
-                             True,
-                             str,
-                             int,
-                             default=0)
+        self.flds["label"] = labelFld
+        fldDef = gj.FldDef("Buff size",
+                           10,
+                           True,
+                           str,
+                           int,
+                           "e",
+                           default=0)
+        buffSizeFld = gj.FldEntry(self.mainFrame, fldDef)
         buffSizeFld.mainFrame.grid(row=4,
                                    column=0,
                                    sticky="ew",
                                    padx=(0, 5))
         self.flds["bufSize"] = buffSizeFld
 
-        buffFreqFld = gj.Fld(self.mainFrame,
-                             "Buff Freq",
-                             10,
-                             True,
-                             str,
-                             int,
-                             default=0)
+        fldDef = gj.FldDef("Buff Freq",
+                           10,
+                           True,
+                           str,
+                           int,
+                           "e",
+                           default=0)
+        buffFreqFld = gj.FldEntry(self.mainFrame, fldDef)
         buffFreqFld.mainFrame.grid(row=4, column=1, sticky="ew")
         self.flds["bufFreq"] = buffFreqFld
 
-        bigValFld = gj.Fld(self.mainFrame,
-                           "Big Value",
+        fldDef = gj.FldDef("Big Value",
                            10,
                            False,
                            str,
-                           int)
+                           int,
+                           "e")
+        bigValFld = gj.FldEntry(self.mainFrame, fldDef)
         bigValFld.mainFrame.grid(row=5,
                                  column=0,
                                  sticky="ew",
                                  padx=(0, 5))
         self.flds["largeValue"] = bigValFld
 
-        bigRefFld = gj.Fld(self.mainFrame,
-                           "Ref Path",
+        fldDef = gj.FldDef("Ref Path",
                            10,
                            False,
                            str,
-                           gj.strJson)
+                           gj.strJson,
+                           "w"
+                           )
+        bigRefFld = gj.FldEntry(self.mainFrame, fldDef)
         bigRefFld.mainFrame.grid(row=5, column=1, sticky="ew")
         self.flds["largePath"] = bigRefFld
 
@@ -156,25 +167,8 @@ class Path:
     def setErrorFld(self, jsonHead: str):
         self.flds[jsonHead].setError(True)
 
-    def jsonNameXFldHead(self) -> dict[str, str]:
-        """
-        :return: a dict with json Header link to form Header
-        It includes path for the key header
-        """
-        dd = dict()
-        for k, fld in self.flds.items():
-            dd[k] = fld.getHeader()
-        return dd
-
-    def convIn(self) -> dict:
-        """
-        :return: a dict with json Header link conversion
-        toStr
-        """
-        dd = dict()
-        for k, fld in self.flds.items():
-            dd[k] = fld.getToStr()
-        return dd
+    def getFlds(self) -> dict[str, gj.Fld]:
+        return self.flds
 
     def getPhJson(self):
         return self.phJson
@@ -207,13 +201,16 @@ class Paths:
 
         self.pathGui = Path(self.itemFrame)
         self.pathGui.mainFrame.pack()
+        fldDefs: dict[str, gj.FldDef] = dict()
+        for path, fld in self.pathGui.flds.items():
+            fldDefs[path] = fld.fldDef
+
         self.tabelGui = gj.Table(self.tableFrame,
                                  pathJson,
                                  self.phJson,
                                  self.phJson,
-                                 self.pathGui.convIn(),
                                  self.rowClick,
-                                 self.pathGui.jsonNameXFldHead())
+                                 fldDefs)
         self.tabelGui.mainFrame.pack()
 
         self.saveButt = tk.Button(self.buttFrame,

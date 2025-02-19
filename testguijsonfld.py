@@ -8,30 +8,34 @@ class TestFlds:
     def __init__(self):
         self.window = tk.Tk()
         self.window.title("Test table")
-        self.fld = gt.Fld(self.window,
-                          "test",
-                          10,
-                          True,
-                          str,
-                          int)
-        self.fld.show(4)
-        self.fld.setError(True)
-        self.fld.mainFrame.pack(fill="x")
-        self.fld2 = gt.Fld(self.window,
-                           "test2",
+        fldDef = gt.FldDef("test",
                            10,
                            True,
                            str,
-                           gt.strJson)
+                           int,
+                           "e")
+
+        self.fld = gt.FldEntry(self.window, fldDef)
+        self.fld.show(4)
+        self.fld.setError(True)
+        self.fld.mainFrame.pack(fill="x")
+        fldDef = gt.FldDef("test2",
+                           10,
+                           True,
+                           str,
+                           gt.strJson,
+                           "e")
+        self.fld2 = gt.FldEntry(self.window, fldDef)
         self.fld2.show("")
         self.fld2.validate()
         self.fld2.mainFrame.pack(fill="x")
-        self.fld3 = gt.Fld(self.window,
-                           "test2",
+        fldDef = gt.FldDef("test3",
                            10,
                            False,
                            str,
-                           gt.strJson)
+                           gt.strJson,
+                           "e")
+        self.fld3 = gt.FldEntry(self.window, fldDef)
         self.fld3.show("")
         self.fld3.validate()
         lx = True
@@ -44,13 +48,15 @@ class TestFlds:
 
         self.fld3.mainFrame.pack(fill="x")
 
-        self.fldOpt = gt.FldOpt(self.window,
-                                "Units",
-                                4,
-                                units.m,
-                                units.shortTxt,
-                                units.noShort,
-                                units.all())
+        fldDef = gt.FldDef("Units",
+                           4,
+                           True,
+                           units.shortTxt,
+                           units.noShort,
+                           "w",
+                           units.m)
+
+        self.fldOpt = gt.FldOpt(self.window, fldDef, units.all())
         self.fldOpt.show(units.ms)
         self.fldOpt.setError(True)
         self.fldOpt.removeOpt(20)

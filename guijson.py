@@ -23,44 +23,46 @@ def compJson(json1: dict, json2: dict) -> bool:
     return isEqual
 
 
-class Fld:
+class FldDef:
     def __init__(self,
-                 parent: tk.Frame,
                  header: str,
                  width: int,
                  isMandatory: bool,
                  toStr,
                  fromStr,
-                 default=None
-                 ):
+                 align,
+                 default=None):
+        self.align = align
         self.header = header
         self.toStr = toStr
         self.fromStr = fromStr
-        self.parent = parent
         self.width = width
         self.isMan = isMandatory
         if default is None:
             self.defaultStr = ""
         else:
             self.defaultStr = self.toStr(default)
+
+
+class Fld:
+    def __init__(self,
+                 parent: tk.Frame,
+                 fldDef: FldDef,
+                 ):
+        self.parent = parent
+        self.fldDef = fldDef
         self.mainFrame = tk.Frame(self.parent)
         self.mainFrame.columnconfigure(1, weight=1)
         self.mainFrame.columnconfigure(0, weight=0)
         self.mainFrame.config(highlightbackground=BCE)
         self.mainFrame.config(highlightthickness=0)
-        txt = "{}:  ".format(self.header)
+        txt = "{}:  ".format(self.fldDef.header)
         self.fldLabel = tk.Label(self.mainFrame, text=txt)
         self.fldLabel.grid(row=0, column=0)
-        self.fldVar = tk.StringVar(value=self.defaultStr)
-        self.fldEntry = tk.Entry(self.mainFrame,
-                                 textvariable=self.fldVar,
-                                 justify="right",
-                                 width=self.width
-                                 )
-        self.fldEntry.grid(sticky="e", row=0, column=1)
+        self.fldVar = tk.StringVar(value=self.fldDef.defaultStr)
 
     def show(self, data):
-        self.fldVar.set(self.toStr(data))
+        self.fldVar.set(self.fldDef.toStr(data))
 
     def get(self):
         """
@@ -70,38 +72,15 @@ class Fld:
         str will never fail use strJson
         :raises: ValueError if translation fails
         """
-        return self.fromStr(self.fldVar.get())
+        return self.fldDef.fromStr(self.fldVar.get())
 
     def clear(self):
-        self.fldVar.set(self.defaultStr)
+        self.fldVar.set(self.fldDef.defaultStr)
         self.mainFrame.config(highlightthickness=0)
-
-    def getHeader(self) -> str:
-        return self.header
-
-    def getToStr(self):
-        return self.toStr
 
     def validate(self) -> bool:
         isOk = True
-        self.setError(isOk)
-        txt = self.fldVar.get()
-        txt = txt.strip()
-        self.fldVar.set(txt)
-        if txt == "":
-            if self.isMan:
-                if self.defaultStr == "":
-                    self.setError(True)
-                    isOk = False
-                else:
-                    self.fldVar.set(self.defaultStr)
-        else:
-            try:
-                self.fromStr(txt)
-            except ValueError:
-                self.setError(True)
-                isOk = False
-
+        self.setError(not isOk)
         return isOk
 
     def setError(self, isError: bool):
@@ -111,69 +90,55 @@ class Fld:
             self.mainFrame.config(highlightthickness=0)
 
 
-class FldOpt:
-    def __init__(self,
-                 parent: tk.Frame,
-                 header: str,
-                 width: int,
-                 default,
-                 toStr,
-                 fromStr,
-                 options: list
-                 ):
-        self.header = header
-        self.width = width
-        self.toStr = toStr
-        self.fromStr = fromStr
-        self.defaultStr = toStr(default)
+class FldEntry(Fld):
+    def __init__(self, parent: tk.Frame, fldDef: FldDef):
+        super().__init__(parent, fldDef)
+
+        self.fldEntry = tk.Entry(self.mainFrame,
+                                 textvariable=self.fldVar,
+                                 justify="right",
+                                 width=self.fldDef.width
+                                 )
+        self.fldEntry.grid(sticky="e", row=0, column=1)
+
+    def validate(self) -> bool:
+        isOk = super().validate()
+        txt = self.fldVar.get()
+        txt = txt.strip()
+        self.fldVar.set(txt)
+        if txt == "":
+            if self.fldDef.isMan:
+                if self.fldDef.defaultStr == "":
+                    self.setError(True)
+                    isOk = False
+                else:
+                    self.fldVar.set(self.fldDef.defaultStr)
+        else:
+            try:
+                self.fldDef.fromStr(txt)
+            except ValueError:
+                self.setError(True)
+                isOk = False
+
+        return isOk
+
+
+class FldOpt(Fld):
+    def __init__(self, parent: tk.Frame, fldDef: FldDef, options: list):
+        super().__init__(parent, fldDef)
+
         self.options: list[str] = list()
         for i in options:
-            self.options.append(self.toStr(i))
+            self.options.append(self.fldDef.toStr(i))
 
-        self.parent = parent
-        self.mainFrame = tk.Frame(self.parent)
-        self.mainFrame.columnconfigure(1, weight=1)
-        self.mainFrame.columnconfigure(0, weight=0)
-        self.mainFrame.config(highlightbackground=BCE)
-        self.mainFrame.config(highlightthickness=0)
-        txt = "{}:  ".format(self.header)
-        self.fldLabel = tk.Label(self.mainFrame, text=txt)
-        self.fldLabel.grid(row=0, column=0)
-        self.fldVar = tk.StringVar(value=self.defaultStr)
         self.fldOpt = tk.OptionMenu(self.mainFrame,
                                     self.fldVar,
                                     *self.options)
-        self.fldOpt.config(width=self.width)
+        self.fldOpt.config(width=self.fldDef.width)
         self.fldOpt.grid(sticky="e", row=0, column=1)
 
-    def getHeader(self) -> str:
-        return self.header
-
-    def getToStr(self):
-        return self.toStr
-
-    def show(self, data):
-        self.fldVar.set(self.toStr(data))
-
-    def get(self):
-        return self.fromStr(self.fldVar.get())
-
-    def clear(self):
-        self.fldVar.set(self.defaultStr)
-        self.mainFrame.config(highlightthickness=0)
-
-    def validate(self) -> bool:
-        self.setError(False)
-        return True
-
-    def setError(self, isError: bool):
-        if isError:
-            self.mainFrame.config(highlightthickness=3)
-        else:
-            self.mainFrame.config(highlightthickness=0)
-
     def addOpt(self, opt):
-        strOpt = self.toStr(opt)
+        strOpt = self.fldDef.toStr(opt)
         if strOpt not in self.options:
             self.options.append(strOpt)
             menu = self.fldOpt['menu']
@@ -181,9 +146,9 @@ class FldOpt:
                                                              strOpt))
 
     def removeOpt(self, opt):
-        strOpt = self.toStr(opt)
+        strOpt = self.fldDef.toStr(opt)
         ix = self.options.index(strOpt)  # raise ValueError
-        if self.default == strOpt or self.fldVar.get() == strOpt:
+        if self.fldDef.defaultStr == strOpt or self.fldVar.get() == strOpt:
             raise ValueError
         self.options.remove(strOpt)
         menu = self.fldOpt['menu']
@@ -193,9 +158,9 @@ class FldOpt:
         strOpts = list()
         menu = self.fldOpt['menu']
         for opt in opts:
-            so = self.toStr(opt)
+            so = self.fldDef.toStr(opt)
             strOpts.append(so)
-        if self.default not in strOpts or self.fldVar.get() not in strOpts:
+        if self.fldDef.defaultStr not in strOpts or self.fldVar.get() not in strOpts:
             raise ValueError
         menu.delete(0, 'end')
         for strOpt in strOpts:
@@ -210,55 +175,41 @@ class Table:
                  jsonObj: dict,
                  keyHeader: str,
                  sortHeader: str,
-                 conv: dict,
                  rowClickCb,
-                 dpHeaders: dict | None = None):
+                 flds: dict[str, FldDef]):
         self.parent = parent
         self.mainFrame = tk.Frame(self.parent)
-        self.dpHeaders = dpHeaders
+        self.flds = flds
         self.keyHead = keyHeader
-        self.conv = conv
         self.sortHead = sortHeader
         self.rowsNo = len(jsonObj)
         self.rowClickCb = rowClickCb
-        #  Get all fields
-        value = None
-        vl = 0
-        bigk = None
-        for k, v in jsonObj.items():
-            ll = len(v)
-            if ll > vl:
-                vl = ll
-                bigk = k
 
-        value = jsonObj[bigk]
-
-        self.columnsNo = len(value)+1
+        self.columnsNo = len(flds)
         self.labels: list[list[tuple[tk.Label, tk.StringVar]]] = list()
         for r in range(self.rowsNo+1):
             row: list[tuple[tk.Label, tk.StringVar]] = list()
-            for c in range(self.columnsNo):
+            c = 0
+            for fldDef in self.flds.values():
                 sVar = tk.StringVar()
                 lable = tk.Label(self.mainFrame, textvariable=sVar)
-                lable.grid(row=r, column=c)
+                if r == 0:
+                    lable.grid(row=r, column=c)
+                else:
+                    lable.grid(row=r, column=c, sticky=fldDef.align)
                 row.append((lable, sVar))
+                c = c + 1
             self.labels.append(row)
-        self.headers: list[str] = list()
-        self.headers.append(self.keyHead)
-        self.headers.extend(value.keys())
-        for i in range(self.columnsNo):
-            label, sVar = self.labels[0][i]
-            sVar.set(self.headXhead(self.headers[i]))
 
-    def headXhead(self, jsonHead) -> str:
-        if self.dpHeaders is None:
-            return jsonHead
-        else:
-            return self.dpHeaders[jsonHead]
+        i = 0
+        for fldDef in self.flds.values():
+            label, sVar = self.labels[0][i]
+            i = i + 1
+            sVar.set(fldDef.header)
 
     def show(self, jsonObj: dict):
         sjsonObj = None
-        if self.sortHead != self.headers[0]:
+        if self.sortHead != self.keyHead:
             sjsonObj = dict(sorted(jsonObj.items(),
                                    key=lambda item: item[1][self.sortHead]))
         else:
@@ -268,11 +219,13 @@ class Table:
         if diff > 0:
             for r in range(self.rowsNo, diff+self.rowsNo):
                 row: list[tuple[tk.Label, tk.StringVar]] = list()
-                for c in range(self.columnsNo):
+                c = 0
+                for fldDef in self.flds.values():
                     sVar = tk.StringVar()
                     lable = tk.Label(self.mainFrame, textvariable=sVar)
-                    lable.grid(row=r, column=c)
+                    lable.grid(row=r, column=c, sticky=fldDef.align)
                     row.append((lable, sVar))
+                    c = c + 1
             self.labels.append(row)
             self.rowsNo = diff+self.rowsNo
 
@@ -285,20 +238,21 @@ class Table:
         columnNo = 0
         for k, v in sjsonObj.items():
             labelH, strVarH = self.labels[rowNo][columnNo]
-            strVarH.set(self.conv[self.keyHead](k))
+            strVarH.set(self.flds[self.keyHead].toStr(k))
             labelH.bind("<ButtonRelease-1>",
                         partial(self.rowcb, k, self.keyHead))
             columnNo = columnNo + 1
-            for head in self.headers[1:]:
-                if head in v.keys():
-                    labelC, strVarC = self.labels[rowNo][columnNo]
-                    labelC.bind("<ButtonRelease-1>",
-                                partial(self.rowcb, k, head))
-                    strVarC.set(self.conv[head](v[head]))
-                else:
-                    label, strVar = self.labels[rowNo][columnNo]
-                    strVar.set("")
-                columnNo = columnNo + 1
+            for head, fldDef in self.flds.items():
+                if head != self.keyHead:
+                    if head in v.keys():
+                        labelC, strVarC = self.labels[rowNo][columnNo]
+                        labelC.bind("<ButtonRelease-1>",
+                                    partial(self.rowcb, k, head))
+                        strVarC.set(fldDef.toStr(v[head]))
+                    else:
+                        label, strVar = self.labels[rowNo][columnNo]
+                        strVar.set("")
+                    columnNo = columnNo + 1
             rowNo = rowNo + 1
             columnNo = 0
 
