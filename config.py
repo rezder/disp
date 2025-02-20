@@ -163,7 +163,10 @@ class Config:
         tabId = self.conf["curTabs"][id]
         return tabId
 
-    def getPathJson(self):
+    def getPathsJson(self) -> dict:
+        """
+        :returns: All the paths json object
+        """
         return dict(self.conf["paths"])
 
     def getCurTabPaths(self, id) -> dict:
@@ -181,6 +184,25 @@ class Config:
 
     def getSubUdpServerIsEnable(self) -> bool:
         return not self.conf["disableSubServer"]
+
+    def getPathsRefs(self, path: str) -> (tuple[list[str], list[str]]):
+        paths = set()
+        tabs = set()
+        for cpath, pathJson in self.conf["paths"].items():
+            if "largePath" in pathJson.keys():
+                if pathJson["largePath"] == path:
+                    paths.add(cpath)
+        for id, tab in self.conf["tabs"].items():
+            for tabPath, pos in tab.items():
+                if path == tabPath:
+                    tabs.add(id)
+        return (paths, tabs)
+
+    def setPath(self, pathId: str, pathJson: dict):
+        self.conf["paths"][pathId] = pathJson
+
+    def deletePath(self, pathId: str):
+        del self.conf["paths"][pathId]
 
     def getBroadcastIp(self) -> str:
         b = None

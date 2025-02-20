@@ -63,7 +63,7 @@ class GuiDispServer:
         # Centre Frame
         self.disTabGui = guidisable.Table(self.centreFrame,
                                           self.server.alarmDisable)
-        self.disTabGui.show(self.server.conf.getPathJson())
+        self.disTabGui.show(self.server.conf.getPathsJson())
         self.disTabGui.mainFrame.pack()
 
         # Menu bar
@@ -80,7 +80,7 @@ class GuiDispServer:
                                             self.menuBar,
                                             self.server.pathsSave,
                                             self.server.pathsDelete,
-                                            self.server.conf.getPathJson(),
+                                            self.server.conf.getPathsJson(),
                                             self.logger)
 
         self.menuBarGui = guimenu.Bar(self.menuBar,
@@ -100,6 +100,8 @@ class GuiDispServer:
 
         self.menuRegGui.udpGui.subScribeNewIds(self.dispListGui.newId)
         self.menuRegGui.bleGui.subScribeNewIds(self.dispListGui.newId)
+
+        self.menuSettGui.pathsGui.subScribePathUpd(self.disTabGui.updDatePaths)
 
         # window callbacks
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)

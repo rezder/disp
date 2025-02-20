@@ -3,6 +3,7 @@ import json
 import asyncio as ass
 from status import Status
 from status import AlarmMsg
+from dispdata import DispData
 
 
 class Alarm:
@@ -165,6 +166,87 @@ class Buffer:
         return res
 
 
+class PathBig:
+    def __init__(self,
+                 label,
+                 decimals,
+                 unit,
+                 dpUnit,
+                 bufSize,
+                 bufFreq):
+        self.decimals = decimals
+        self.dispUnits = dpUnit
+        self.fn = units.conversion(unit, dpUnit)
+        self.buffer = Buffer(bufSize, bufFreq)
+        self.label = label
+
+    def createDispData(self, value):
+        dd = None
+        v = self.fn(value)
+        isUpdate, bv = self.buffer.add(v, self.decimals)
+        if isUpdate:
+            dd = DispData(bv, self.decimals, self.label, self.dispUnits, False)
+        return dd, bv
+
+
+class Path(PathBig):
+    def __init(self, path, pathJson, status):
+        self.minPeriod = pathJson["minPeriod"]
+        super().__init__(pathJson["label"],
+                         pathJson["decimals"],
+                         pathJson["units"],
+                         pathJson["dispUnits"],
+                         pathJson["bufSize"],
+                         pathJson["bufFreq"])
+
+        fld = "bigValue"
+        self.pathBig = None
+        self.bigValue = None
+        if fld in pathJson.keys():
+            self.bigValue = pathJson[fld]
+            self.pathBig = PathBig(pathJson["label"],
+                                   pathJson["bigDecimals"],
+                                   pathJson["units"],
+                                   pathJson["bigDispUnit"],
+                                   pathJson["bufSize"],
+                                   pathJson["bufFreq"])
+        self.alarm = None
+        max = None
+        min = None
+        isMax = "max" in pathJson
+        isMin = "min" in pathJson
+        if isMax:
+            max = pathJson["max"]
+        if isMin:
+            min = pathJson["min"]
+        if isMin or isMax:
+            alarm = Alarm(path, self.label, max, min, 5, status)
+            self.alarm = alarm
+        else:
+            self.alarm = None
+
+    def createDispData(self, value) -> DispData:
+        dd, bv = super().createDispData(value)
+        if dd is not None:
+            if self.alarm is not None:
+                isAlarm = self.alarm.eval(bv)
+                dd.isAlarm = isAlarm
+        if self.pathBig is not None:
+            bigDd, bigBv = self.pathBig.createDispData(value)
+            if self.bigValue < abs(bv):
+                if bigDd is not None:
+                    bigDd.isAlarm = dd.isAlarm
+                    self.buffer.last = self.pathBig.buffer.last
+                    dd = bigDd
+            else:
+                self.pathBig.buffer.last = self.buffer.last
+
+        return dd
+
+    def setEnableAlarm(self, isEnable: bool):
+        self.alarm.setEnable(isEnable)
+
+
 class PathData:
 
     def __init__(self, pathJson, path, status):
@@ -220,7 +302,7 @@ class SkData:
             self.paths[p] = PathData(d, p, status)
         for d in self.paths.values():
             if d.largePath is not None:
-                d.largePathData = self.paths[d.largePath]
+                d.setLargePathData(self.paths[d.largePath])
 
     def msgUnsubAll(self) -> str:
         jsonDict = {

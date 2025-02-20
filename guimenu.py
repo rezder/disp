@@ -36,7 +36,7 @@ class Settings:
         return self.menuSettings
 
     def serverOn(self, isOn: bool):
-        self.pathsGui(isOn)
+        self.pathsGui.serverOn(isOn)
 
 
 class Registor:
@@ -100,7 +100,8 @@ class Bar:
 
     def createMenuBar(self):
         self.menuBar.add_cascade(label="Registor Display",
-                                 menu=self.menuRegistor)
+                                 menu=self.menuRegistor,
+                                 background="grey26")
         self.menuBar.add_cascade(label="Settings",
                                  menu=self.menuSett)
 

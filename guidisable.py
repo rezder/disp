@@ -17,6 +17,7 @@ class Table:
                                  highlightthickness=BORDER_WIDTH,
                                  highlightbackground=BORDER_COLOR)
         self.bgColor = self.parent.cget("bg")
+        self.tabFrame.pack()
 
     def show(self, pathsJson: dict):
         self.pathsGui.clear()
@@ -62,7 +63,8 @@ class Table:
                                         state=tk.DISABLED)
                 checkB.grid(row=i, column=4)
                 self.pathsGui[path] = (valueVar, vl, checkB)
-            self.tabFrame.pack()
+                i = i + 1
+            
 
     def checkFn(self, path, label, checkVar: tk.IntVar):
         if checkVar.get() == 1:
@@ -88,3 +90,6 @@ class Table:
                 checkBox.config(state=tk.NORMAL)
             else:
                 checkBox.config(state=tk.DISABLED)
+
+    def updDatePaths(self, jsonPaths: dict):
+        self.show(jsonPaths)

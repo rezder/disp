@@ -110,6 +110,26 @@ class Path:
         buffFreqFld.mainFrame.grid(row=4, column=1, sticky="ew")
         self.flds["bufFreq"] = buffFreqFld
 
+        fldDef = gj.FldDef("Min Val",
+                           10,
+                           False,
+                           str,
+                           float,
+                           "e")
+        minFld = gj.FldEntry(self.mainFrame, fldDef)
+        minFld.mainFrame.grid(row=5, column=0, sticky="ew", padx=(0, 5))
+        self.flds["min"] = minFld
+
+        fldDef = gj.FldDef("Max Val",
+                           10,
+                           False,
+                           str,
+                           float,
+                           "e")
+        maxFld = gj.FldEntry(self.mainFrame, fldDef)
+        maxFld.mainFrame.grid(row=5, column=1, sticky="ew")
+        self.flds["max"] = maxFld
+
         fldDef = gj.FldDef("Big Value",
                            10,
                            False,
@@ -117,7 +137,7 @@ class Path:
                            int,
                            "e")
         bigValFld = gj.FldEntry(self.mainFrame, fldDef)
-        bigValFld.mainFrame.grid(row=5,
+        bigValFld.mainFrame.grid(row=6,
                                  column=0,
                                  sticky="ew",
                                  padx=(0, 5))
@@ -131,7 +151,7 @@ class Path:
                            "w"
                            )
         bigRefFld = gj.FldEntry(self.mainFrame, fldDef)
-        bigRefFld.mainFrame.grid(row=5, column=1, sticky="ew")
+        bigRefFld.mainFrame.grid(row=6, column=1, sticky="ew")
         self.flds["largePath"] = bigRefFld
 
     def show(self, path: str, pathJson: dict):
@@ -266,9 +286,10 @@ class Paths:
                 self.clear()
                 self.show(pathJson)
                 self.execPathUdp(pathJson)
+                self.logger("Path: {} deleted".format(path))
             else:
                 self.pathGui.setErrorFld(self.phJson)
-                txt = "Error deleting path: {}\n Error: {}"
+                txt = "Error deleting path: {}:\n{}"
                 self.logger(txt.format(path, errTxt))
         else:
             self.logger("Nothing deleted path does not exist")
@@ -286,7 +307,7 @@ class Paths:
     def serverOn(self, isOn: bool):
         if isOn:
             self.saveButt.config(state=tk.DISABLED)
-            self.delButt.config(state=tk.normal)
+            self.delButt.config(state=tk.DISABLED)
         else:
-            self.saveButt.config(state=tk.normal)
-            self.delButt.config(state=tk.normal)
+            self.saveButt.config(state=tk.NORMAL)
+            self.delButt.config(state=tk.NORMAL)

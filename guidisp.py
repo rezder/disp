@@ -65,7 +65,7 @@ class List:
             for r in self.items:
                 found = False
                 for o in ons:
-                    if r.id == o:
+                    if r.getId() == o:
                         r.setOnOff(True)
                         found = True
                         break
@@ -117,7 +117,6 @@ class Item:
              selectedTab: str,
              macAddr: str,
              isDisable):
-
         self.idVar.set(id)
         self.isDisableOld = isDisable
         self.oldSelTab = selectedTab
@@ -184,3 +183,6 @@ class Item:
             if newValue:
                 v = 0
             self.disableVar.set(v)
+
+    def getId(self) -> str:
+        return self.idVar.get()

@@ -93,10 +93,12 @@ class Fld:
 class FldEntry(Fld):
     def __init__(self, parent: tk.Frame, fldDef: FldDef):
         super().__init__(parent, fldDef)
-
+        align = "left"
+        if self.fldDef.align == "e":
+            align = "right"
         self.fldEntry = tk.Entry(self.mainFrame,
                                  textvariable=self.fldVar,
-                                 justify="right",
+                                 justify=align,
                                  width=self.fldDef.width
                                  )
         self.fldEntry.grid(sticky="e", row=0, column=1)
@@ -160,7 +162,8 @@ class FldOpt(Fld):
         for opt in opts:
             so = self.fldDef.toStr(opt)
             strOpts.append(so)
-        if self.fldDef.defaultStr not in strOpts or self.fldVar.get() not in strOpts:
+        default = self.fldDef.defaultStr
+        if default not in strOpts or self.fldVar.get() not in strOpts:
             raise ValueError
         menu.delete(0, 'end')
         for strOpt in strOpts:

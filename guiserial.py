@@ -28,33 +28,36 @@ class Udp:
         gridFrame = tk.Frame(self.mainFrame)
         gridFrame.pack()
 
-        pathLab = tk.Label(gridFrame, text="Id:")
-        pathLab.grid(row=0, column=0)
+        pathLab = tk.Label(gridFrame, text="Id: ", anchor=tk.W)
+        pathLab.grid(row=0, column=0, sticky="w")
         pathEnt = tk.Entry(gridFrame, textvariable=self.idVar)
         pathEnt.grid(row=0, column=1)
 
-        pathLab = tk.Label(gridFrame, text="Serial:")
-        pathLab.grid(row=3, column=0)
+        pathLab = tk.Label(gridFrame, text="Serial: ", anchor=tk.W)
+        pathLab.grid(row=3, column=0, sticky="w")
         pathEnt = tk.Entry(gridFrame,
                            textvariable=self.pathVar,
                            state=tk.DISABLED)
         pathEnt.grid(row=3, column=1)
 
-        ssidLab = tk.Label(gridFrame, text="SSID:")
-        ssidLab.grid(row=1, column=0)
-        ssidEnt = tk.Entry(gridFrame, textvariable=self.ssidVar)
+        ssidLab = tk.Label(gridFrame, text="SSID: ", anchor=tk.W)
+        ssidLab.grid(row=1, column=0, sticky="w")
+        ssidEnt = tk.Entry(gridFrame,
+                           textvariable=self.ssidVar)
         ssidEnt.grid(row=1, column=1)
 
-        pwLab = tk.Label(gridFrame, text="Password:")
-        pwLab.grid(row=2, column=0)
-        pwEnt = tk.Entry(gridFrame, textvariable=self.pwVar)
+        pwLab = tk.Label(gridFrame, text="Password:", anchor=tk.W)
+        pwLab.grid(row=2, column=0, sticky="w")
+        pwEnt = tk.Entry(gridFrame,
+                         textvariable=self.pwVar)
         pwEnt.grid(row=2, column=1)
 
-        portLab = tk.Label(gridFrame, text="Sub port:")
-        portLab.grid(row=4, column=0)
+        portLab = tk.Label(gridFrame, text="Sub port: ", anchor=tk.W)
+        portLab.grid(row=4, column=0, sticky="w")
         portEnt = tk.Entry(gridFrame,
                            textvariable=self.portVar,
-                           state=tk.DISABLED)
+                           state=tk.DISABLED,
+                           justify="right")
         portEnt.grid(row=4, column=1)
 
         self.updBut = tk.Button(self.mainFrame,
@@ -128,24 +131,26 @@ class Ble:
 
         gridFrame = tk.Frame(self.mainFrame)
         gridFrame.pack()
-        pathLab = tk.Label(gridFrame, text="Id:")
-        pathLab.grid(row=0, column=0)
-        pathEnt = tk.Entry(gridFrame, textvariable=self.idVar)
+        pathLab = tk.Label(gridFrame, text="Id: ", anchor=tk.W)
+        pathLab.grid(row=0, column=0, sticky="w")
+        pathEnt = tk.Entry(gridFrame,
+                           textvariable=self.idVar)
         pathEnt.grid(row=0, column=1)
 
-        pathLab = tk.Label(gridFrame, text="Serial:")
-        pathLab.grid(row=2, column=0)
+        pathLab = tk.Label(gridFrame, text="Serial: ", anchor=tk.W)
+        pathLab.grid(row=2, column=0, sticky="w")
         pathEnt = tk.Entry(gridFrame,
                            textvariable=self.pathVar,
                            state=tk.DISABLED)
         pathEnt.grid(row=2, column=1)
 
-        macLab = tk.Label(gridFrame, text="Mac address:")
-        macLab.grid(row=1, column=0)
+        macLab = tk.Label(gridFrame, text="Mac address: ", anchor=tk.W)
+        macLab.grid(row=1, column=0, sticky="w")
         macEnt = tk.Entry(gridFrame,
                           textvariable=self.macVar,
-                          state=tk.DISABLED)
-        macEnt.grid(row=1, column=1)
+                          state=tk.DISABLED
+                          )
+        macEnt.grid(row=1, column=1, sticky="w")
 
         self.updBut = tk.Button(self.mainFrame,
                                 text="Update",

@@ -27,7 +27,7 @@ class DispServer:
     def __init__(self):
         self.status = Status()
         self.conf = Config()
-        self.skData = SkData(self.conf.getPathJson(), self.status)
+        self.skData = SkData(self.conf.getPathsJson(), self.status)
         self.conf = Config()
         self.loop = None
         self.queue = None
@@ -201,7 +201,10 @@ class DispServer:
     def getStatus(self) -> (bool, str, int, int, set, list):
         return self.status.getStatus()
 
-    def pathsSave(self, path, itemJson):
+    def pathsSave(self, pathId, pathJson) -> tuple[bool,
+                                                   set[str],
+                                                   str,
+                                                   dict]:
         """
         Saves a path setting.
         Validate before saving:
@@ -211,51 +214,104 @@ class DispServer:
         No self reference.
         Secondary paths (big value) must not have an alarm
         Saving: save to file, update conf create new skData
-        :param path: the path that is being saved
-        :param itemJson: The path json object
+        :param pathId: the path that is being saved
+        :param pathJson: The path json object
         :returns:
         - isOk     - If path saved
         - errFlds  - List of json fld headers causing the error
         - errTxt   - Error text
-        - pathJson - The update paths json object(all paths)
+        - pathsJson - The update paths json object(all paths)
         """
+        isOk = True
+        errFlds = set()
+        errTxt = ""
+        pathsJson = None
         if not self.exist():
-            pathsJson = self.conf.getPathJson()
-            if path in pathsJson.keys():
+            pathsJsonOld = self.conf.getPathsJson()
+            refFld = "largePath"
+            if refFld in pathJson.keys():
+                ref = pathJson[refFld]
+                if ref == pathId:
+                    isOk = False
+                    errFlds.add(refFld)
+                    txt = "Error: Path: {} have self reference."\
+                        " It is not allowed"
+                    errTxt = errTxt + txt.format(pathId)
+                else:
+                    if ref not in pathsJsonOld.keys():
+                        isOk = False
+                        errFlds.add(refFld)
+                        txt = "\nError! Reference {} does not exist"
+                        errTxt = errTxt + txt.format(ref)
+            fld = "bufFreq"
+            if pathJson[fld] > pathJson["bufSize"]:
+                isOk = False
+                errFlds.add(fld)
+                txt = "\nError! Buffer frequenze must"\
+                    " not be bigger than buffer size"
+                errTxt = errTxt + txt
 
-                # Modifying
-                pass
-            else:
-                # Creating new
-                pass
-            isOk = False
-            errFlds = ["minPeriod", "path"]
-            errTxt = "Bad blod"
-            pathJson = None
+            refs, _ = self.conf.getPathsRefs(pathId)
+            if pathId in refs:
+                minFld = "min"
+                maxFld = "max"
+                no = len(errFlds)
+                if minFld in pathJson.keys():
+                    errFlds.add(fld)
+                if maxFld in pathJson.keys():
+                    errFlds.add(fld)
+                if no != len(errFlds):
+                    isOk = False
+                    txt = "Error! No alarm on reference paths"\
+                        " it should be on primary path"
+                    errTxt = errTxt + "\n" + txt
         else:
             isOk = False
-            errFlds = list()
-            errTxt = "Server is running do not update settings"
-            pathJson = None
-        return isOk, errFlds, errTxt, pathJson
+            errTxt = errTxt+"\nError! Server is running!"\
+                " Do not update settings!"
+        if isOk:
+            self.conf.setPath(pathId, pathJson)
+            self.conf.save()
+            pathsJson = self.conf.getPathsJson()
+            self.skData = SkData(pathsJson, self.status)
 
-    def pathsDelete(self, path):
+        return isOk, errFlds, errTxt, pathsJson
+
+    def pathsDelete(self, pathId):
         """
         Deletes a path setting.
         Validate before deleting:
-        Reference paths not be deleted,
+        Reference paths must not be deleted,
         reference  paths and tabs holds reference.
         deleting: save to file, update conf create new skData
         :param path: the path that is being saved
         :returns:
         - isOk     - If path deleted
         - errTxt   - Error text
-        - pathJson - The update paths json object(all paths)
+        - pathsJson - The update paths json object(all paths)
         """
-        isOk = False
-        errTxt = "Bad blod"
-        pathJson = None
-        return isOk, errTxt, pathJson
+        isOk = True
+        errTxt = ""
+        pathsJson = None
+        pathRefs, tabRefs = self.conf.getPathsRefs(pathId)
+        if len(pathRefs) > 0:
+            isOk = False
+            txt = "Error! Path: {} is reference on paths:\n{}."
+            errTxt = errTxt + txt.format(pathId, pathRefs)
+        if len(tabRefs) > 0:
+            isOk = False
+            if len(pathRefs) > 0:
+                errTxt = errTxt+"\n"
+            txt = "Error! Path: {} is reference on tabs:\n{}."
+            errTxt = errTxt + txt.format(pathId, tabRefs)
+
+        if isOk:
+            self.conf.deletePath(pathId)
+            self.conf.save()
+            pathsJson = self.conf.getPathsJson()
+            self.skData = SkData(pathsJson, self.status)
+
+        return isOk, errTxt, pathsJson
 
 
 async def serve(status: Status,

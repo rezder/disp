@@ -1,0 +1,113 @@
+{
+  "paths": {
+    "environment.depth.belowTransducer": {
+      "minPeriod": 1000,
+      "decimals": 1,
+      "units": 0,
+      "dispUnits": 0,
+      "label": "DBT",
+      "bufSize": 0,
+      "bufFreq": 0,
+      "min": 5.0
+    },
+    "navigation.speedOverGround": {
+      "minPeriod": 500,
+      "decimals": 1,
+      "units": 10,
+      "dispUnits": 11,
+      "label": "SOG",
+      "bufSize": 4,
+      "bufFreq": 4
+    },
+    "navigation.courseOverGroundTrue": {
+      "minPeriod": 500,
+      "decimals": 0,
+      "units": 20,
+      "dispUnits": 21,
+      "label": "COG",
+      "bufSize": 4,
+      "bufFreq": 4
+    },
+    "navigation.speedThroughWater": {
+      "minPeriod": 2000,
+      "decimals": 1,
+      "units": 10,
+      "dispUnits": 11,
+      "label": "STW",
+      "bufSize": 0,
+      "bufFreq": 0
+    },
+    "navigation.courseRhumbline.crossTrackError": {
+      "minPeriod": 4000,
+      "decimals": 0,
+      "units": 0,
+      "dispUnits": 0,
+      "label": "XTE",
+      "bufSize": 0,
+      "bufFreq": 0
+    },
+    "navigation.courseRhumbline.nextPoint.bearingTrue": {
+      "minPeriod": 500,
+      "decimals": 0,
+      "units": 20,
+      "dispUnits": 21,
+      "label": "BEA",
+      "bufSize": 4,
+      "bufFreq": 4
+    },
+    "navigation.courseRhumbline.nextPoint.distance": {
+      "minPeriod": 4000,
+      "decimals": 0,
+      "units": 0,
+      "dispUnits": 0,
+      "label": "DIS",
+      "bufSize": 0,
+      "bufFreq": 0,
+      "largeValue": 999,
+      "largePath": "1"
+    },
+    "1": {
+      "minPeriod": 4000,
+      "decimals": 1,
+      "units": 0,
+      "dispUnits": 1,
+      "label": "DIS",
+      "bufSize": 0,
+      "bufFreq": 0
+    }
+  },
+  "tabs": {
+    "Default": {
+      "environment.depth.belowTransducer": 0,
+      "navigation.speedOverGround": 1,
+      "navigation.courseOverGroundTrue": 2,
+      "navigation.speedThroughWater": 3
+    },
+    "Route1": {
+      "environment.depth.belowTransducer": 0,
+      "navigation.courseOverGroundTrue": 1,
+      "navigation.courseRhumbline.crossTrackError": 2,
+      "navigation.courseRhumbline.nextPoint.bearingTrue": 3
+    },
+    "Route2": {
+      "environment.depth.belowTransducer": 0,
+      "navigation.courseRhumbline.crossTrackError": 1,
+      "navigation.courseRhumbline.nextPoint.bearingTrue": 2,
+      "navigation.courseRhumbline.nextPoint.distance": 3
+    },
+    "None": {}
+  },
+  "curTabs": {
+    "b1": "Default",
+    "1": "Default"
+  },
+  "macs": {
+    "b1": {
+      "addr": "f0:f5:bd:76:91:9d",
+      "isDisable": false
+    }
+  },
+  "broadcastPort": 9090,
+  "interface": "wlp2s0",
+  "disableSubServer": true
+}

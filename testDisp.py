@@ -9,7 +9,7 @@ from dispdata import DispData
 def main():
     status = Status()
     conf = Config()
-    skData = SkData(conf.getPathJson(), status)
+    skData = SkData(conf.getPathsJson(), status)
     print(skData.msgUnsubAll())
     paths = ["environment.depth.belowTransducer",
              "navigation.courseRhumbline.crossTrackError"]
@@ -80,7 +80,7 @@ def main():
             print("expect 1.5 got {}".format(value))
     if b.fregIx != 0 or b.ix != 0 or b.sum != 4.5 or b.no != 3:
         print("Failed add")
-    
+
     print(conf.getBroadcastIp())
     pos = 1
     dp = DispData(1.2, 1, "SOG", 0, False)
@@ -95,6 +95,22 @@ def main():
 
     if dp.encode(pos) != dpcopy.encode(pos):
         print("decoded copy deviates")
+    path = "environment.depth.belowTransducer"
+    paths, tabs = conf.getPathsRefs(path)
+    print(paths)
+    print(tabs)
+    if len(paths) != 0:
+        print("Expected  no reference in paths: {}".format(paths))
+    if len(tabs) != 0:
+        print("expected path references in tabs: {}".format(tabs))
+    path = "1"
+    paths, tabs = conf.getPathsRefs(path)
+    print(paths)
+    print(tabs)
+    if len(paths) != 1:
+        print("Expected on referense in paths: {}".format(paths))
+    if len(tabs) != 0:
+        print("expected  zero path references in tabs: {}".format(tabs))
 
 
 if __name__ == "__main__":
