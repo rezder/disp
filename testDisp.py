@@ -1,10 +1,9 @@
 from skdata import SkData
-from handler import createDispMsq, parseSkUpdates
 from status import Status
 from config import Config
 from skdata import Buffer
 from dispdata import DispData
-from skdata import Path
+from handler import parseSkUpdates
 
 
 def px(v, exp, isRaise=True):
@@ -20,30 +19,31 @@ def testSubSk(skData):
     print(skData.msgUnsubAll())
 
 
-def testPathNoBuffer(path,
+def testPathNoBuffer(pathId,
                      value,
                      exp,
                      pos,
                      skData):
-    dd = createDispMsq(skData, path, value)
+    path = skData.getPath(pathId)
+    dd = path.createDispData(value)
     print(dd.value)
     print(dd.encode(pos))
     px(dd.value, exp)
     return dd
 
 
-def testPathBuffer(path, values, exp, pos, skData: SkData):
-    pd = skData.getPathsData(path)
-    size = pd.buffer.size
-    freq = pd.buffer.freqNo
+def testPathBuffer(pathId, values, exp, pos, skData: SkData):
+    path = skData.getPath(pathId)
+    size = path.buffer.size
+    freq = path.buffer.freqNo
 
     if size != len(values):
         print("Error data is not usefull")
     else:
         for i in range(len(values)):
             v = values[i]
-            dd = createDispMsq(skData, path, v)
-            print(skData.getPathsData(path).buffer)
+            dd = path.createDispData(v)
+            print(path.buffer)
             if i != freq-1:
                 if dd is not None:
                     print("Error expected None got {}".format(dd))
@@ -150,21 +150,10 @@ def testDispDataEncoding():
 
 def testPathRefSearch(conf: Config):
     path = "environment.depth.belowTransducer"
-    paths, tabs = conf.getPathsRefs(path)
-    print(paths)
+    tabs = conf.getPathsRefs(path)
     print(tabs)
-    if len(paths) != 0:
-        print("Expected  no reference in paths: {}".format(paths))
     if len(tabs) != 0:
         print("expected path references in tabs: {}".format(tabs))
-    path = "1"
-    paths, tabs = conf.getPathsRefs(path)
-    print(paths)
-    print(tabs)
-    if len(paths) != 1:
-        print("Expected on referense in paths: {}".format(paths))
-    if len(tabs) != 0:
-        print("expected  zero path references in tabs: {}".format(tabs))
 
 
 def main():

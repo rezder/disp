@@ -225,7 +225,7 @@ class Path(PathBig):
         else:
             self.alarm = None
 
-    def createDispData(self, value) -> DispData:
+    def createDispData(self, value) -> DispData | None:
         dd, bv = super().createDispData(value)
         if dd is not None:
             if self.alarm is not None:
@@ -297,12 +297,9 @@ class SkData:
     I get multible source problems.
     """
     def __init__(self, pathsJson: dict, status):
-        self.paths: dict[str, PathData] = dict()
+        self.paths: dict[str, Path] = dict()
         for (p, d) in pathsJson.items():
-            self.paths[p] = PathData(d, p, status)
-        for d in self.paths.values():
-            if d.largePath is not None:
-                d.setLargePathData(self.paths[d.largePath])
+            self.paths[p] = Path(p, d, status)
 
     def msgUnsubAll(self) -> str:
         jsonDict = {
@@ -360,7 +357,7 @@ class SkData:
         }
         return subJson
 
-    def getPathsData(self, path) -> PathData:
+    def getPath(self, path) -> Path:
         return self.paths[path]
 
     async def clearTask(self):

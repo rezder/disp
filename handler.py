@@ -87,13 +87,13 @@ async def guiMsg(ws: wsclient.ClientConnection,
         if req.tp == gr.alarmDis:
             path = req.id
             isEnable = not req.data
-            pd = skData.getPathsData(path)
-            pd.setEnableAlarm(isEnable)
+            path = skData.getPath(path)
+            path.setEnableAlarm(isEnable)
             atxt = "disable"
             if isEnable:
                 atxt = "enable"
             txt = "Alarm on {} {}"
-            status.setTxt(txt.format(pd.label, atxt))
+            status.setTxt(txt.format(path.label, atxt))
             status.setDoneCmd()
 
         if req.tp == gr.disDisp:
@@ -151,7 +151,7 @@ async def signalkMsg(ws, displays: Displays, skData, status):
 
 def parseSkUpdates(skMsg: str,
                    skData,
-                   status: Status) -> list[bytes]:
+                   status: Status) -> list[tuple[DispData, str]]:
     """
     Parse the signal k websocet delta updates messages.
 
@@ -175,10 +175,11 @@ def parseSkUpdates(skMsg: str,
 
             for v in delta["values"]:
                 try:
-                    path = v["path"]
-                    msg = createDispMsq(skData, path, v["value"])
-                    if msg is not None:
-                        inkMsgs.append((msg, path))
+                    pathId = v["path"]
+                    value = v["value"]
+                    dispData = skData.getPath(pathId).createDispData(value)
+                    if dispData is not None:
+                        inkMsgs.append((dispData, pathId))
                 except KeyError:
                     t = "Faild to find path: {} on display"
                     status.setTxt(t.format(v["path"]))
@@ -186,31 +187,6 @@ def parseSkUpdates(skMsg: str,
         status.setTxt("Signal k unprocced messages: {}".format(jsObj))
 
     return inkMsgs
-
-
-def createDispMsq(skData: SkData,
-                  path: str,
-                  value: float) -> DispData | None:
-    """
-    Creates the display message from path and value:
-    :return: Display data
-    :rtype: DispData | None
-    """
-    pd = skData.getPathsData(path)
-    v = pd.fn(value)
-    isUpdate, v = pd.buffer.add(v, pd.decimals)
-    if pd.largePathData is not None:
-        if pd.largeValue < abs(v):
-            pd = pd.largePathData
-            v = pd.fn(value)
-            isUpdate, v = pd.buffer.add(v, pd.decimals)
-    res = None
-    if isUpdate:
-        isAlarm = False
-        if pd.alarm is not None:
-            isAlarm = pd.alarm.eval(v)
-        res = DispData(v, pd.decimals, pd.label, pd.dispUnits, isAlarm)
-    return res
 
 
 async def udpSubscribe(displays: Displays,

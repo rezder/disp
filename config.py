@@ -76,17 +76,9 @@ class Config:
                     "label": "DIS",
                     "bufSize": 0,
                     "bufFreq": 0,
-                    "largeValue": 999,
-                    "largePath": "1"
-                    },
-                "1": {
-                    "minPeriod": 4000,
-                    "decimals": 1,
-                    "units": 0,
-                    "dispUnits": 1,
-                    "label": "DIS",
-                    "bufSize": 0,
-                    "bufFreq": 0
+                    "bigValue": 999,
+                    "bigDispUnit": 1,
+                    "bigDecimals": 1
                     }
                 },
             "tabs": {
@@ -188,18 +180,13 @@ class Config:
     def getSubUdpServerIsEnable(self) -> bool:
         return not self.conf["disableSubServer"]
 
-    def getPathsRefs(self, path: str) -> (tuple[list[str], list[str]]):
-        paths = set()
+    def getPathsRefs(self, path: str) -> list[str]:
         tabs = set()
-        for cpath, pathJson in self.conf["paths"].items():
-            if "largePath" in pathJson.keys():
-                if pathJson["largePath"] == path:
-                    paths.add(cpath)
         for id, tab in self.conf["tabs"].items():
             for tabPath, pos in tab.items():
                 if path == tabPath:
                     tabs.add(id)
-        return (paths, tabs)
+        return tabs
 
     def setPath(self, pathId: str, pathJson: dict):
         self.conf["paths"][pathId] = pathJson

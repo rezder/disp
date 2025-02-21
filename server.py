@@ -250,21 +250,6 @@ class DispServer:
                 txt = "\nError! Buffer frequenze must"\
                     " not be bigger than buffer size"
                 errTxt = errTxt + txt
-
-            refs, _ = self.conf.getPathsRefs(pathId)
-            if pathId in refs:
-                minFld = "min"
-                maxFld = "max"
-                no = len(errFlds)
-                if minFld in pathJson.keys():
-                    errFlds.add(fld)
-                if maxFld in pathJson.keys():
-                    errFlds.add(fld)
-                if no != len(errFlds):
-                    isOk = False
-                    txt = "Error! No alarm on reference paths"\
-                        " it should be on primary path"
-                    errTxt = errTxt + "\n" + txt
         else:
             isOk = False
             errTxt = errTxt+"\nError! Server is running!"\
@@ -282,7 +267,7 @@ class DispServer:
         Deletes a path setting.
         Validate before deleting:
         Reference paths must not be deleted,
-        reference  paths and tabs holds reference.
+        reference  tabs holds reference.
         deleting: save to file, update conf create new skData
         :param path: the path that is being saved
         :returns:
@@ -293,15 +278,9 @@ class DispServer:
         isOk = True
         errTxt = ""
         pathsJson = None
-        pathRefs, tabRefs = self.conf.getPathsRefs(pathId)
-        if len(pathRefs) > 0:
-            isOk = False
-            txt = "Error! Path: {} is reference on paths:\n{}."
-            errTxt = errTxt + txt.format(pathId, pathRefs)
+        tabRefs = self.conf.getPathsRefs(pathId)
         if len(tabRefs) > 0:
             isOk = False
-            if len(pathRefs) > 0:
-                errTxt = errTxt+"\n"
             txt = "Error! Path: {} is reference on tabs:\n{}."
             errTxt = errTxt + txt.format(pathId, tabRefs)
 
