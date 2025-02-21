@@ -18,6 +18,21 @@ class DispData:
         self.sign = sign
         self.isAlarm = isAlarm
 
+    def __str__(self) -> str:
+        txt = "DispData: value:{},dec:{},label:{},unit:{},"\
+            "valueTxt:{},sign:{},isAlarm:{}"
+        txt = txt.format(self.value,
+                         self.decimals,
+                         self.label,
+                         units.shortTxt(self.units),
+                         self.valueTxt,
+                         self.sign,
+                         self.isAlarm)
+        return txt
+
+    def __repr__(self) ->str:
+        return self.__str__()
+
     def encode(self, pos: int) -> bytearray:
         """
         Create a 14 size bytearray:

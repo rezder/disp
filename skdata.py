@@ -108,7 +108,7 @@ class Buffer:
     def clear(self):
         if self.size > 1:
             for i in range(self.size):
-                self.buff = None
+                self.buf[i] = None
 
         self.sum = 0.0
         self.no = 0
@@ -190,7 +190,7 @@ class PathBig:
 
 
 class Path(PathBig):
-    def __init(self, path, pathJson, status):
+    def __init__(self, path, pathJson, status):
         self.minPeriod = pathJson["minPeriod"]
         super().__init__(pathJson["label"],
                          pathJson["decimals"],
@@ -233,7 +233,7 @@ class Path(PathBig):
                 dd.isAlarm = isAlarm
         if self.pathBig is not None:
             bigDd, bigBv = self.pathBig.createDispData(value)
-            if self.bigValue < abs(bv):
+            if bv is not None and self.bigValue < abs(bv):
                 if bigDd is not None:
                     bigDd.isAlarm = dd.isAlarm
                     self.buffer.last = self.pathBig.buffer.last
@@ -317,6 +317,7 @@ class SkData:
         return txt
 
     def msgUnsubPaths(self, paths) -> str:
+        raise Exception("Signal k does not allow this for now")
         unsubJson = {
             "context": "vessels.self",
             "unsubscribe": [

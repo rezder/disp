@@ -20,6 +20,10 @@
         {
           "path": "navigation.courseOverGroundTrue",
           "value": 1.26
+        },
+        {
+          "path": "navigation.speedThroughWater",
+          "value": 2.11
         }
       ]
     }

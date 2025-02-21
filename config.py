@@ -124,9 +124,12 @@ class Config:
             conf = json.load(f)
         return conf
 
-    def __init__(self):
+    def __init__(self, isDefault=False):
         self.fileName = "./dispserver.json"
-        self.conf = Config.load(self.fileName)
+        if isDefault:
+            self.conf = Config.default()
+        else:
+            self.conf = Config.load(self.fileName)
         self.defaultTab = "None"
 
     def getSubPort(self) -> int:

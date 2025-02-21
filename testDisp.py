@@ -4,64 +4,115 @@ from status import Status
 from config import Config
 from skdata import Buffer
 from dispdata import DispData
+from skdata import Path
 
 
-def main():
-    status = Status()
-    conf = Config()
-    skData = SkData(conf.getPathsJson(), status)
+def px(v, exp, isRaise=True):
+    if v != exp:
+        txt = "Expected:{} got: {}".format(exp, v)
+        if isRaise:
+            raise Exception(txt)
+        else:
+            print("Expected:{} got: {}".format(exp, v))
+
+
+def testSubSk(skData):
     print(skData.msgUnsubAll())
-    paths = ["environment.depth.belowTransducer",
-             "navigation.courseRhumbline.crossTrackError"]
 
-    print(skData.msgUnsubPaths(paths))
 
+def testPathNoBuffer(path,
+                     value,
+                     exp,
+                     pos,
+                     skData):
+    dd = createDispMsq(skData, path, value)
+    print(dd.value)
+    print(dd.encode(pos))
+    px(dd.value, exp)
+    return dd
+
+
+def testPathBuffer(path, values, exp, pos, skData: SkData):
+    pd = skData.getPathsData(path)
+    size = pd.buffer.size
+    freq = pd.buffer.freqNo
+
+    if size != len(values):
+        print("Error data is not usefull")
+    else:
+        for i in range(len(values)):
+            v = values[i]
+            dd = createDispMsq(skData, path, v)
+            print(skData.getPathsData(path).buffer)
+            if i != freq-1:
+                if dd is not None:
+                    print("Error expected None got {}".format(dd))
+            else:
+                print(dd.value)
+                print(dd.encode(pos))
+                px(dd.value, exp)
+
+
+def testPathCreateMsg(skData: SkData, status: Status, conf: Config):
     path = "environment.depth.belowTransducer"
     value = 7.0
-    # for i in range(2):
-    # createDispMsq(skData, path, value)
-    dd = createDispMsq(skData, path, value)
-    print(dd.encode(2))
+    exp = 7.0
+    pos = 2
+    testPathNoBuffer(path, value, exp, pos, skData)
 
     path = "navigation.speedOverGround"
-    value = 10.0
-    for i in range(3):
-        createDispMsq(skData, path, value)
-    dd = createDispMsq(skData, path, value)
-    print(dd.encode(1))
-
+    values = [10.0, 5.0, 10.0, 3.0]
+    pos = 3
+    exp = 13.6
+    testPathBuffer(path, values, exp, pos, skData)
     path = "navigation.courseOverGroundTrue"
-    value = 3.14
-    for i in range(3):
-        createDispMsq(skData, path, value)
-    dd = createDispMsq(skData, path, value)
-    print(dd.encode(0))
+    values = [3.12, 3.12, 3.14, 3.14]
+    pos = 0
+    exp = 179
+    testPathBuffer(path, values, exp, pos, skData)
+    skData.clearBuffers()
+    values = [6.24, 6.24, 0, 0]
+    pos = 0
+    exp = 0
+    try:
+        testPathBuffer(path, values, exp, pos, skData)
+    except Exception:
+        print("Error Avg cours does not work")
+
     path = "navigation.courseRhumbline.crossTrackError"
     value = -122
-    dd = createDispMsq(skData, path, value)
-    print(dd.encode(3))
-    path = "navigation.courseRhumbline.crossTrackError"
+    exp = -122
+    pos = 3
+    testPathNoBuffer(path, value, exp, pos, skData)
+
     value = 122
-    dd = createDispMsq(skData, path, value)
-    print(dd.encode(2))
+    exp = 122
+    pos = 2
+    testPathNoBuffer(path, value, exp, pos, skData)
+
     value = 1928
-    dd = createDispMsq(skData, path, value)
-    print(dd.encode(1))
+    exp = 1928
+    pos = 1
+    testPathNoBuffer(path, value, exp, pos, skData)
+
     path = "navigation.courseRhumbline.nextPoint.distance"
     value = 1600
-    dd = createDispMsq(skData, path, value)
-    print("Expect 0.9 nm")
-    print(dd.encode(3))
+    pos = 3
+    exp = 0.9
+    testPathNoBuffer(path, value, exp, pos, skData)
+
     value = 1000
-    dd = createDispMsq(skData, path, value)
-    print("Expect 0.5 nm")
-    print(dd.encode(1))
+    pos = 1
+    exp = 0.5
+    testPathNoBuffer(path, value, exp, pos, skData)
+
     with open("./testskdata.json", "r") as f:
         skMsg = f.read()
-        print(skMsg)
         bb = parseSkUpdates(skMsg, skData, status)
         print(bb)
 
+
+def testBuffer():
     b = Buffer(4, 4)
     isUpdate, value = b.add(1.5, 1)
     if isUpdate:
@@ -76,12 +127,12 @@ def main():
     if not isUpdate:
         print("expexted true")
     else:
-        if value != 1.5:
-            print("expect 1.5 got {}".format(value))
-    if b.fregIx != 0 or b.ix != 0 or b.sum != 4.5 or b.no != 3:
-        print("Failed add")
+        px(value, 1.5)
+        if b.fregIx != 0 or b.ix != 0 or b.sum != 4.5 or b.no != 3:
+            print("Failed add")
 
-    print(conf.getBroadcastIp())
+
+def testDispDataEncoding():
     pos = 1
     dp = DispData(1.2, 1, "SOG", 0, False)
     buff = dp.encode(pos)
@@ -95,6 +146,9 @@ def main():
 
     if dp.encode(pos) != dpcopy.encode(pos):
         print("decoded copy deviates")
+
+
+def testPathRefSearch(conf: Config):
     path = "environment.depth.belowTransducer"
     paths, tabs = conf.getPathsRefs(path)
     print(paths)
@@ -111,6 +165,23 @@ def main():
         print("Expected on referense in paths: {}".format(paths))
     if len(tabs) != 0:
         print("expected  zero path references in tabs: {}".format(tabs))
+
+
+def main():
+    print("###################################################Start test"
+          "###################################################")
+    status = Status()
+    conf = Config(isDefault=True)
+    skData = SkData(conf.getPathsJson(), status)
+
+    testSubSk(skData)
+    testPathCreateMsg(skData, status, conf)
+    testBuffer()
+
+    print(conf.getBroadcastIp())
+
+    testDispDataEncoding()
+    testPathRefSearch(conf)
 
 
 if __name__ == "__main__":
