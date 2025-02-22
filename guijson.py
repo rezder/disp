@@ -113,9 +113,12 @@ class Fld:
 class FldLabel(Fld):
     def __init__(self, parent: tk.Frame, fldDef: FldDef, noCap=False):
         super().__init__(parent, fldDef, noCap)
-        align = tk.W
+        align = tk.CENTER
         if self.fldDef.align == "e":
             align = tk.E
+        elif self.fldDef.align == "w":
+            align = tk.W
+
         self.fldLabelOut = tk.Label(self.mainFrame,
                                     textvariable=self.fldVar,
                                     anchor=align,
@@ -141,6 +144,15 @@ class FldLabel(Fld):
                 isOk = False
 
         return isOk
+
+
+class FldLabelHead(FldLabel):
+    def __init__(self, parent: tk.Frame, fldDef: FldDef):
+        super().__init__(parent, fldDef, noCap=True)
+        self.show(self.fldDef.header)
+
+    def addWidget(self, widget):
+        widget.grid(row=0, column=self.column)
 
 
 class FldEntry(Fld):

@@ -102,6 +102,17 @@ class TestFlds:
         self.fldLNoHead.validate()
         self.fldLNoHead.mainFrame.pack(fill="x")
 
+        fldDef = gt.FldDef("Path",
+                           6,
+                           False,
+                           str,
+                           str,
+                           "c")
+
+        self.fldLHead = gt.FldLabelHead(self.window, fldDef)
+        self.fldLHead.fldLabelOut.configure(bg="blue")
+        self.fldLHead.mainFrame.pack(fill="x")
+
     def testFldJsonOpt(self):
         conf = Config(isDefault=True)
         tabsJson = conf.getTabsJson()
