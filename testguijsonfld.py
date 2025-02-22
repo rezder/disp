@@ -24,7 +24,7 @@ class TestFlds:
                            True,
                            str,
                            gt.strJson,
-                           "e")
+                           "w")
         self.fld2 = gt.FldEntry(self.window, fldDef)
         self.fld2.show("")
         self.fld2.validate()
@@ -34,7 +34,7 @@ class TestFlds:
                            False,
                            str,
                            gt.strJson,
-                           "e")
+                           "w")
         self.fld3 = gt.FldEntry(self.window, fldDef)
         self.fld3.show("")
         self.fld3.validate()
@@ -74,18 +74,33 @@ class TestFlds:
         self.fldOpt.mainFrame.pack(fill="x")
         print(self.fldOpt.get())
         print(self.fld.get())
+        self.testFldJsonOpt()
+        self.testFldLabel()
 
+    def testFldLabel(self):
         fldDef = gt.FldDef("test4Label",
-                           10,
+                           15,
                            True,
                            str,
                            str,
-                           "e")
-        self.fld4 = gt.FldLabel(self.window, fldDef)
-        self.fld4.show("asdfh34j")
-        self.fld4.validate()
-        self.fld4.mainFrame.pack(fill="x")
-        self.testFldJsonOpt()
+                           "w")
+        self.fldL = gt.FldLabel(self.window, fldDef)
+        self.fldL.show("asdfh34j")
+        self.fldL.validate()
+        self.fldL.mainFrame.pack(fill="x")
+
+        fldDef = gt.FldDef("test4Label",
+                           15,
+                           True,
+                           str,
+                           str,
+                           "w")
+
+        self.fldLNoHead = gt.FldLabel(self.window, fldDef, isLabel=False)
+        self.fldLNoHead.fldLabelOut.configure(bg="green")
+        self.fldLNoHead.show("No header")
+        self.fldLNoHead.validate()
+        self.fldLNoHead.mainFrame.pack(fill="x")
 
     def testFldJsonOpt(self):
         conf = Config(isDefault=True)

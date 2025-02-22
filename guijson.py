@@ -48,18 +48,32 @@ class Fld:
     def __init__(self,
                  parent: tk.Frame,
                  fldDef: FldDef,
+                 isLabel: bool
                  ):
         self.parent = parent
         self.fldDef = fldDef
+        self.isLabel = isLabel
         self.mainFrame = tk.Frame(self.parent)
-        self.mainFrame.columnconfigure(1, weight=1)
-        self.mainFrame.columnconfigure(0, weight=0)
         self.mainFrame.config(highlightbackground=BCE)
         self.mainFrame.config(highlightthickness=0)
         txt = "{}:  ".format(self.fldDef.header)
-        self.fldLabel = tk.Label(self.mainFrame, text=txt)
-        self.fldLabel.grid(row=0, column=0)
         self.fldVar = tk.StringVar(value=self.fldDef.defaultStr)
+        self.fldHead = None
+        self.column = 0
+        self.mainFrame.columnconfigure(0, weight=1)
+        if self.isLabel:
+            self.mainFrame.columnconfigure(1, weight=1)
+            self.mainFrame.columnconfigure(0, weight=0)
+            txt = "{}:  ".format(self.fldDef.header)
+            self.fldHead = tk.Label(self.mainFrame, text=txt)
+            self.fldHead.grid(row=0, column=0)
+            self.column = 1
+
+    def addWidget(self, widget):
+        if self.isLabel:
+            widget.grid(sticky="e", row=0, column=self.column)
+        else:
+            widget.grid(sticky="ew", row=0, column=self.column)
 
     def show(self, data):
         self.fldVar.set(self.toStr(data))
@@ -97,17 +111,17 @@ class Fld:
 
 
 class FldLabel(Fld):
-    def __init__(self, parent: tk.Frame, fldDef: FldDef):
-        super().__init__(parent, fldDef)
-        align = "left"
+    def __init__(self, parent: tk.Frame, fldDef: FldDef, isLabel=True):
+        super().__init__(parent, fldDef, isLabel)
+        align = tk.W
         if self.fldDef.align == "e":
-            align = "right"
-        self.fldLabel = tk.Label(self.mainFrame,
-                                 textvariable=self.fldVar,
-                                 justify=align,
-                                 width=self.fldDef.width
-                                 )
-        self.fldLabel.grid(sticky="e", row=0, column=1)
+            align = tk.E
+        self.fldLabelOut = tk.Label(self.mainFrame,
+                                    textvariable=self.fldVar,
+                                    anchor=align,
+                                    width=self.fldDef.width
+                                    )
+        self.addWidget(self.fldLabelOut)
 
     def validate(self) -> bool:
         isOk = super().validate()
@@ -130,8 +144,8 @@ class FldLabel(Fld):
 
 
 class FldEntry(Fld):
-    def __init__(self, parent: tk.Frame, fldDef: FldDef):
-        super().__init__(parent, fldDef)
+    def __init__(self, parent: tk.Frame, fldDef: FldDef, isLabel=True):
+        super().__init__(parent, fldDef, isLabel)
         align = "left"
         if self.fldDef.align == "e":
             align = "right"
@@ -140,7 +154,7 @@ class FldEntry(Fld):
                                  justify=align,
                                  width=self.fldDef.width
                                  )
-        self.fldEntry.grid(sticky="e", row=0, column=1)
+        self.addWidget(self.fldEntry)
 
     def validate(self) -> bool:
         isOk = super().validate()
@@ -165,8 +179,12 @@ class FldEntry(Fld):
 
 
 class FldOpt(Fld):
-    def __init__(self, parent: tk.Frame, fldDef: FldDef, options: list):
-        super().__init__(parent, fldDef)
+    def __init__(self,
+                 parent: tk.Frame,
+                 fldDef: FldDef,
+                 options: list,
+                 isLabel=True):
+        super().__init__(parent, fldDef, isLabel)
 
         self.options: list[str] = list()
         for i in options:
@@ -176,7 +194,7 @@ class FldOpt(Fld):
                                     self.fldVar,
                                     *self.options)
         self.fldOpt.config(width=self.fldDef.width)
-        self.fldOpt.grid(sticky="e", row=0, column=1)
+        self.addWidget(self.fldOpt)
 
     def addOpt(self, opt):
         strOpt = self.toStr(opt)
@@ -223,7 +241,8 @@ class FldOptJson(FldOpt):
                  fldDef: FldDef,
                  itemsJson,
                  dpHeadJson,
-                 keyHeadJson
+                 keyHeadJson,
+                 isLabel=True
                  ):
 
         self.itemsJson = itemsJson
@@ -232,17 +251,17 @@ class FldOptJson(FldOpt):
 
         super().__init__(parent,
                          fldDef,
-                         self.getSortedOptions())
+                         self.getSortedOptions(), isLabel)
 
     def getSortedOptions(self):
-        sortedList = None
+        sortList = None
         if self.dpHeadJson != self.keyHeadJson:
-            sortedList = list(sorted(self.itemsJson.items(),
-                                     key=lambda item: item[1][self.dpHeadJson]))
+            sortList = list(sorted(self.itemsJson.items(),
+                                   key=lambda item: item[1][self.dpHeadJson]))
         else:
-            sortedList = list(sorted(self.itemsJson.items(),
-                                     key=lambda item: item[0]))
-        return sortedList
+            sortList = list(sorted(self.itemsJson.items(),
+                                   key=lambda item: item[0]))
+        return sortList
 
     def toStr(self, value):
         k, jsonItem = value
