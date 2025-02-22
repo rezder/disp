@@ -164,6 +164,9 @@ class Config:
         """
         return dict(self.conf["paths"])
 
+    def getTabsJson(self) -> dict:
+        return self.conf["tabs"]
+
     def getCurTabPaths(self, id) -> dict:
         ll = dict(self.conf["tabs"][self.conf["curTabs"][id]])
         return ll

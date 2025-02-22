@@ -1,7 +1,7 @@
 import tkinter as tk
 import guijson as gt
 import units
-
+from config import Config
 
 class TestFlds:
 
@@ -74,6 +74,64 @@ class TestFlds:
         self.fldOpt.mainFrame.pack(fill="x")
         print(self.fldOpt.get())
         print(self.fld.get())
+
+        fldDef = gt.FldDef("test4Label",
+                           10,
+                           True,
+                           str,
+                           str,
+                           "e")
+        self.fld4 = gt.FldLabel(self.window, fldDef)
+        self.fld4.show("asdfh34j")
+        self.fld4.validate()
+        self.fld4.mainFrame.pack(fill="x")
+        self.testFldJsonOpt()
+
+    def testFldJsonOpt(self):
+        conf = Config(isDefault=True)
+        tabsJson = conf.getTabsJson()
+        pathsJson = conf.getPathsJson()
+
+        fldDef = gt.FldDef("test4JsonOpt",
+                           10,
+                           True,
+                           str,
+                           str,
+                           "e",
+                           default="Default")
+
+        self.fldOptJson = gt.FldOptJson(self.window,
+                                        fldDef,
+                                        tabsJson,
+                                        dpHeadJson="tab",
+                                        keyHeadJson="tab"
+                                        )
+        self.fldOptJson.show(("Default", tabsJson["Default"]))
+        self.fldOptJson.validate()
+        self.fldOptJson.mainFrame.pack(fill="x")
+
+        fldDef = gt.FldDef("test4JsonOptLabel",
+                           10,
+                           True,
+                           str,
+                           str,
+                           "e",
+                           default="DBT")
+
+        self.fldOptJsonLabel = gt.FldOptJson(self.window,
+                                             fldDef,
+                                             pathsJson,
+                                             dpHeadJson="label",
+                                             keyHeadJson="tab"
+
+                                             )
+        id = "environment.depth.belowTransducer"
+        self.fldOptJsonLabel.show((id, pathsJson[id]))
+        self.fldOptJsonLabel.validate()
+        self.fldOptJsonLabel.mainFrame.pack(fill="x")
+        path2, item2 = self.fldOptJsonLabel.get()
+        if path2 != "environment.depth.belowTransducer":
+            print("Error")
 
     def start(self):
         self.window.mainloop()

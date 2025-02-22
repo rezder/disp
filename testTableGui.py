@@ -97,6 +97,7 @@ class TestTable:
         self.row.show(path, self.jsonObj[path])
         if not self.row.validateFlds():
             print("Faild data should be fine")
+
         path2, jsonObj2 = self.row.get()
         if path2 != path:
             print("failed there should be no change")
@@ -108,38 +109,29 @@ class TestTable:
             print("Faild data should be fine")
         self.row.mainFrame.pack()
 
-        conv = {"path": str,
-                "minPeriod": int,
-                "decimals": int,
-                "units": units.shortTxt,
-                "dispUnits": units.shortTxt,
-                "label": str,
-                "bufSize": int,
-                "bufFreq": int,
-                "largeValue": int,
-                "largePath": str
-                }
+        fldDefs: dict[str, gj.FldDef] = dict()
+        for path, fld in self.row.getFlds().items():
+            fldDefs[path] = fld.fldDef
 
         self.table = gt.Table(self.window,
                               self.jsonObj,
                               "path",
                               "path",
-                              conv,
                               self.cb,
-                              dpHeaders=self.row.jsonNameXFldHead()
-                              )
+                              fldDefs)
         self.table.show(self.jsonObj)
         self.table.mainFrame.pack()
 
-        self.table2 = gt.Table(self.window,
-                               self.jsonObj,
-                               "path",
-                               "path",
-                               conv,
-                               self.cb
-                               )
-        self.table2.show(self.jsonObj)
-        self.table2.mainFrame.pack()
+# No header change is towork must make jsonfld to flddef 
+#        self.table2 = gt.Table(self.window,
+#                               self.jsonObj,
+#                               "path",
+#                               "path",
+#                               conv,
+#                              self.cb
+#                               )
+#       self.table2.show(self.jsonObj)
+#      self.table2.mainFrame.pack()
 
     def cb(self, path, head):
         if head != "path":

@@ -62,7 +62,7 @@ class Fld:
         self.fldVar = tk.StringVar(value=self.fldDef.defaultStr)
 
     def show(self, data):
-        self.fldVar.set(self.fldDef.toStr(data))
+        self.fldVar.set(self.toStr(data))
 
     def get(self):
         """
@@ -72,7 +72,7 @@ class Fld:
         str will never fail use strJson
         :raises: ValueError if translation fails
         """
-        return self.fldDef.fromStr(self.fldVar.get())
+        return self.fromStr(self.fldVar.get())
 
     def clear(self):
         self.fldVar.set(self.fldDef.defaultStr)
@@ -88,6 +88,45 @@ class Fld:
             self.mainFrame.config(highlightthickness=3)
         else:
             self.mainFrame.config(highlightthickness=0)
+
+    def toStr(self, value) -> str:
+        return self.fldDef.toStr(value)
+
+    def fromStr(self, txt: str):
+        return self.fldDef.fromStr(txt)
+
+
+class FldLabel(Fld):
+    def __init__(self, parent: tk.Frame, fldDef: FldDef):
+        super().__init__(parent, fldDef)
+        align = "left"
+        if self.fldDef.align == "e":
+            align = "right"
+        self.fldLabel = tk.Label(self.mainFrame,
+                                 textvariable=self.fldVar,
+                                 justify=align,
+                                 width=self.fldDef.width
+                                 )
+        self.fldLabel.grid(sticky="e", row=0, column=1)
+
+    def validate(self) -> bool:
+        isOk = super().validate()
+        txt = self.fldVar.get()
+        if txt == "":
+            if self.fldDef.isMan:
+                if self.fldDef.defaultStr == "":
+                    self.setError(True)
+                    isOk = False
+                else:
+                    self.fldVar.set(self.fldDef.defaultStr)
+        else:
+            try:
+                self.fromStr(txt)
+            except ValueError:
+                self.setError(True)
+                isOk = False
+
+        return isOk
 
 
 class FldEntry(Fld):
@@ -117,7 +156,7 @@ class FldEntry(Fld):
                     self.fldVar.set(self.fldDef.defaultStr)
         else:
             try:
-                self.fldDef.fromStr(txt)
+                self.fromStr(txt)
             except ValueError:
                 self.setError(True)
                 isOk = False
@@ -131,7 +170,7 @@ class FldOpt(Fld):
 
         self.options: list[str] = list()
         for i in options:
-            self.options.append(self.fldDef.toStr(i))
+            self.options.append(self.toStr(i))
 
         self.fldOpt = tk.OptionMenu(self.mainFrame,
                                     self.fldVar,
@@ -140,7 +179,7 @@ class FldOpt(Fld):
         self.fldOpt.grid(sticky="e", row=0, column=1)
 
     def addOpt(self, opt):
-        strOpt = self.fldDef.toStr(opt)
+        strOpt = self.toStr(opt)
         if strOpt not in self.options:
             self.options.append(strOpt)
             menu = self.fldOpt['menu']
@@ -148,7 +187,7 @@ class FldOpt(Fld):
                                                              strOpt))
 
     def removeOpt(self, opt):
-        strOpt = self.fldDef.toStr(opt)
+        strOpt = self.toStr(opt)
         ix = self.options.index(strOpt)  # raise ValueError
         if self.fldDef.defaultStr == strOpt or self.fldVar.get() == strOpt:
             raise ValueError
@@ -160,7 +199,7 @@ class FldOpt(Fld):
         strOpts = list()
         menu = self.fldOpt['menu']
         for opt in opts:
-            so = self.fldDef.toStr(opt)
+            so = self.toStr(opt)
             strOpts.append(so)
         default = self.fldDef.defaultStr
         if default not in strOpts or self.fldVar.get() not in strOpts:
@@ -170,6 +209,71 @@ class FldOpt(Fld):
             menu.add_command(label=strOpt, command=tk._setit(self.fldVar,
                                                              strOpt))
         self.options = strOpts
+
+
+class FldOptJson(FldOpt):
+    """
+    Option fld based on json object.
+    Could be improved with own popup table
+    and entry field. To allow for more
+    header fields.
+    """
+    def __init__(self,
+                 parent: tk.Frame,
+                 fldDef: FldDef,
+                 itemsJson,
+                 dpHeadJson,
+                 keyHeadJson
+                 ):
+
+        self.itemsJson = itemsJson
+        self.dpHeadJson = dpHeadJson
+        self.keyHeadJson = keyHeadJson
+
+        super().__init__(parent,
+                         fldDef,
+                         self.getSortedOptions())
+
+    def getSortedOptions(self):
+        sortedList = None
+        if self.dpHeadJson != self.keyHeadJson:
+            sortedList = list(sorted(self.itemsJson.items(),
+                                     key=lambda item: item[1][self.dpHeadJson]))
+        else:
+            sortedList = list(sorted(self.itemsJson.items(),
+                                     key=lambda item: item[0]))
+        return sortedList
+
+    def toStr(self, value):
+        k, jsonItem = value
+        if self.dpHeadJson in jsonItem.keys():
+            v = jsonItem[self.dpHeadJson]
+            return self.fldDef.toStr(v)
+        else:
+            return self.fldDef.toStr(k)
+
+    def fromStr(self, txt):
+        res = None
+        for key, item in self.itemsJson.items():
+            v = None
+            if self.dpHeadJson in item.keys():
+                v = item[self.dpHeadJson]
+            else:
+                v = key
+            if v == self.fldDef.fromStr(txt):
+                res = (key, item)
+                break
+        return res
+
+    def addOpt(self, opt):
+        raise ValueError("Not possible")
+
+    def removeOpt(self, opt):
+        raise ValueError("Not possible")
+
+    def replaceOpts(self, itemsJson: dict):
+        self.itemsJson = itemsJson
+        super().replaceOpts(self.getSortedOptions())
 
 
 class Table:

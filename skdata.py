@@ -247,43 +247,6 @@ class Path(PathBig):
         self.alarm.setEnable(isEnable)
 
 
-class PathData:
-
-    def __init__(self, pathJson, path, status):
-        self.path = path
-        self.minPeriod = pathJson["minPeriod"]
-        self.decimals = pathJson["decimals"]
-        self.dispUnits = pathJson["dispUnits"]
-        self.label = pathJson["label"]
-        self.fn = units.conversion(pathJson["units"], pathJson["dispUnits"])
-        self.buffer = Buffer(pathJson["bufSize"], pathJson["bufFreq"])
-        self.largeValue = 0
-        self.largePathData = None
-        self.largePath = None
-        if "largeValue" in pathJson:
-            self.largeValue = pathJson["largeValue"]
-            self.largePath = pathJson["largePath"]
-        max = None
-        min = None
-        isMax = "max" in pathJson
-        isMin = "min" in pathJson
-        if isMax:
-            max = pathJson["max"]
-        if isMin:
-            min = pathJson["min"]
-        if isMin or isMax:
-            alarm = Alarm(path, self.label, max, min, 5, status)
-            self.alarm = alarm
-        else:
-            self.alarm = None
-
-    def setLargePathData(self, pd):
-        self.largePathData = pd
-
-    def setEnableAlarm(self, isEnable: bool):
-        self.alarm.setEnable(isEnable)
-
-
 class SkData:
     """
     The displays Signal k config data. configured in the
