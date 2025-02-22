@@ -48,11 +48,11 @@ class Fld:
     def __init__(self,
                  parent: tk.Frame,
                  fldDef: FldDef,
-                 isLabel: bool
+                 noCap: bool
                  ):
         self.parent = parent
         self.fldDef = fldDef
-        self.isLabel = isLabel
+        self.noCap = noCap
         self.mainFrame = tk.Frame(self.parent)
         self.mainFrame.config(highlightbackground=BCE)
         self.mainFrame.config(highlightthickness=0)
@@ -61,7 +61,7 @@ class Fld:
         self.fldHead = None
         self.column = 0
         self.mainFrame.columnconfigure(0, weight=1)
-        if self.isLabel:
+        if not self.noCap:
             self.mainFrame.columnconfigure(1, weight=1)
             self.mainFrame.columnconfigure(0, weight=0)
             txt = "{}:  ".format(self.fldDef.header)
@@ -70,10 +70,10 @@ class Fld:
             self.column = 1
 
     def addWidget(self, widget):
-        if self.isLabel:
-            widget.grid(sticky="e", row=0, column=self.column)
-        else:
+        if self.noCap:
             widget.grid(sticky="ew", row=0, column=self.column)
+        else:
+            widget.grid(sticky="e", row=0, column=self.column)
 
     def show(self, data):
         self.fldVar.set(self.toStr(data))
@@ -111,8 +111,8 @@ class Fld:
 
 
 class FldLabel(Fld):
-    def __init__(self, parent: tk.Frame, fldDef: FldDef, isLabel=True):
-        super().__init__(parent, fldDef, isLabel)
+    def __init__(self, parent: tk.Frame, fldDef: FldDef, noCap=False):
+        super().__init__(parent, fldDef, noCap)
         align = tk.W
         if self.fldDef.align == "e":
             align = tk.E
@@ -144,8 +144,8 @@ class FldLabel(Fld):
 
 
 class FldEntry(Fld):
-    def __init__(self, parent: tk.Frame, fldDef: FldDef, isLabel=True):
-        super().__init__(parent, fldDef, isLabel)
+    def __init__(self, parent: tk.Frame, fldDef: FldDef, noCap=False):
+        super().__init__(parent, fldDef, noCap)
         align = "left"
         if self.fldDef.align == "e":
             align = "right"
@@ -183,8 +183,8 @@ class FldOpt(Fld):
                  parent: tk.Frame,
                  fldDef: FldDef,
                  options: list,
-                 isLabel=True):
-        super().__init__(parent, fldDef, isLabel)
+                 noCap=False):
+        super().__init__(parent, fldDef, noCap)
 
         self.options: list[str] = list()
         for i in options:
@@ -242,7 +242,7 @@ class FldOptJson(FldOpt):
                  itemsJson,
                  dpHeadJson,
                  keyHeadJson,
-                 isLabel=True
+                 noCap=False
                  ):
 
         self.itemsJson = itemsJson
@@ -251,7 +251,8 @@ class FldOptJson(FldOpt):
 
         super().__init__(parent,
                          fldDef,
-                         self.getSortedOptions(), isLabel)
+                         self.getSortedOptions(),
+                         noCap)
 
     def getSortedOptions(self):
         sortList = None

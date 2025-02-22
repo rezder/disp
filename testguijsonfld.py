@@ -96,7 +96,7 @@ class TestFlds:
                            str,
                            "w")
 
-        self.fldLNoHead = gt.FldLabel(self.window, fldDef, isLabel=False)
+        self.fldLNoHead = gt.FldLabel(self.window, fldDef, noCap=True)
         self.fldLNoHead.fldLabelOut.configure(bg="green")
         self.fldLNoHead.show("No header")
         self.fldLNoHead.validate()
