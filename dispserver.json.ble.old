@@ -63,17 +63,10 @@
       "label": "DIS",
       "bufSize": 0,
       "bufFreq": 0,
-      "largeValue": 999,
-      "largePath": "1"
-    },
-    "1": {
-      "minPeriod": 4000,
-      "decimals": 1,
-      "units": 0,
-      "dispUnits": 1,
-      "label": "DIS",
-      "bufSize": 0,
-      "bufFreq": 0
+      "bigValue": 999,
+      "bigDispUnit": 1,
+      "bigDeciams": 1
+
     }
   },
   "tabs": {

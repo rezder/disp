@@ -7,7 +7,7 @@ class TestPaths:
     def __init__(self):
         self.window = tk.Tk()
         self.window.title("Test paths")
-        conf = Config()
+        conf = Config(True)
         self.pathJson = conf.getPathsJson()
         self.paths = Paths(self.window,
                            self.pathJson,

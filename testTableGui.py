@@ -1,6 +1,5 @@
 import tkinter as tk
 import guijson as gt
-import units
 import guipaths as gp
 import guijson as gj
 
@@ -78,16 +77,9 @@ class TestTable:
                 "label": "DIS",
                 "bufSize": 0,
                 "bufFreq": 0,
-                "largeValue": 999,
-                "largePath": "1"
-            },
-            "1": {
-                "decimals": 1,
-                "units": 0,
-                "dispUnits": 1,
-                "label": "DIS",
-                "bufSize": 0,
-                "bufFreq": 0
+                "bigValue": 999,
+                "bigDispUnit": 1,
+                "bigDecimals": 1
             }
         }
         path = "navigation.courseRhumbline.nextPoint.bearingTrue"
@@ -95,30 +87,29 @@ class TestTable:
         self.rowFrame.pack()
         self.row = gp.Path(self.rowFrame)
         self.row.show(path, self.jsonObj[path])
+        print()
         if not self.row.validateFlds():
             print("Faild data should be fine")
 
         path2, jsonObj2 = self.row.get()
         if path2 != path:
             print("failed there should be no change")
+
         if not gj.compJson(jsonObj2, self.jsonObj[path]):
             print("failed there should be no change")
 
-        self.row.clear()
-        if not self.row.validateFlds():
-            print("Faild data should be fine")
         self.row.mainFrame.pack()
 
-        fldDefs: dict[str, gj.FldDef] = dict()
-        for path, fld in self.row.getFlds().items():
-            fldDefs[path] = fld.fldDef
+        sortFldDef = None
+        for fldDef in self.row.getFldDefs():
+            if fldDef.isKey:
+                sortFldDef = fldDef
 
         self.table = gt.Table(self.window,
-                              self.jsonObj,
-                              "path",
-                              "path",
+                              len(self.jsonObj),
+                              sortFldDef,
                               self.cb,
-                              fldDefs)
+                              self.row.getFldDefs())
         self.table.show(self.jsonObj)
         self.table.mainFrame.pack()
 

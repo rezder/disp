@@ -3,14 +3,15 @@ import guijson as gt
 import units
 from config import Config
 
+
 class TestFlds:
 
     def __init__(self):
         self.window = tk.Tk()
         self.window.title("Test table")
-        fldDef = gt.FldDef("test",
+        fldDef = gt.FldDef(None,
+                           "test",
                            10,
-                           True,
                            str,
                            int,
                            "e")
@@ -19,9 +20,9 @@ class TestFlds:
         self.fld.show(4)
         self.fld.setError(True)
         self.fld.mainFrame.pack(fill="x")
-        fldDef = gt.FldDef("test2",
+        fldDef = gt.FldDef(None,
+                           "test2",
                            10,
-                           True,
                            str,
                            gt.strJson,
                            "w")
@@ -29,13 +30,13 @@ class TestFlds:
         self.fld2.show("")
         self.fld2.validate()
         self.fld2.mainFrame.pack(fill="x")
-        fldDef = gt.FldDef("test3",
+        fldDef = gt.FldDef(None,
+                           "test3",
                            10,
-                           False,
                            str,
                            gt.strJson,
                            "w")
-        self.fld3 = gt.FldEntry(self.window, fldDef)
+        self.fld3 = gt.FldEntry(self.window, fldDef, isMan=False)
         self.fld3.show("")
         self.fld3.validate()
         lx = True
@@ -48,15 +49,15 @@ class TestFlds:
 
         self.fld3.mainFrame.pack(fill="x")
 
-        fldDef = gt.FldDef("Units",
+        fldDef = gt.FldDef(None,
+                           "Units",
                            4,
-                           True,
                            units.shortTxt,
                            units.noShort,
                            "w",
-                           units.m)
+                           )
 
-        self.fldOpt = gt.FldOpt(self.window, fldDef, units.all())
+        self.fldOpt = gt.FldOpt(self.window, fldDef, units.all(), units.m)
         self.fldOpt.show(units.ms)
         self.fldOpt.setError(True)
         self.fldOpt.removeOpt(20)
@@ -78,9 +79,9 @@ class TestFlds:
         self.testFldLabel()
 
     def testFldLabel(self):
-        fldDef = gt.FldDef("test4Label",
+        fldDef = gt.FldDef(None,
+                           "test4Label",
                            15,
-                           True,
                            str,
                            str,
                            "w")
@@ -89,9 +90,9 @@ class TestFlds:
         self.fldL.validate()
         self.fldL.mainFrame.pack(fill="x")
 
-        fldDef = gt.FldDef("test4Label",
+        fldDef = gt.FldDef(None,
+                           "test4Label",
                            15,
-                           True,
                            str,
                            str,
                            "w")
@@ -102,9 +103,9 @@ class TestFlds:
         self.fldLNoHead.validate()
         self.fldLNoHead.mainFrame.pack(fill="x")
 
-        fldDef = gt.FldDef("Path",
+        fldDef = gt.FldDef(None,
+                           "Path",
                            6,
-                           False,
                            str,
                            str,
                            "c")
@@ -118,38 +119,40 @@ class TestFlds:
         tabsJson = conf.getTabsJson()
         pathsJson = conf.getPathsJson()
 
-        fldDef = gt.FldDef("test4JsonOpt",
+        fldDef = gt.FldDef(None,
+                           "test4JsonOpt",
                            10,
-                           True,
                            str,
                            str,
                            "e",
-                           default="Default")
+                           )
 
         self.fldOptJson = gt.FldOptJson(self.window,
                                         fldDef,
                                         tabsJson,
                                         dpHeadJson="tab",
-                                        keyHeadJson="tab"
+                                        keyHeadJson="tab",
+                                        default=("Default", {})
                                         )
         self.fldOptJson.show(("Default", tabsJson["Default"]))
         self.fldOptJson.validate()
         self.fldOptJson.mainFrame.pack(fill="x")
 
-        fldDef = gt.FldDef("test4JsonOptLabel",
+        fldDef = gt.FldDef(None,
+                           "test4JsonOptLabel",
                            10,
-                           True,
                            str,
                            str,
                            "e",
-                           default="DBT")
-
+                           )
+        key = "DBT"
+        v = pathsJson["environment.depth.belowTransducer"]
         self.fldOptJsonLabel = gt.FldOptJson(self.window,
                                              fldDef,
                                              pathsJson,
                                              dpHeadJson="label",
-                                             keyHeadJson="tab"
-
+                                             keyHeadJson="tab",
+                                             default=(key, v)
                                              )
         id = "environment.depth.belowTransducer"
         self.fldOptJsonLabel.show((id, pathsJson[id]))

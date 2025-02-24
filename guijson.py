@@ -25,39 +25,44 @@ def compJson(json1: dict, json2: dict) -> bool:
 
 class FldDef:
     def __init__(self,
+                 jsonHead: str | None,
                  header: str,
                  width: int,
-                 isMandatory: bool,
                  toStr,
                  fromStr,
-                 align,
-                 default=None):
+                 align: str,
+                 isKey: bool = False
+                 ):
         self.align = align
         self.header = header
         self.toStr = toStr
         self.fromStr = fromStr
         self.width = width
-        self.isMan = isMandatory
-        if default is None:
-            self.defaultStr = ""
-        else:
-            self.defaultStr = self.toStr(default)
+        self.jsonHead = jsonHead
+        self.isKey = isKey
 
 
 class Fld:
     def __init__(self,
                  parent: tk.Frame,
                  fldDef: FldDef,
-                 noCap: bool
+                 noCap: bool,
+                 isMan: bool,
+                 default,
                  ):
         self.parent = parent
         self.fldDef = fldDef
         self.noCap = noCap
+        self.isMan = isMan
+        if default is None:
+            self.defaultStr = ""
+        else:
+            self.defaultStr = self.toStr(default)
         self.mainFrame = tk.Frame(self.parent)
         self.mainFrame.config(highlightbackground=BCE)
         self.mainFrame.config(highlightthickness=0)
         txt = "{}:  ".format(self.fldDef.header)
-        self.fldVar = tk.StringVar(value=self.fldDef.defaultStr)
+        self.fldVar = tk.StringVar(value=self.defaultStr)
         self.fldHead = None
         self.column = 0
         self.mainFrame.columnconfigure(0, weight=1)
@@ -89,7 +94,7 @@ class Fld:
         return self.fromStr(self.fldVar.get())
 
     def clear(self):
-        self.fldVar.set(self.fldDef.defaultStr)
+        self.fldVar.set(self.defaultStr)
         self.mainFrame.config(highlightthickness=0)
 
     def validate(self) -> bool:
@@ -111,8 +116,9 @@ class Fld:
 
 
 class FldLabel(Fld):
-    def __init__(self, parent: tk.Frame, fldDef: FldDef, noCap=False):
-        super().__init__(parent, fldDef, noCap)
+    def __init__(self, parent: tk.Frame, fldDef: FldDef,
+                 noCap=False, isMan=False, default=None):
+        super().__init__(parent, fldDef, noCap, isMan, default)
         align = tk.CENTER
         if self.fldDef.align == "e":
             align = tk.E
@@ -130,12 +136,12 @@ class FldLabel(Fld):
         isOk = super().validate()
         txt = self.fldVar.get()
         if txt == "":
-            if self.fldDef.isMan:
-                if self.fldDef.defaultStr == "":
+            if self.isMan:
+                if self.defaultStr == "":
                     self.setError(True)
                     isOk = False
                 else:
-                    self.fldVar.set(self.fldDef.defaultStr)
+                    self.fldVar.set(self.defaultStr)
         else:
             try:
                 self.fromStr(txt)
@@ -148,16 +154,24 @@ class FldLabel(Fld):
 
 class FldLabelHead(FldLabel):
     def __init__(self, parent: tk.Frame, fldDef: FldDef):
-        super().__init__(parent, fldDef, noCap=True)
+        super().__init__(parent, fldDef, noCap=True, isMan=False, default=None)
         self.show(self.fldDef.header)
 
     def addWidget(self, widget):
         widget.grid(row=0, column=self.column)
 
+    def toStr(self, value) -> str:
+        return value
+
+    def fromStr(self, txt: str):
+        raise Exception("Should not be use")
+        return self.fldDef.fromStr(txt)
+
 
 class FldEntry(Fld):
-    def __init__(self, parent: tk.Frame, fldDef: FldDef, noCap=False):
-        super().__init__(parent, fldDef, noCap)
+    def __init__(self, parent: tk.Frame, fldDef: FldDef,
+                 noCap=False, isMan=True, default=None):
+        super().__init__(parent, fldDef, noCap, isMan=isMan, default=default)
         align = "left"
         if self.fldDef.align == "e":
             align = "right"
@@ -174,12 +188,12 @@ class FldEntry(Fld):
         txt = txt.strip()
         self.fldVar.set(txt)
         if txt == "":
-            if self.fldDef.isMan:
-                if self.fldDef.defaultStr == "":
+            if self.isMan:
+                if self.defaultStr == "":
                     self.setError(True)
                     isOk = False
                 else:
-                    self.fldVar.set(self.fldDef.defaultStr)
+                    self.fldVar.set(self.defaultStr)
         else:
             try:
                 self.fromStr(txt)
@@ -195,8 +209,10 @@ class FldOpt(Fld):
                  parent: tk.Frame,
                  fldDef: FldDef,
                  options: list,
-                 noCap=False):
-        super().__init__(parent, fldDef, noCap)
+                 default,
+                 noCap=False,
+                 isMan=True):
+        super().__init__(parent, fldDef, noCap, isMan=isMan, default=default)
 
         self.options: list[str] = list()
         for i in options:
@@ -219,7 +235,7 @@ class FldOpt(Fld):
     def removeOpt(self, opt):
         strOpt = self.toStr(opt)
         ix = self.options.index(strOpt)  # raise ValueError
-        if self.fldDef.defaultStr == strOpt or self.fldVar.get() == strOpt:
+        if self.defaultStr == strOpt or self.fldVar.get() == strOpt:
             raise ValueError
         self.options.remove(strOpt)
         menu = self.fldOpt['menu']
@@ -231,7 +247,7 @@ class FldOpt(Fld):
         for opt in opts:
             so = self.toStr(opt)
             strOpts.append(so)
-        default = self.fldDef.defaultStr
+        default = self.defaultStr
         if default not in strOpts or self.fldVar.get() not in strOpts:
             raise ValueError
         menu.delete(0, 'end')
@@ -254,6 +270,7 @@ class FldOptJson(FldOpt):
                  itemsJson,
                  dpHeadJson,
                  keyHeadJson,
+                 default,
                  noCap=False
                  ):
 
@@ -264,7 +281,8 @@ class FldOptJson(FldOpt):
         super().__init__(parent,
                          fldDef,
                          self.getSortedOptions(),
-                         noCap)
+                         default,
+                         noCap=noCap)
 
     def getSortedOptions(self):
         sortList = None
@@ -311,17 +329,15 @@ class FldOptJson(FldOpt):
 class Table:
     def __init__(self,
                  parent: tk.Frame,
-                 jsonObj: dict,
-                 keyHeader: str,
-                 sortHeader: str,
+                 initRows: int,
+                 sortFldDef: FldDef,
                  rowClickCb,
-                 flds: dict[str, FldDef]):
+                 flds: list[FldDef]):
         self.parent = parent
         self.mainFrame = tk.Frame(self.parent)
-        self.flds = flds
-        self.keyHead = keyHeader
-        self.sortHead = sortHeader
-        self.rowsNo = len(jsonObj)
+        self.fldDefs = flds
+        self.sortFldDef = sortFldDef
+        self.rowsNo = initRows
         self.rowClickCb = rowClickCb
 
         self.columnsNo = len(flds)
@@ -329,7 +345,7 @@ class Table:
         for r in range(self.rowsNo+1):
             row: list[tuple[tk.Label, tk.StringVar]] = list()
             c = 0
-            for fldDef in self.flds.values():
+            for fldDef in self.fldDefs:
                 sVar = tk.StringVar()
                 lable = tk.Label(self.mainFrame, textvariable=sVar)
                 if r == 0:
@@ -341,16 +357,18 @@ class Table:
             self.labels.append(row)
 
         i = 0
-        for fldDef in self.flds.values():
+        for fldDef in self.fldDefs:
             label, sVar = self.labels[0][i]
             i = i + 1
             sVar.set(fldDef.header)
 
     def show(self, jsonObj: dict):
         sjsonObj = None
-        if self.sortHead != self.keyHead:
+        k = self.sortFldDef.jsonHead
+        if not self.sortFldDef.isKey:
+            k = self.sortFldDef.jsonHead
             sjsonObj = dict(sorted(jsonObj.items(),
-                                   key=lambda item: item[1][self.sortHead]))
+                                   key=lambda item: item[1][k]))
         else:
             sjsonObj = dict(sorted(jsonObj.items(), key=lambda item: item[0]))
         rowsNo = len(sjsonObj)
@@ -359,7 +377,7 @@ class Table:
             for r in range(self.rowsNo, diff+self.rowsNo):
                 row: list[tuple[tk.Label, tk.StringVar]] = list()
                 c = 0
-                for fldDef in self.flds.values():
+                for fldDef in self.fldDefs:
                     sVar = tk.StringVar()
                     lable = tk.Label(self.mainFrame, textvariable=sVar)
                     lable.grid(row=r, column=c, sticky=fldDef.align)
@@ -376,22 +394,20 @@ class Table:
         rowNo = 1
         columnNo = 0
         for k, v in sjsonObj.items():
-            labelH, strVarH = self.labels[rowNo][columnNo]
-            strVarH.set(self.flds[self.keyHead].toStr(k))
-            labelH.bind("<ButtonRelease-1>",
-                        partial(self.rowcb, k, self.keyHead))
-            columnNo = columnNo + 1
-            for head, fldDef in self.flds.items():
-                if head != self.keyHead:
-                    if head in v.keys():
-                        labelC, strVarC = self.labels[rowNo][columnNo]
-                        labelC.bind("<ButtonRelease-1>",
-                                    partial(self.rowcb, k, head))
-                        strVarC.set(fldDef.toStr(v[head]))
-                    else:
-                        label, strVar = self.labels[rowNo][columnNo]
-                        strVar.set("")
-                    columnNo = columnNo + 1
+            for fldDef in self.fldDefs:
+                label, strVar = self.labels[rowNo][columnNo]
+                if fldDef.jsonHead in v.keys():
+                    label.bind("<ButtonRelease-1>",
+                               partial(self.rowcb, k, fldDef.jsonHead))
+                    strVar.set(fldDef.toStr(v[fldDef.jsonHead]))
+                else:
+                    vStr = ""
+                    if fldDef.isKey:
+                        vStr = fldDef.toStr(k)
+                        label.bind("<ButtonRelease-1>",
+                                   partial(self.rowcb, k, fldDef.jsonHead))
+                    strVar.set(vStr)
+                columnNo = columnNo + 1
             rowNo = rowNo + 1
             columnNo = 0
 

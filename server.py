@@ -209,10 +209,8 @@ class DispServer:
         Saves a path setting.
         Validate before saving:
         Buffer frequenz must be less or equal to buffer size.
-        Reference paths must exist and not be deleted,
-        reference  paths and tabs holds reference.
-        No self reference.
-        Secondary paths (big value) must not have an alarm
+        All big fields that can be empty (bigDispUnit cant)
+        must be empty or sat.
         Saving: save to file, update conf create new skData
         :param pathId: the path that is being saved
         :param pathJson: The path json object
@@ -226,23 +224,9 @@ class DispServer:
         errFlds = set()
         errTxt = ""
         pathsJson = None
+        # TODO one day translate json fields to gui flds
+        # in error text us fldDef list
         if not self.exist():
-            pathsJsonOld = self.conf.getPathsJson()
-            refFld = "largePath"
-            if refFld in pathJson.keys():
-                ref = pathJson[refFld]
-                if ref == pathId:
-                    isOk = False
-                    errFlds.add(refFld)
-                    txt = "Error: Path: {} have self reference."\
-                        " It is not allowed"
-                    errTxt = errTxt + txt.format(pathId)
-                else:
-                    if ref not in pathsJsonOld.keys():
-                        isOk = False
-                        errFlds.add(refFld)
-                        txt = "\nError! Reference {} does not exist"
-                        errTxt = errTxt + txt.format(ref)
             fld = "bufFreq"
             if pathJson[fld] > pathJson["bufSize"]:
                 isOk = False
@@ -250,6 +234,18 @@ class DispServer:
                 txt = "\nError! Buffer frequenze must"\
                     " not be bigger than buffer size"
                 errTxt = errTxt + txt
+            # "bigDispUnit"  cant be empty
+            flds = ["bigValue", "bigDecimals"]
+            usedFlds = list()
+            for fld in flds:
+                if fld in pathJson.keys:
+                    usedFlds.append(fld)
+            if len(flds) > len(usedFlds) and len(usedFlds) > 0:
+                txt = "\nError all or no big field must be filled"
+                errTxt = errTxt + txt
+                for fld in usedFlds:
+                    errFlds.add(fld)
+
         else:
             isOk = False
             errTxt = errTxt+"\nError! Server is running!"\

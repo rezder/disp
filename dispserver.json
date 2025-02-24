@@ -64,7 +64,7 @@
       "bufSize": 0,
       "bufFreq": 0,
       "bigValue": 999,
-      "bigDispUnit": "1",
+      "bigDispUnit": 1,
       "bigDecimals": 1
     }
   },
