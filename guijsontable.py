@@ -2,118 +2,236 @@ import tkinter as tk
 from functools import partial
 import guijson as gj
 
+Row = type(dict[str, gj.Fld])
+
 
 class TabFldDef:
     def __init__(self,
                  fldDef: gj.FldDef,
+                 width: int,
                  fldClass,
                  isVis: bool = True,
                  options:  list | None = None,
                  optJson: dict | None = None,
+                 optJsonHead: str | None = None,
                  defaultVal=None,
-                 isMandatory: bool = True,
-                 isKey: bool = False
+                 isMan: bool = True,
+                 isKey: bool = False,
+                 isJson: bool = True
                  ):
-        pass
+        self.fldDef = fldDef
+        self.width = width
+        self.fldClass = fldClass
+        self.isVis = isVis
+        self.options = options
+        self.optJson = optJson
+        self.optJsonHead = optJsonHead
+        self.defaultVal = defaultVal
+        self.isMan = isMan
+        self.isKey = isKey
+        self.isJson = isJson
+        self.delkeys: list[str] = list()
+
+    def createFld(self, parent: tk.Frame) -> gj.Fld:
+        fld = None
+        if self.fldClass == gj.FldLabel:
+            fld = gj.FldLabel(parent,
+                              self.fldDef,
+                              self.width,
+                              noCap=True,
+                              isMan=self.isMan,
+                              default=self.defaultVal)
+        elif self.fldClass == gj.FldEntry:
+            fld = gj.FldEntry(parent,
+                              self.fldDef,
+                              self.width,
+                              noCap=True,
+                              isMan=self.isMan,
+                              default=self.defaultVal)
+        elif self.fldClass == gj.FldOpt:
+            fld = gj.FldOpt(parent,
+                            self.fldDef,
+                            self.width,
+                            self.options,
+                            self.defaultVal,
+                            noCap=True
+                            )
+        elif self.fldClass == gj.FldOptJson:
+            fld = gj.FldOptJson(parent,
+                                self.fldDef,
+                                self.width,
+                                self.optJson,
+                                self.optJsonHead,
+                                self.defaultVal,
+                                noCap=True
+                                )
+        return fld
 
 
 class Table:
     def __init__(self,
                  parent: tk.Frame,
-                 initRows: int,
-                 keyHeader: str,
-                 sortHeader: str,
+                 sortFldDef: TabFldDef,
                  rowClickCb,
-                 fldDefs: dict[str, gj.FldDef]):
+                 tabFldDefs: list[TabFldDef]):
         self.parent = parent
         self.mainFrame = tk.Frame(self.parent)
 
-        self.keyJsonHead = keyHeader
-        self.sortJsonHead = sortHeader
-        self.rowsNo = initRows
+        self.tabFldDefs = tabFldDefs
+        self.sortFldDef = sortFldDef.fldDef
+        self.rowsNo = 0
+        self.newRowsNo = 0
+        self.columnsNo = len(self.tabFldDefs)
+
         self.rowClickCb = rowClickCb
 
-        self.fldDefs = fldDefs
-        self.labels: list[list[tuple[tk.Label, tk.StringVar]]] = list()
-        self.columnsNo = len(self.flddefs)
-
-        self.tabFlds = list()
         self.delKeys: list[str] = list()
         self.headFlds: list[gj.FldLabelHead] = list()
-        self.rowFlds: list[list[gj.Fld]] = list()
+        self.rowsFlds: dict[str | int, Row] = dict()
+        self.unUsedRows: list[Row] = list()
+        self.keyId = None
+        columNo = 0
+        for tabFldDef in self.tabFldDefs:
+            headFld = gj.FldLabelHead(self.mainFrame,
+                                      tabFldDef.fldDef,
+                                      tabFldDef.width)
+            if tabFldDef.isVis:
+                headFld.mainFrame.grid(row=0, column=columNo)
+                columNo = columNo+1
+            else:
+                headFld.setVis(False)
+            if tabFldDef.fldDef.isKey:
+                self.keyId = tabFldDef.fldDef.jsonHead
+            self.headFlds.append(headFld)
 
-        for r in range(self.rowsNo+1):
-            row: list[tuple[tk.Label, tk.StringVar]] = list()
-            c = 0
-            for fldDef in self.fldDefs.values():
-                sVar = tk.StringVar()
-                lable = tk.Label(self.mainFrame, textvariable=sVar)
-                if r == 0:  # Init Headers
-                    lable.grid(row=r, column=c)
-                else:  # Init Rows
-                    lable.grid(row=r, column=c, sticky=fldDef.align)
-                row.append((lable, sVar))
-                c = c + 1
-            self.labels.append(row)
+    def addNewRow(self):
+        _ = self.createRow(self.newRowsNo)
+        self.newRowsNo = self.newRowsNo+1
 
-        # Set Header content
-        i = 0
-        for fldDef in self.fldDefs.values():
-            label, sVar = self.labels[0][i]
-            i = i + 1
-            sVar.set(fldDef.header)
+    def createRow(self, id) -> Row:
+        row: Row = dict()
+        columnNo = 0
+        try:
+            row = self.unUsedRows.pop(0)
+            for id, fld in row.items():
+                if fld.isVis:
+                    fld.mainFrame.grid(row=self.rowsNo+1,
+                                       column=columnNo,
+                                       sticky=fld.fldDef.align)
+                    columnNo = columnNo+1
+                else:
+                    fld.setVis(False)
+        except IndexError:
+            for tabFldDef in self.tabFldDefs:
+                fld = tabFldDef.createFld(self.mainFrame)
+                if fld.isVis:
+                    fld.mainFrame.grid(row=self.rowsNo+1,
+                                       column=columnNo,
+                                       sticky=fld.fldDef.align)
+                    columnNo = columnNo+1
+                else:
+                    fld.setVis(False)
+                row[fld.id] = fld
+        self.rowsNo = self.rowsNo + 1
+        self.rowsFlds[id] = row
+        return row
+
+    def removeRows(self):
+        delkeys = list()
+        for k, row in self.rowsFlds.items():
+            self.unUsedRows.append(row)
+            delkeys.append(k)
+            for fld in row.values():
+                fld.clear()
+                if fld.isVis:
+                    fld.unbind("<ButtonRelease-1>")
+                    fld.mainFrame.grid_forget()
+        for d in delkeys:
+            del self.rowsFlds[d]
+        self.rowsNo = 0
 
     def show(self, jsonObj: dict):
-        # Sort
+        #  sort
+        self.newRowsNo = 0
+        self.delKeys.clear()
         sjsonObj = None
-        if self.sortJsonHead != self.keyJsonHead:
+        k = self.sortFldDef.jsonHead
+        if not self.sortFldDef.isKey:
+            k = self.sortFldDef.jsonHead
             sjsonObj = dict(sorted(jsonObj.items(),
-                                   key=lambda item: item[1][self.sortJsonHead]))
+                                   key=lambda item: item[1][k]))
         else:
             sjsonObj = dict(sorted(jsonObj.items(), key=lambda item: item[0]))
-        rowsNo = len(sjsonObj)
 
-        diff = rowsNo - self.rowsNo
-        if diff > 0:  # New
-            for r in range(self.rowsNo, diff+self.rowsNo):
-                row: list[tuple[tk.Label, tk.StringVar]] = list()
-                c = 0
-                for fldDef in self.fldDefs.values():
-                    sVar = tk.StringVar()
-                    lable = tk.Label(self.mainFrame, textvariable=sVar)
-                    lable.grid(row=r, column=c, sticky=fldDef.align)
-                    row.append((lable, sVar))
-                    c = c + 1
-            self.labels.append(row)
-            self.rowsNo = diff+self.rowsNo
-
-        if diff < 0:  # Hide
-            for i in range(self.rowsNo+diff, self.rowsNo):
-                row = self.labels[i]
-                for (_, v) in row:
-                    v.set("")
-        #  Set content
-        rowNo = 1
-        columnNo = 0
+        self.removeRows()
+        rowNo = 0
         for k, v in sjsonObj.items():
-            labelH, strVarH = self.labels[rowNo][columnNo]
-            strVarH.set(self.fldDefs[self.keyJsonHead].toStr(k))
-            labelH.bind("<ButtonRelease-1>",
-                        partial(self.rowcb, k, self.keyJsonHead))
-            columnNo = columnNo + 1
-            for head, fldDef in self.fldDefs.items():
-                if head != self.keyJsonHead:
-                    if head in v.keys():  # replace content flds
-                        labelC, strVarC = self.labels[rowNo][columnNo]
-                        labelC.bind("<ButtonRelease-1>",
-                                    partial(self.rowcb, k, head))
-                        strVarC.set(fldDef.toStr(v[head]))
-                    else:  # Clear cont flds
-                        label, strVar = self.labels[rowNo][columnNo]
-                        strVar.set("")
-                    columnNo = columnNo + 1
+            row = self.createRow(k)
+            for fld in row.values():
+                if fld.isJson and fld.id in v.keys():
+                    if fld.isVis:
+                        fld.bind("<ButtonRelease-1>",
+                                 partial(self.rowcb, k, fld.id))
+                    fld.show(v[fld.id])
+                else:
+                    if fld.fldDef.isKey:
+                        if fld.isVis:
+                            fld.bind("<ButtonRelease-1>",
+                                     partial(self.rowcb, k, fld.id))
+                        data = k
+                        if not fld.isJson:
+                            raise Exception("Not implemented")
+                        fld.show(data)
+                    else:
+                        fld.clear()
             rowNo = rowNo + 1
-            columnNo = 0
+            self.rowsFlds[k] = row
 
     def rowcb(self, path, head, event):
         self.rowClickCb(path, head)
+
+    def get(self) -> tuple[dict, list[str], list[tuple[str, str]]]:
+        jsonObj = None
+        chgkeys: list[tuple[str, str]] = list()
+        if self.validate():
+            jsonObj = dict()
+            for k, row in self.rowsFlds.items():
+                item = dict()
+                newk = row[self.keyId].get()
+                if k != newk:
+                    chgkeys.append((k, newk))
+                for fldId, fld in row.items():
+                    if fld.isVis:
+                        try:
+                            item[fldId] = fld.get()
+                        except (ValueError, KeyError):
+                            pass
+                jsonObj[newk] = item
+
+        return jsonObj, self.delKeys, chgkeys
+
+    def validate(self) -> bool:
+        isOk = True
+        for k, row in self.rowsFlds.items():
+            for fld in row.values():
+                fldOk = fld.validate()
+                if not fldOk:
+                    print(fld.fldDef.header)
+                isOk = isOk and fldOk
+        if not isOk:
+            keys = dict()
+            for k, row in self.rowsFlds.items():
+                row[self.keyId].setError(False)
+                if row[self.keyId] in keys:
+                    keys[self.keyId].append(k)
+                else:
+                    ll = list()
+                    ll.append(k)
+                    keys[self.keyId] = ll
+            for k, keyList in keys.items():
+                if len(keyList) > 1:
+                    isOk = False
+                    for key in keyList:
+                        self.rowsFlds[key][self.keyId].setError(True)
+
+        return isOk

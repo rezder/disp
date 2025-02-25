@@ -15,156 +15,144 @@ class Path:
         self.flds: dict[str, gj.Fld] = dict()
         fldDef = gj.FldDef("path",
                            "Path",
-                           45,
                            str,
                            str,
                            "w",
                            isKey=True)
-        pathFld = gj.FldEntry(self.mainFrame, fldDef)
+        pathFld = gj.FldEntry(self.mainFrame, fldDef, 45)
         pathFld.mainFrame.grid(row=0,
                                column=0,
                                columnspan=2,
                                sticky="w")
-        self.flds[fldDef.jsonHead] = pathFld
+        self.flds[pathFld.id] = pathFld
         fldDef = gj.FldDef("minPeriod",
                            "Min Period",
-                           10,
                            str,
                            int,
                            "e"
                            )
-        minPerFld = gj.FldEntry(self.mainFrame, fldDef, default=1000)
+        minPerFld = gj.FldEntry(self.mainFrame, fldDef, 10, default=1000)
         minPerFld.mainFrame.grid(row=1,
                                  column=0,
                                  sticky="ew",
                                  padx=(0, 5))
-        self.flds[fldDef.jsonHead] = minPerFld
+        self.flds[minPerFld.id] = minPerFld
 
         fldDef = gj.FldDef("decimals",
                            "Decimals",
-                           10,
                            str,
                            int,
                            "e"
                            )
-        decFld = gj.FldEntry(self.mainFrame, fldDef, default=0)
+        decFld = gj.FldEntry(self.mainFrame, fldDef, 10, default=0)
         decFld.mainFrame.grid(row=2, column=0, sticky="ew", padx=(0, 5))
-        self.flds[fldDef.jsonHead] = decFld
+        self.flds[decFld.id] = decFld
 
         fldDef = gj.FldDef("label",
                            "Label",
-                           10,
                            str,
                            str,
                            "w")
-        labelFld = gj.FldEntry(self.mainFrame, fldDef)
+        labelFld = gj.FldEntry(self.mainFrame, fldDef, 10)
         labelFld.mainFrame.grid(row=2, column=1, sticky="ew")
-        #  label adde later to keep order
+        #  label adde later to ksep order
         fldDef = gj.FldDef("units",
                            "Sk Unit",
-                           4,
                            units.shortTxt,
                            units.noShort,
                            "w"
                            )
-        unitFld = gj.FldOpt(self.mainFrame, fldDef, units.all(), units.m)
+        unitFld = gj.FldOpt(self.mainFrame, fldDef, 4, units.all(), units.m)
 
         unitFld.mainFrame.grid(row=3, column=0, sticky="ew", padx=(0, 5))
-        self.flds[fldDef.jsonHead] = unitFld
+        self.flds[unitFld.id] = unitFld
 
         fldDef = gj.FldDef("dispUnits",
                            "Tab Unit",
-                           4,
                            units.shortTxt,
                            units.noShort,
                            "w"
                            )
 
-        dpUnitFld = gj.FldOpt(self.mainFrame, fldDef, units.all(), units.m)
+        dpUnitFld = gj.FldOpt(self.mainFrame, fldDef, 4, units.all(), units.m)
         dpUnitFld.mainFrame.grid(row=3, column=1, sticky="ew")
-        self.flds[fldDef.jsonHead] = dpUnitFld
+        self.flds[dpUnitFld.id] = dpUnitFld
 
-        self.flds[labelFld.fldDef.jsonHead] = labelFld
+        self.flds[labelFld.id] = labelFld
+
         fldDef = gj.FldDef("bufSize",
                            "Buff size",
-                           10,
                            str,
                            int,
                            "e"
                            )
-        buffSizeFld = gj.FldEntry(self.mainFrame, fldDef, default=0)
+        buffSizeFld = gj.FldEntry(self.mainFrame, fldDef, 10, default=0)
         buffSizeFld.mainFrame.grid(row=4,
                                    column=0,
                                    sticky="ew",
                                    padx=(0, 5))
-        self.flds[fldDef.jsonHead] = buffSizeFld
+        self.flds[buffSizeFld.id] = buffSizeFld
 
         fldDef = gj.FldDef("bufFreq",
                            "Buff Freq",
-                           10,
                            str,
                            int,
                            "e"
                            )
-        buffFreqFld = gj.FldEntry(self.mainFrame, fldDef, default=0)
+        buffFreqFld = gj.FldEntry(self.mainFrame, fldDef, 10, default=0)
         buffFreqFld.mainFrame.grid(row=4, column=1, sticky="ew")
-        self.flds[fldDef.jsonHead] = buffFreqFld
+        self.flds[buffFreqFld.id] = buffFreqFld
 
         fldDef = gj.FldDef("min",
                            "Min Val",
-                           10,
                            str,
                            float,
                            "e")
-        minFld = gj.FldEntry(self.mainFrame, fldDef, isMan=False)
+        minFld = gj.FldEntry(self.mainFrame, fldDef, 10, isMan=False)
         minFld.mainFrame.grid(row=5, column=0, sticky="ew", padx=(0, 5))
-        self.flds[fldDef.jsonHead] = minFld
+        self.flds[minFld.id] = minFld
 
         fldDef = gj.FldDef("max",
                            "Max Val",
-                           10,
                            str,
                            float,
                            "e")
-        maxFld = gj.FldEntry(self.mainFrame, fldDef, isMan=False)
+        maxFld = gj.FldEntry(self.mainFrame, fldDef, 10, isMan=False)
         maxFld.mainFrame.grid(row=5, column=1, sticky="ew")
-        self.flds[fldDef.jsonHead] = maxFld
+        self.flds[maxFld.id] = maxFld
 
         fldDef = gj.FldDef("bigValue",
                            "Big Value",
-                           10,
                            str,
                            int,
                            "e")
-        bigValFld = gj.FldEntry(self.mainFrame, fldDef, isMan=False)
+        bigValFld = gj.FldEntry(self.mainFrame, fldDef, 10, isMan=False)
         bigValFld.mainFrame.grid(row=6,
                                  column=0,
                                  sticky="ew",
                                  padx=(0, 5))
-        self.flds[fldDef.jsonHead] = bigValFld
+        self.flds[bigValFld.id] = bigValFld
 
         fldDef = gj.FldDef("bigDispUnit",
                            "Big Units",
-                           4,
                            units.shortTxt,
                            units.noShort,
                            "w"
                            )
 
-        bigUnitFld = gj.FldOpt(self.mainFrame, fldDef, units.all(), units.m)
+        bigUnitFld = gj.FldOpt(self.mainFrame, fldDef, 4, units.all(), units.m)
         bigUnitFld.mainFrame.grid(row=6, column=1, sticky="ew")
-        self.flds[fldDef.jsonHead] = bigUnitFld
+        self.flds[bigUnitFld.id] = bigUnitFld
 
         fldDef = gj.FldDef("bigDecimals",
                            "Big Decimals",
-                           10,
                            str,
                            int,
                            "e"
                            )
-        bigDecFld = gj.FldEntry(self.mainFrame, fldDef, isMan=False)
+        bigDecFld = gj.FldEntry(self.mainFrame, fldDef, 10, isMan=False)
         bigDecFld.mainFrame.grid(row=7, column=0, sticky="ew", padx=(0, 5))
-        self.flds[fldDef.jsonHead] = bigDecFld
+        self.flds[bigDecFld.id] = bigDecFld
 
     def show(self, path: str, pathJson: dict):
         self.clear()
@@ -172,8 +160,8 @@ class Path:
             if fld.fldDef.isKey:
                 fld.show(path)
             else:
-                if fld.fldDef.jsonHead in pathJson.keys():
-                    fld.show(pathJson[fld.fldDef.jsonHead])
+                if fld.id in pathJson.keys():
+                    fld.show(pathJson[fld.id])
 
     def get(self) -> tuple[str, dict]:
         path = None
@@ -184,9 +172,9 @@ class Path:
                 path = fld.get()
             else:
                 try:
-                    pathJson[fld.fldDef.jsonHead] = fld.get()
+                    pathJson[fld.id] = fld.get()
                 except ValueError:
-                    if fld.fldDef.jsonHead == "bigValue":
+                    if fld.id == "bigValue":
                         bigFldIsEmpty = True
                     # removes optional flds with no content
         if bigFldIsEmpty:
@@ -214,6 +202,9 @@ class Path:
         for fld in self.flds.values():
             defs.append(fld.fldDef)
         return defs
+
+    def getFlds(self) -> dict[str, gj.Fld]:
+        return self.flds
 
 
 class Paths:

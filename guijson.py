@@ -25,9 +25,8 @@ def compJson(json1: dict, json2: dict) -> bool:
 
 class FldDef:
     def __init__(self,
-                 jsonHead: str | None,
+                 jsonHead: str,
                  header: str,
-                 width: int,
                  toStr,
                  fromStr,
                  align: str,
@@ -37,7 +36,6 @@ class FldDef:
         self.header = header
         self.toStr = toStr
         self.fromStr = fromStr
-        self.width = width
         self.jsonHead = jsonHead
         self.isKey = isKey
 
@@ -46,14 +44,19 @@ class Fld:
     def __init__(self,
                  parent: tk.Frame,
                  fldDef: FldDef,
+                 width: int,
                  noCap: bool,
                  isMan: bool,
                  default,
+                 isJson: bool
                  ):
         self.parent = parent
         self.fldDef = fldDef
+        self.width = width
         self.noCap = noCap
         self.isMan = isMan
+        self.isJson = isJson
+        self.id = fldDef.jsonHead
         if default is None:
             self.defaultStr = ""
         else:
@@ -65,6 +68,7 @@ class Fld:
         self.fldVar = tk.StringVar(value=self.defaultStr)
         self.fldHead = None
         self.column = 0
+        self.isVis = True
         self.mainFrame.columnconfigure(0, weight=1)
         if not self.noCap:
             self.mainFrame.columnconfigure(1, weight=1)
@@ -82,6 +86,17 @@ class Fld:
 
     def show(self, data):
         self.fldVar.set(self.toStr(data))
+
+    def bind(self, seq: str, cb):
+        if not self.noCap:
+            self.fldHead.bind(seq, cb)
+
+    def unbind(self, seq: str):
+        if not self.noCap:
+            self.fldHead.unbind(seq)
+
+    def setVis(self, isVis: bool):
+        self.isVis = isVis
 
     def get(self):
         """
@@ -116,21 +131,32 @@ class Fld:
 
 
 class FldLabel(Fld):
-    def __init__(self, parent: tk.Frame, fldDef: FldDef,
-                 noCap=False, isMan=False, default=None):
-        super().__init__(parent, fldDef, noCap, isMan, default)
+    def __init__(self, parent: tk.Frame, fldDef: FldDef, width: int,
+                 noCap=False, isMan=False, default=None, isJson=True):
+        super().__init__(parent, fldDef, width, noCap, isMan, default, isJson)
+        align = self.getAlign()
+        self.fldLabelOut = tk.Label(self.mainFrame,
+                                    textvariable=self.fldVar,
+                                    anchor=align,
+                                    width=self.width
+                                    )
+        self.addWidget(self.fldLabelOut)
+
+    def getAlign(self):
         align = tk.CENTER
         if self.fldDef.align == "e":
             align = tk.E
         elif self.fldDef.align == "w":
             align = tk.W
+        return align
 
-        self.fldLabelOut = tk.Label(self.mainFrame,
-                                    textvariable=self.fldVar,
-                                    anchor=align,
-                                    width=self.fldDef.width
-                                    )
-        self.addWidget(self.fldLabelOut)
+    def bind(self, seq: str, cb):
+        super().bind(seq, cb)
+        self.fldLabelOut.bind(seq, cb)
+
+    def unbind(self, seq: str):
+        super().unbind(seq)
+        self.fldLabelOut.unbind(seq)
 
     def validate(self) -> bool:
         isOk = super().validate()
@@ -153,8 +179,9 @@ class FldLabel(Fld):
 
 
 class FldLabelHead(FldLabel):
-    def __init__(self, parent: tk.Frame, fldDef: FldDef):
-        super().__init__(parent, fldDef, noCap=True, isMan=False, default=None)
+    def __init__(self, parent: tk.Frame, fldDef: FldDef, width: int):
+        super().__init__(parent, fldDef, width,
+                         noCap=True, isMan=False, default=None, isJson=False)
         self.show(self.fldDef.header)
 
     def addWidget(self, widget):
@@ -167,20 +194,32 @@ class FldLabelHead(FldLabel):
         raise Exception("Should not be use")
         return self.fldDef.fromStr(txt)
 
+    def getAlign(self):
+        return tk.CENTER
+
 
 class FldEntry(Fld):
-    def __init__(self, parent: tk.Frame, fldDef: FldDef,
-                 noCap=False, isMan=True, default=None):
-        super().__init__(parent, fldDef, noCap, isMan=isMan, default=default)
+    def __init__(self, parent: tk.Frame, fldDef: FldDef, width: int,
+                 noCap=False, isMan=True, default=None, isJson=True):
+        super().__init__(parent, fldDef, width, noCap,
+                         isMan=isMan, default=default, isJson=isJson)
         align = "left"
         if self.fldDef.align == "e":
             align = "right"
         self.fldEntry = tk.Entry(self.mainFrame,
                                  textvariable=self.fldVar,
                                  justify=align,
-                                 width=self.fldDef.width
+                                 width=self.width
                                  )
         self.addWidget(self.fldEntry)
+
+    def bind(self, seq: str, cb):
+        super().bind(seq, cb)
+        self.fldEntry.bind(seq, cb)
+
+    def unbind(self, seq: str):
+        super().unbind(seq)
+        self.fldEntry.unbind(seq)
 
     def validate(self) -> bool:
         isOk = super().validate()
@@ -208,11 +247,13 @@ class FldOpt(Fld):
     def __init__(self,
                  parent: tk.Frame,
                  fldDef: FldDef,
+                 width: int,
                  options: list,
                  default,
                  noCap=False,
-                 isMan=True):
-        super().__init__(parent, fldDef, noCap, isMan=isMan, default=default)
+                 isJson=True):
+        super().__init__(parent, fldDef, width, noCap, isMan=True,
+                         default=default, isJson=isJson)
 
         self.options: list[str] = list()
         for i in options:
@@ -221,8 +262,16 @@ class FldOpt(Fld):
         self.fldOpt = tk.OptionMenu(self.mainFrame,
                                     self.fldVar,
                                     *self.options)
-        self.fldOpt.config(width=self.fldDef.width)
+        self.fldOpt.config(width=self.width)
         self.addWidget(self.fldOpt)
+
+    def bind(self, seq: str, cb):
+        super().bind(seq, cb)
+        self.fldOpt.bind(seq, cb)
+
+    def unbind(self, seq: str):
+        super().unbind(seq)
+        self.fldOpt.unbind(seq)
 
     def addOpt(self, opt):
         strOpt = self.toStr(opt)
@@ -267,40 +316,41 @@ class FldOptJson(FldOpt):
     def __init__(self,
                  parent: tk.Frame,
                  fldDef: FldDef,
-                 itemsJson,
-                 dpHeadJson,
-                 keyHeadJson,
+                 width: int,
+                 itemsJson: dict,
+                 dpHeadJson: str | None,
                  default,
-                 noCap=False
+                 noCap=False,
+                 isJson=True
                  ):
 
         self.itemsJson = itemsJson
         self.dpHeadJson = dpHeadJson
-        self.keyHeadJson = keyHeadJson
 
         super().__init__(parent,
                          fldDef,
+                         width,
                          self.getSortedOptions(),
                          default,
-                         noCap=noCap)
+                         noCap=noCap, isJson=isJson)
 
     def getSortedOptions(self):
         sortList = None
-        if self.dpHeadJson != self.keyHeadJson:
-            sortList = list(sorted(self.itemsJson.items(),
-                                   key=lambda item: item[1][self.dpHeadJson]))
-        else:
+        if self.dpHeadJson is None:
             sortList = list(sorted(self.itemsJson.items(),
                                    key=lambda item: item[0]))
+        else:
+            sortList = list(sorted(self.itemsJson.items(),
+                                   key=lambda item: item[1][self.dpHeadJson]))
         return sortList
 
     def toStr(self, value):
         k, jsonItem = value
-        if self.dpHeadJson in jsonItem.keys():
+        if self.dpHeadJson is None:
+            return self.fldDef.toStr(k)
+        else:
             v = jsonItem[self.dpHeadJson]
             return self.fldDef.toStr(v)
-        else:
-            return self.fldDef.toStr(k)
 
     def fromStr(self, txt):
         res = None
