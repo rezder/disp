@@ -225,7 +225,7 @@ class DispServer:
         errTxt = ""
         pathsJson = None
         # TODO one day translate json fields to gui flds
-        # in error text us fldDef list
+        # in error text us jsonFld list
         if not self.exist():
             fld = "bufFreq"
             if pathJson[fld] > pathJson["bufSize"]:

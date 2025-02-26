@@ -1,6 +1,8 @@
 import tkinter as tk
-import guijson as gj
-import units
+import guiflds as gf
+import guijsondef as gdef
+from guijsontable import Table
+from flds import paths as pathFlds
 
 
 class Path:
@@ -12,147 +14,76 @@ class Path:
         self.mainFrame = tk.Frame(self.parent)
         self.mainFrame.columnconfigure(1, weight=1)
         self.mainFrame.columnconfigure(0, weight=1)
-        self.flds: dict[str, gj.Fld] = dict()
-        fldDef = gj.FldDef("path",
-                           "Path",
-                           str,
-                           str,
-                           "w",
-                           isKey=True)
-        pathFld = gj.FldEntry(self.mainFrame, fldDef, 45)
-        pathFld.mainFrame.grid(row=0,
-                               column=0,
-                               columnspan=2,
-                               sticky="w")
-        self.flds[pathFld.id] = pathFld
-        fldDef = gj.FldDef("minPeriod",
-                           "Min Period",
-                           str,
-                           int,
-                           "e"
-                           )
-        minPerFld = gj.FldEntry(self.mainFrame, fldDef, 10, default=1000)
-        minPerFld.mainFrame.grid(row=1,
-                                 column=0,
-                                 sticky="ew",
-                                 padx=(0, 5))
-        self.flds[minPerFld.id] = minPerFld
+        self.flds: dict[str, gf.Fld] = dict()
+        self.fldDefs: list[gdef.GuiFld] = list()
 
-        fldDef = gj.FldDef("decimals",
-                           "Decimals",
-                           str,
-                           int,
-                           "e"
-                           )
-        decFld = gj.FldEntry(self.mainFrame, fldDef, 10, default=0)
+        pathFld = gf.createFld(self.mainFrame, pathFlds.path)
+        pathFld.mainFrame.grid(row=0, column=0, columnspan=2, sticky="w")
+        self.flds[pathFld.id] = pathFld
+        self.fldDefs.append(pathFlds.path)
+
+        minPerFld = gf.createFld(self.mainFrame, pathFlds.minPer)
+        minPerFld.mainFrame.grid(row=1, column=0, sticky="ew", padx=(0, 5))
+        self.flds[minPerFld.id] = minPerFld
+        self.fldDefs.append(pathFlds.minPer)
+
+        decFld = gf.createFld(self.mainFrame, pathFlds.dec)
         decFld.mainFrame.grid(row=2, column=0, sticky="ew", padx=(0, 5))
         self.flds[decFld.id] = decFld
+        self.fldDefs.append(pathFlds.dec)
 
-        fldDef = gj.FldDef("label",
-                           "Label",
-                           str,
-                           str,
-                           "w")
-        labelFld = gj.FldEntry(self.mainFrame, fldDef, 10)
+        labelFld = gf.createFld(self.mainFrame, pathFlds.label)
         labelFld.mainFrame.grid(row=2, column=1, sticky="ew")
+        self.flds[labelFld.id] = labelFld
         #  label adde later to ksep order
-        fldDef = gj.FldDef("units",
-                           "Sk Unit",
-                           units.shortTxt,
-                           units.noShort,
-                           "w"
-                           )
-        unitFld = gj.FldOpt(self.mainFrame, fldDef, 4, units.all(), units.m)
 
+        unitFld = gf.createFld(self.mainFrame, pathFlds.skUnit)
         unitFld.mainFrame.grid(row=3, column=0, sticky="ew", padx=(0, 5))
         self.flds[unitFld.id] = unitFld
+        self.fldDefs.append(pathFlds.skUnit)
 
-        fldDef = gj.FldDef("dispUnits",
-                           "Tab Unit",
-                           units.shortTxt,
-                           units.noShort,
-                           "w"
-                           )
-
-        dpUnitFld = gj.FldOpt(self.mainFrame, fldDef, 4, units.all(), units.m)
+        dpUnitFld = gf.createFld(self.mainFrame, pathFlds.dpUnit)
         dpUnitFld.mainFrame.grid(row=3, column=1, sticky="ew")
         self.flds[dpUnitFld.id] = dpUnitFld
+        self.fldDefs.append(pathFlds.dpUnit)
 
-        self.flds[labelFld.id] = labelFld
+        # Adding label
+        self.fldDefs.append(pathFlds.label)
 
-        fldDef = gj.FldDef("bufSize",
-                           "Buff size",
-                           str,
-                           int,
-                           "e"
-                           )
-        buffSizeFld = gj.FldEntry(self.mainFrame, fldDef, 10, default=0)
-        buffSizeFld.mainFrame.grid(row=4,
-                                   column=0,
-                                   sticky="ew",
-                                   padx=(0, 5))
+        buffSizeFld = gf.createFld(self.mainFrame, pathFlds.bufSize)
+        buffSizeFld.mainFrame.grid(row=4, column=0, sticky="ew", padx=(0, 5))
         self.flds[buffSizeFld.id] = buffSizeFld
+        self.fldDefs.append(pathFlds.bufSize)
 
-        fldDef = gj.FldDef("bufFreq",
-                           "Buff Freq",
-                           str,
-                           int,
-                           "e"
-                           )
-        buffFreqFld = gj.FldEntry(self.mainFrame, fldDef, 10, default=0)
+        buffFreqFld = gf.createFld(self.mainFrame, pathFlds.bufFreq)
         buffFreqFld.mainFrame.grid(row=4, column=1, sticky="ew")
         self.flds[buffFreqFld.id] = buffFreqFld
+        self.fldDefs.append(pathFlds.bufFreq)
 
-        fldDef = gj.FldDef("min",
-                           "Min Val",
-                           str,
-                           float,
-                           "e")
-        minFld = gj.FldEntry(self.mainFrame, fldDef, 10, isMan=False)
+        minFld = gf.createFld(self.mainFrame, pathFlds.min)
         minFld.mainFrame.grid(row=5, column=0, sticky="ew", padx=(0, 5))
         self.flds[minFld.id] = minFld
+        self.fldDefs.append(pathFlds.min)
 
-        fldDef = gj.FldDef("max",
-                           "Max Val",
-                           str,
-                           float,
-                           "e")
-        maxFld = gj.FldEntry(self.mainFrame, fldDef, 10, isMan=False)
+        maxFld = gf.createFld(self.mainFrame, pathFlds.max)
         maxFld.mainFrame.grid(row=5, column=1, sticky="ew")
         self.flds[maxFld.id] = maxFld
+        self.fldDefs.append(pathFlds.max)
 
-        fldDef = gj.FldDef("bigValue",
-                           "Big Value",
-                           str,
-                           int,
-                           "e")
-        bigValFld = gj.FldEntry(self.mainFrame, fldDef, 10, isMan=False)
-        bigValFld.mainFrame.grid(row=6,
-                                 column=0,
-                                 sticky="ew",
-                                 padx=(0, 5))
+        bigValFld = gf.createFld(self.mainFrame, pathFlds.bigVal)
+        bigValFld.mainFrame.grid(row=6, column=0, sticky="ew", padx=(0, 5))
         self.flds[bigValFld.id] = bigValFld
+        self.fldDefs.append(pathFlds.bigVal)
 
-        fldDef = gj.FldDef("bigDispUnit",
-                           "Big Units",
-                           units.shortTxt,
-                           units.noShort,
-                           "w"
-                           )
-
-        bigUnitFld = gj.FldOpt(self.mainFrame, fldDef, 4, units.all(), units.m)
+        bigUnitFld = gf.createFld(self.mainFrame, pathFlds.bigUnit)
         bigUnitFld.mainFrame.grid(row=6, column=1, sticky="ew")
         self.flds[bigUnitFld.id] = bigUnitFld
+        self.fldDefs.append(pathFlds.bigUnit)
 
-        fldDef = gj.FldDef("bigDecimals",
-                           "Big Decimals",
-                           str,
-                           int,
-                           "e"
-                           )
-        bigDecFld = gj.FldEntry(self.mainFrame, fldDef, 10, isMan=False)
+        bigDecFld = gf.createFld(self.mainFrame, pathFlds.bigDec)
         bigDecFld.mainFrame.grid(row=7, column=0, sticky="ew", padx=(0, 5))
         self.flds[bigDecFld.id] = bigDecFld
+        self.fldDefs.append(pathFlds.bigDec)
 
     def show(self, path: str, pathJson: dict):
         self.clear()
@@ -197,13 +128,10 @@ class Path:
     def setErrorFld(self, jsonHead: str):
         self.flds[jsonHead].setError(True)
 
-    def getFldDefs(self) -> list[gj.FldDef]:
-        defs = list()
-        for fld in self.flds.values():
-            defs.append(fld.fldDef)
-        return defs
+    def getGuiFldDefs(self) -> list[gdef.GuiFld]:
+        return self.fldDefs
 
-    def getFlds(self) -> dict[str, gj.Fld]:
+    def getFlds(self) -> dict[str, gf.Fld]:
         return self.flds
 
 
@@ -234,17 +162,21 @@ class Paths:
 
         self.pathGui = Path(self.itemFrame)
         self.pathGui.mainFrame.pack()
-        self.keyFldDef = None
-        for fldDef in self.pathGui.getFldDefs():
-            if fldDef.isKey:
-                self.keyFldDef = fldDef
-                break
 
-        self.tabelGui = gj.Table(self.tableFrame,
-                                 len(pathJson),
-                                 self.keyFldDef,
-                                 self.rowClick,
-                                 self.pathGui.getFldDefs())
+        sortGuiFldDef = None
+
+        tabFlds: list[gdef.GuiFld] = list()
+        for guiFldDef in self.pathGui.getGuiFldDefs():
+            tabFld = guiFldDef.cp()
+            tabFld.fldClass = gf.FldLabel
+            if tabFld.jsonFld.isKey:
+                sortGuiFldDef = tabFld
+            tabFlds.append(tabFld)
+
+        self.tabelGui = Table(self.tableFrame,
+                              sortGuiFldDef,
+                              self.rowClick,
+                              tabFlds)
         self.tabelGui.mainFrame.pack()
 
         self.saveButt = tk.Button(self.buttFrame,

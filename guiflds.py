@@ -1,6 +1,6 @@
 import tkinter as tk
-from functools import partial
 from gui import BORDER_COLOR_ERR as BCE
+import guijsondef as gdef
 
 
 def strJson(txt: str) -> str:
@@ -23,27 +23,10 @@ def compJson(json1: dict, json2: dict) -> bool:
     return isEqual
 
 
-class FldDef:
-    def __init__(self,
-                 jsonHead: str,
-                 header: str,
-                 toStr,
-                 fromStr,
-                 align: str,
-                 isKey: bool = False
-                 ):
-        self.align = align
-        self.header = header
-        self.toStr = toStr
-        self.fromStr = fromStr
-        self.jsonHead = jsonHead
-        self.isKey = isKey
-
-
 class Fld:
     def __init__(self,
                  parent: tk.Frame,
-                 fldDef: FldDef,
+                 fldDef: gdef.JsonFld,
                  width: int,
                  noCap: bool,
                  isMan: bool,
@@ -131,7 +114,7 @@ class Fld:
 
 
 class FldLabel(Fld):
-    def __init__(self, parent: tk.Frame, fldDef: FldDef, width: int,
+    def __init__(self, parent: tk.Frame, fldDef: gdef.JsonFld, width: int,
                  noCap=False, isMan=False, default=None, isJson=True):
         super().__init__(parent, fldDef, width, noCap, isMan, default, isJson)
         align = self.getAlign()
@@ -179,10 +162,10 @@ class FldLabel(Fld):
 
 
 class FldLabelHead(FldLabel):
-    def __init__(self, parent: tk.Frame, fldDef: FldDef, width: int):
+    def __init__(self, parent: tk.Frame, fldDef: gdef.JsonFld, width: int):
         super().__init__(parent, fldDef, width,
                          noCap=True, isMan=False, default=None, isJson=False)
-        self.show(self.fldDef.header)
+        self.show(self.fldDef.shortHeader)
 
     def addWidget(self, widget):
         widget.grid(row=0, column=self.column)
@@ -199,7 +182,7 @@ class FldLabelHead(FldLabel):
 
 
 class FldEntry(Fld):
-    def __init__(self, parent: tk.Frame, fldDef: FldDef, width: int,
+    def __init__(self, parent: tk.Frame, fldDef: gdef.JsonFld, width: int,
                  noCap=False, isMan=True, default=None, isJson=True):
         super().__init__(parent, fldDef, width, noCap,
                          isMan=isMan, default=default, isJson=isJson)
@@ -246,7 +229,7 @@ class FldEntry(Fld):
 class FldOpt(Fld):
     def __init__(self,
                  parent: tk.Frame,
-                 fldDef: FldDef,
+                 fldDef: gdef.JsonFld,
                  width: int,
                  options: list,
                  default,
@@ -315,7 +298,7 @@ class FldOptJson(FldOpt):
     """
     def __init__(self,
                  parent: tk.Frame,
-                 fldDef: FldDef,
+                 fldDef: gdef.JsonFld,
                  width: int,
                  itemsJson: dict,
                  dpHeadJson: str | None,
@@ -376,90 +359,43 @@ class FldOptJson(FldOpt):
         super().replaceOpts(self.getSortedOptions())
 
 
-class Table:
-    def __init__(self,
-                 parent: tk.Frame,
-                 initRows: int,
-                 sortFldDef: FldDef,
-                 rowClickCb,
-                 flds: list[FldDef]):
-        self.parent = parent
-        self.mainFrame = tk.Frame(self.parent)
-        self.fldDefs = flds
-        self.sortFldDef = sortFldDef
-        self.rowsNo = initRows
-        self.rowClickCb = rowClickCb
+def createFld(parent: tk.Frame, guiFld: gdef.GuiFld, isTab=False) -> Fld:
+    noCap = False
+    width = guiFld.width
+    if isTab:
+        noCap = True
+        width = guiFld.shortWidth
 
-        self.columnsNo = len(flds)
-        self.labels: list[list[tuple[tk.Label, tk.StringVar]]] = list()
-        for r in range(self.rowsNo+1):
-            row: list[tuple[tk.Label, tk.StringVar]] = list()
-            c = 0
-            for fldDef in self.fldDefs:
-                sVar = tk.StringVar()
-                lable = tk.Label(self.mainFrame, textvariable=sVar)
-                if r == 0:
-                    lable.grid(row=r, column=c)
-                else:
-                    lable.grid(row=r, column=c, sticky=fldDef.align)
-                row.append((lable, sVar))
-                c = c + 1
-            self.labels.append(row)
-
-        i = 0
-        for fldDef in self.fldDefs:
-            label, sVar = self.labels[0][i]
-            i = i + 1
-            sVar.set(fldDef.header)
-
-    def show(self, jsonObj: dict):
-        sjsonObj = None
-        k = self.sortFldDef.jsonHead
-        if not self.sortFldDef.isKey:
-            k = self.sortFldDef.jsonHead
-            sjsonObj = dict(sorted(jsonObj.items(),
-                                   key=lambda item: item[1][k]))
-        else:
-            sjsonObj = dict(sorted(jsonObj.items(), key=lambda item: item[0]))
-        rowsNo = len(sjsonObj)
-        diff = rowsNo - self.rowsNo
-        if diff > 0:
-            for r in range(self.rowsNo, diff+self.rowsNo):
-                row: list[tuple[tk.Label, tk.StringVar]] = list()
-                c = 0
-                for fldDef in self.fldDefs:
-                    sVar = tk.StringVar()
-                    lable = tk.Label(self.mainFrame, textvariable=sVar)
-                    lable.grid(row=r, column=c, sticky=fldDef.align)
-                    row.append((lable, sVar))
-                    c = c + 1
-            self.labels.append(row)
-            self.rowsNo = diff+self.rowsNo
-
-        if diff < 0:
-            for i in range(self.rowsNo+diff, self.rowsNo):
-                row = self.labels[i]
-                for (_, v) in row:
-                    v.set("")
-        rowNo = 1
-        columnNo = 0
-        for k, v in sjsonObj.items():
-            for fldDef in self.fldDefs:
-                label, strVar = self.labels[rowNo][columnNo]
-                if fldDef.jsonHead in v.keys():
-                    label.bind("<ButtonRelease-1>",
-                               partial(self.rowcb, k, fldDef.jsonHead))
-                    strVar.set(fldDef.toStr(v[fldDef.jsonHead]))
-                else:
-                    vStr = ""
-                    if fldDef.isKey:
-                        vStr = fldDef.toStr(k)
-                        label.bind("<ButtonRelease-1>",
-                                   partial(self.rowcb, k, fldDef.jsonHead))
-                    strVar.set(vStr)
-                columnNo = columnNo + 1
-            rowNo = rowNo + 1
-            columnNo = 0
-
-    def rowcb(self, path, head, event):
-        self.rowClickCb(path, head)
+    fld = None
+    if guiFld.fldClass == FldLabel:
+        fld = FldLabel(parent,
+                       guiFld.jsonFld,
+                       width,
+                       noCap=noCap,
+                       isMan=guiFld.isMan,
+                       default=guiFld.defaultVal)
+    elif guiFld.fldClass == FldEntry:
+        fld = FldEntry(parent,
+                       guiFld.jsonFld,
+                       width,
+                       noCap=noCap,
+                       isMan=guiFld.isMan,
+                       default=guiFld.defaultVal)
+    elif guiFld.fldClass == FldOpt:
+        fld = FldOpt(parent,
+                     guiFld.jsonFld,
+                     width,
+                     guiFld.options,
+                     guiFld.defaultVal,
+                     noCap=noCap
+                     )
+    elif guiFld.fldClass == FldOptJson:
+        fld = FldOptJson(parent,
+                         guiFld.jsonFld,
+                         width,
+                         guiFld.optJson,
+                         guiFld.optJsonHead,
+                         guiFld.defaultVal,
+                         noCap=noCap
+                         )
+    return fld

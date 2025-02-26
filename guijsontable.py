@@ -1,84 +1,22 @@
 import tkinter as tk
 from functools import partial
-import guijson as gj
+import guiflds as gf
+from guijsondef import GuiFld
 
-Row = type(dict[str, gj.Fld])
-
-
-class TabFldDef:
-    def __init__(self,
-                 fldDef: gj.FldDef,
-                 width: int,
-                 fldClass,
-                 isVis: bool = True,
-                 options:  list | None = None,
-                 optJson: dict | None = None,
-                 optJsonHead: str | None = None,
-                 defaultVal=None,
-                 isMan: bool = True,
-                 isKey: bool = False,
-                 isJson: bool = True
-                 ):
-        self.fldDef = fldDef
-        self.width = width
-        self.fldClass = fldClass
-        self.isVis = isVis
-        self.options = options
-        self.optJson = optJson
-        self.optJsonHead = optJsonHead
-        self.defaultVal = defaultVal
-        self.isMan = isMan
-        self.isKey = isKey
-        self.isJson = isJson
-        self.delkeys: list[str] = list()
-
-    def createFld(self, parent: tk.Frame) -> gj.Fld:
-        fld = None
-        if self.fldClass == gj.FldLabel:
-            fld = gj.FldLabel(parent,
-                              self.fldDef,
-                              self.width,
-                              noCap=True,
-                              isMan=self.isMan,
-                              default=self.defaultVal)
-        elif self.fldClass == gj.FldEntry:
-            fld = gj.FldEntry(parent,
-                              self.fldDef,
-                              self.width,
-                              noCap=True,
-                              isMan=self.isMan,
-                              default=self.defaultVal)
-        elif self.fldClass == gj.FldOpt:
-            fld = gj.FldOpt(parent,
-                            self.fldDef,
-                            self.width,
-                            self.options,
-                            self.defaultVal,
-                            noCap=True
-                            )
-        elif self.fldClass == gj.FldOptJson:
-            fld = gj.FldOptJson(parent,
-                                self.fldDef,
-                                self.width,
-                                self.optJson,
-                                self.optJsonHead,
-                                self.defaultVal,
-                                noCap=True
-                                )
-        return fld
+Row = type(dict[str, gf.Fld])
 
 
 class Table:
     def __init__(self,
                  parent: tk.Frame,
-                 sortFldDef: TabFldDef,
+                 sortFldDef: GuiFld,
                  rowClickCb,
-                 tabFldDefs: list[TabFldDef]):
+                 tabFldDefs: list[GuiFld]):
         self.parent = parent
         self.mainFrame = tk.Frame(self.parent)
 
         self.tabFldDefs = tabFldDefs
-        self.sortFldDef = sortFldDef.fldDef
+        self.sortFldDef = sortFldDef.jsonFld
         self.rowsNo = 0
         self.newRowsNo = 0
         self.columnsNo = len(self.tabFldDefs)
@@ -86,22 +24,22 @@ class Table:
         self.rowClickCb = rowClickCb
 
         self.delKeys: list[str] = list()
-        self.headFlds: list[gj.FldLabelHead] = list()
+        self.headFlds: list[gf.FldLabelHead] = list()
         self.rowsFlds: dict[str | int, Row] = dict()
         self.unUsedRows: list[Row] = list()
         self.keyId = None
         columNo = 0
         for tabFldDef in self.tabFldDefs:
-            headFld = gj.FldLabelHead(self.mainFrame,
-                                      tabFldDef.fldDef,
-                                      tabFldDef.width)
+            headFld = gf.FldLabelHead(self.mainFrame,
+                                      tabFldDef.jsonFld,
+                                      tabFldDef.shortWidth)
             if tabFldDef.isVis:
                 headFld.mainFrame.grid(row=0, column=columNo)
                 columNo = columNo+1
             else:
                 headFld.setVis(False)
-            if tabFldDef.fldDef.isKey:
-                self.keyId = tabFldDef.fldDef.jsonHead
+            if tabFldDef.jsonFld.isKey:
+                self.keyId = tabFldDef.jsonFld.jsonHead
             self.headFlds.append(headFld)
 
     def addNewRow(self):
@@ -123,7 +61,7 @@ class Table:
                     fld.setVis(False)
         except IndexError:
             for tabFldDef in self.tabFldDefs:
-                fld = tabFldDef.createFld(self.mainFrame)
+                fld = gf.createFld(self.mainFrame, tabFldDef, isTab=True)
                 if fld.isVis:
                     fld.mainFrame.grid(row=self.rowsNo+1,
                                        column=columnNo,
