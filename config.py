@@ -99,7 +99,7 @@ class Config:
                     "navigation.courseRhumbline.nextPoint.bearingTrue": 2,
                     "navigation.courseRhumbline.nextPoint.distance": 3}
             },
-            "curTabs": {},
+            "displays": {},
             "macs": {},
             "broadcastPort": 9090,
             "interface": "wlp2s0",
@@ -124,66 +124,58 @@ class Config:
             self.conf = Config.load(self.fileName)
         self.defaultTab = "None"
 
-    def getSubPort(self) -> int:
-        return self.conf["broadcastPort"]
+    #  ##### Displays #################
 
-        return self.defaultTab
+    def dispIs(self, id) -> bool:
+        return id in self.conf["displays"]
 
-    def isDefined(self, id) -> bool:
-        return id in self.conf["curTabs"]
-
-    def addDisp(self, id) -> bool:
+    def dispAdd(self, id) -> bool:
         upd = False
-        if id not in self.conf["curTabs"]:
-            self.conf["curTabs"][id] = self.defaultTab
+        if id not in self.conf["displays"]:
+            self.conf["displays"][id] = self.defaultTab
             upd = True
         return upd
 
-    def addMac(self, id, mac):
+    def dispUpdMac(self, id, mac):
         mo = dict()
         mo["addr"] = mac
         mo["isDisable"] = False
         self.conf["macs"][id] = mo
 
-    def getMacs(self) -> dict:
+    def dispGetBles(self) -> dict:
         return dict(self.conf["macs"])
 
-    def setCurTabId(self, tabId, id):
-        self.conf["curTabs"][id] = tabId
+    def dispGetBle(self, dispId) -> dict:
+        return self.conf["macs"][dispId]
 
-    def setBleDispDisable(self, id: str, isDisable: bool):
+    def dispSetTabId(self, dispId, tabId):
+        self.conf["displays"][dispId] = tabId
+
+    def dispGetTab(self, dispId) -> tuple[str, dict]:
+        tabId = self.conf["displays"][dispId]
+        tab = dict(self.conf["tabs"][tabId])
+        return (tabId, tab)
+
+    def dispGet(self):
+        return dict(self.conf["displays"])
+
+    def dispSetBleDisable(self, id: str, isDisable: bool):
         self.conf["macs"][id]["isDisable"] = isDisable
 
-    def getCurTabId(self, id) -> str:
-        tabId = self.conf["curTabs"][id]
-        return tabId
+    #  ################ Tabs ###########
 
-    def getPathsJson(self) -> dict:
-        """
-        :returns: All the paths json object
-        """
-        return dict(self.conf["paths"])
-
-    def getTabsJson(self) -> dict:
+    def tabsGet(self) -> dict:
         return self.conf["tabs"]
 
-    def getCurTabPaths(self, id) -> dict:
-        ll = dict(self.conf["tabs"][self.conf["curTabs"][id]])
-        return ll
-
-    def getCurTabs(self):
-        return dict(self.conf["curTabs"])
-
-    def getTabPaths(self, tabId) -> dict:
+    def tabsGetTab(self, tabId) -> dict:
         return dict(self.conf["tabs"][tabId])
 
-    def getTabNames(self) -> list:
+    def tabsGetIds(self) -> list:
         return list(self.conf["tabs"].keys())
 
-    def getSubUdpServerIsEnable(self) -> bool:
-        return not self.conf["disableSubServer"]
+    #  ############## Paths #################
 
-    def getPathsRefs(self, path: str) -> list[str]:
+    def pathsGetRefs(self, path: str) -> list[str]:
         tabs = set()
         for id, tab in self.conf["tabs"].items():
             for tabPath, pos in tab.items():
@@ -191,11 +183,19 @@ class Config:
                     tabs.add(id)
         return tabs
 
-    def setPath(self, pathId: str, pathJson: dict):
+    def pathsGet(self) -> dict:
+        """
+        :returns: All the paths json object
+        """
+        return self.conf["paths"]
+
+    def pathsSetPath(self, pathId: str, pathJson: dict):
         self.conf["paths"][pathId] = pathJson
 
-    def deletePath(self, pathId: str):
+    def pathsDeletePath(self, pathId: str):
         del self.conf["paths"][pathId]
+
+    # ############### Misc ##################
 
     def getBroadcastIp(self) -> str:
         b = None
@@ -207,6 +207,12 @@ class Config:
             print(txt.format(self.conf["interface"], ex))
 
         return b
+
+    def getSubPort(self) -> int:
+        return self.conf["broadcastPort"]
+
+    def getSubUdpServerIsEnable(self) -> bool:
+        return not self.conf["disableSubServer"]
 
     def save(self):
         with open(self.fileName, "w") as f:

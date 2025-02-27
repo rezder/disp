@@ -48,7 +48,7 @@ def createFldDefs() -> dict[str, gd.GuiFld]:
 
     conf = Config(isDefault=True)
 
-    tabsJson = conf.getTabsJson()
+    tabsJson = conf.tabsGet()
     jf = gd.JsonFld("jsonTabs",
                     "Json Tabs",
                     "Tabs",
@@ -61,7 +61,7 @@ def createFldDefs() -> dict[str, gd.GuiFld]:
                                   optJsonHead=None,
                                   defaultVal=("Default", {})
                                   )
-    pathsJson = conf.getPathsJson()
+    pathsJson = conf.pathsGet()
     key = "DBT"
     v = pathsJson["environment.depth.belowTransducer"]
     jf = gd.JsonFld("jsonPaths",

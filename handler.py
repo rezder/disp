@@ -69,14 +69,12 @@ async def guiMsg(ws: wsclient.ClientConnection,
 
         req = await queue.get()
         if req.tp == gr.chgTab:
-            id = req.id
-            newTab = conf.getCurTabPaths(id)
-            newTabId = conf.getCurTabId(id)
-            txt = "Changing tab on display id: {} to tab: {}"
-            status.setTxt(txt.format(id, newTabId))
-            if displays.isIn(id):
-                newTab = conf.getCurTabPaths(id)
-                oldTab = displays.setTab(id, newTab)
+            dispId = req.id
+            newTabId, newTab = conf.dispGetTab(dispId)
+            txt = "Changing tab on display: {} to tab: {}"
+            status.setTxt(txt.format(dispId, newTabId))
+            if displays.isIn(dispId):
+                oldTab = displays.setTab(dispId, newTab)
                 newSubSet = sub.add(set(newTab.keys()))
                 unsubSet = sub.remove(set(oldTab.keys()))
                 if len(newSubSet) > 0 or len(unsubSet) > 0:
@@ -97,7 +95,7 @@ async def guiMsg(ws: wsclient.ClientConnection,
             status.setDoneCmd()
 
         if req.tp == gr.disDisp:
-            isDisable = conf.getMacs()[req.id]["isDisable"]
+            isDisable = conf.dispGetBle(req.id)["isDisable"]
             isIn = displays.isIn(req.id)
             txt = "Display: {} was not disabled/enabled".format(id)
             if isIn and isDisable:
@@ -112,9 +110,9 @@ async def guiMsg(ws: wsclient.ClientConnection,
             if not isIn and not isDisable:
                 status.addOn(req.id)
                 txt = "Enabling display: {}".format(id)
-                macObj = conf.getMacs()[req.id]
-                displays.addBleDisp(req.id, macObj)
-                tab = conf.getCurTabPaths(req.id)
+                ble = conf.dispGetBle(req.id)
+                displays.addBleDisp(req.id, ble)
+                _, tab = conf.dispGetTab(req.id)
                 _ = displays.setTab(req.id, tab)
                 newSubSet = sub.add(set(tab.keys()))
                 if len(newSubSet) > 0:
@@ -202,7 +200,7 @@ async def udpSubscribe(displays: Displays,
             d, addr = await subSock.recvfrom()
             id = d.decode("ascii")
             id = id.strip()
-            if conf.isDefined(id):
+            if conf.dispIs(id):
                 isNew = displays.add(id, addr[0], addr[1])
                 status.setTxt("New display added id: {}".format(id))
                 if isNew:

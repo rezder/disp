@@ -55,15 +55,15 @@ class GuiDispServer:
                                         self.server.disableDisp)
 
         self.dispListGui.show(self.server.conf.defaultTab,
-                              self.server.conf.getCurTabs(),
-                              self.server.conf.getTabNames(),
-                              self.server.conf.getMacs())
+                              self.server.conf.dispGet(),
+                              self.server.conf.tabsGetIds(),
+                              self.server.conf.dispGetBles())
         self.dispListGui.mainFrame.pack()
 
         # Centre Frame
         self.disTabGui = guidisable.Table(self.centreFrame,
                                           self.server.alarmDisable)
-        self.disTabGui.show(self.server.conf.getPathsJson())
+        self.disTabGui.show(self.server.conf.pathsGet())
         self.disTabGui.mainFrame.pack()
 
         # Menu bar
@@ -80,7 +80,7 @@ class GuiDispServer:
                                             self.menuBar,
                                             self.server.pathsSave,
                                             self.server.pathsDelete,
-                                            self.server.conf.getPathsJson(),
+                                            self.server.conf.pathsGet(),
                                             self.logger)
 
         self.menuBarGui = guimenu.Bar(self.menuBar,

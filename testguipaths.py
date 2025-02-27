@@ -8,7 +8,7 @@ class TestPaths:
         self.window = tk.Tk()
         self.window.title("Test paths")
         conf = Config(True)
-        self.pathJson = conf.getPathsJson()
+        self.pathJson = conf.pathsGet()
         self.paths = Paths(self.window,
                            self.pathJson,
                            self.logger,

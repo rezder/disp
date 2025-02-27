@@ -27,7 +27,7 @@ class DispServer:
     def __init__(self):
         self.status = Status()
         self.conf = Config()
-        self.skData = SkData(self.conf.getPathsJson(), self.status)
+        self.skData = SkData(self.conf.pathsGet(), self.status)
         self.conf = Config()
         self.loop = None
         self.queue = None
@@ -126,7 +126,7 @@ class DispServer:
         """
         upd = False
         if not self.exist():
-            if self.conf.addDisp(id):
+            if self.conf.dispAdd(id):
                 upd = True
         return upd
 
@@ -139,9 +139,9 @@ class DispServer:
         """
         upd = False
         if not self.exist():
-            if self.conf.addDisp(id):
+            if self.conf.dispAdd(id):
                 upd = True
-            self.conf.addMac(id, mac)
+            self.conf.dispUpdMac(id, mac)
         return upd
 
     def disableDisp(self, id: str, isDisable: bool) -> bool:
@@ -152,12 +152,12 @@ class DispServer:
         """
         ok = False
         if not self.exist():
-            self.conf.setBleDispDisable(id, isDisable)
+            self.conf.dispSetBleDisable(id, isDisable)
             ok = True
         else:
             ok = self.status.setDisableDisp(id, isDisable)
             if ok:
-                self.conf.setBleDispDisable(id, isDisable)
+                self.conf.dispSetBleDisable(id, isDisable)
                 req = gr.GuiReq(gr.disDisp, id)
                 _ = self.loop.call_soon_threadsafe(queueAdd,
                                                    self.queue,
@@ -175,12 +175,12 @@ class DispServer:
         """
         ok = False
         if not self.exist():
-            self.conf.setCurTabId(tabId, id)
+            self.conf.dispSetTabId(id, tabId)
             ok = True
         else:
             ok = self.status.setChgTab(id, tabId)
             if ok:
-                self.conf.setCurTabId(tabId, id)
+                self.conf.dispSetTabId(id, tabId)
                 req = gr.GuiReq(gr.chgTab, id)
                 _ = self.loop.call_soon_threadsafe(queueAdd,
                                                    self.queue,
@@ -251,9 +251,9 @@ class DispServer:
             errTxt = errTxt+"\nError! Server is running!"\
                 " Do not update settings!"
         if isOk:
-            self.conf.setPath(pathId, pathJson)
+            self.conf.pathsSetPath(pathId, pathJson)
             self.conf.save()
-            pathsJson = self.conf.getPathsJson()
+            pathsJson = self.conf.pathsGet()
             self.skData = SkData(pathsJson, self.status)
 
         return isOk, errFlds, errTxt, pathsJson
@@ -274,16 +274,16 @@ class DispServer:
         isOk = True
         errTxt = ""
         pathsJson = None
-        tabRefs = self.conf.getPathsRefs(pathId)
+        tabRefs = self.conf.pathsGetRefs(pathId)
         if len(tabRefs) > 0:
             isOk = False
             txt = "Error! Path: {} is reference on tabs:\n{}."
             errTxt = errTxt + txt.format(pathId, tabRefs)
 
         if isOk:
-            self.conf.deletePath(pathId)
+            self.conf.pathsDeletePath(pathId)
             self.conf.save()
-            pathsJson = self.conf.getPathsJson()
+            pathsJson = self.conf.pathsGet()
             self.skData = SkData(pathsJson, self.status)
 
         return isOk, errTxt, pathsJson
@@ -307,7 +307,7 @@ async def serve(status: Status,
     :param conf: Object holds the configured data.
     """
     displays = Displays(status)
-    ids = displays.addBleDisps(conf.getMacs())
+    ids = displays.addBleDisps(conf.dispGetBles())
     for dpId in ids:
         req = gr.GuiReq(gr.chgTab, dpId)
         queue.put_nowait(req)

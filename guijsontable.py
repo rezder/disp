@@ -139,7 +139,7 @@ class Table:
                 if k != newk:
                     chgkeys.append((k, newk))
                 for fldId, fld in row.items():
-                    if fld.isVis:
+                    if fld.isJson:
                         try:
                             item[fldId] = fld.get()
                         except (ValueError, KeyError):

@@ -150,7 +150,7 @@ def testDispDataEncoding():
 
 def testPathRefSearch(conf: Config):
     path = "environment.depth.belowTransducer"
-    tabs = conf.getPathsRefs(path)
+    tabs = conf.pathsGetRefs(path)
     print(tabs)
     if len(tabs) != 0:
         print("expected path references in tabs: {}".format(tabs))
@@ -161,7 +161,7 @@ def main():
           "###################################################")
     status = Status()
     conf = Config(isDefault=True)
-    skData = SkData(conf.getPathsJson(), status)
+    skData = SkData(conf.pathsGet(), status)
 
     testSubSk(skData)
     testPathCreateMsg(skData, status, conf)
