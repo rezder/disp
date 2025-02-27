@@ -55,6 +55,7 @@ class DispServer:
         self.loop.run_until_complete(self._serve())
 
     def start(self) -> bool:
+
         """
         Starts the async thread with the signalk display
         server.
