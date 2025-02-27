@@ -3,6 +3,8 @@ import guipaths as gp
 import guiflds as gf
 import guijsondef as gdef
 import guijsontable as gt
+from flds import paths as PathsFlds
+from flds import tabs as TabsFlds
 from config import Config
 
 
@@ -56,6 +58,19 @@ class TestTable:
                 else:
                     if not gf.compJson(v, jsonObjDel[k]):
                         print("Error on key:{}".format(k))
+
+        self.conf = Config(isDefault=True)
+        tab = self.conf.tabsGetTab("Default")
+        tabFlds = [PathsFlds.path, TabsFlds.pos]
+        self.tabTable = gt.Table(self.window,
+                                 PathsFlds.path,
+                                 self.cb,
+                                 tabFlds)
+        self.tabTable.mainFrame.pack()
+        self.tabTable.show(tab)
+        tabNew, _, _ = self.tabTable.get()
+        if not gf.compJson(tab, tabNew):
+            print("Error prime table does not match")
 
     def createTable(self, classFld):
         sortGuiFldDef = None

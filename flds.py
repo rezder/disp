@@ -72,6 +72,20 @@ class defs:
                          str,
                          int,
                          "e")
+    pos = gdef.JsonFld("pos",
+                       "Position",
+                       "Pos",
+                       str,
+                       int,
+                       "e",
+                       isPrime=True)
+
+
+class tabs:
+    pos = gdef.GuiFld(defs.pos,
+                      3,
+                      3,
+                      guiflds.FldEntry)
 
 
 class paths:

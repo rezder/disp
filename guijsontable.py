@@ -105,19 +105,21 @@ class Table:
         for k, v in sjsonObj.items():
             row = self.createRow(k)
             for fld in row.values():
-                if fld.isJson and fld.id in v.keys():
+                if fld.isJson and type(v) is dict and fld.id in v.keys():
                     if fld.isVis:
                         fld.bind("<ButtonRelease-1>",
                                  partial(self.rowcb, k, fld.id))
                     fld.show(v[fld.id])
                 else:
-                    if fld.fldDef.isKey:
+                    if fld.fldDef.isKey or fld.fldDef.isPrime:
                         if fld.isVis:
                             fld.bind("<ButtonRelease-1>",
                                      partial(self.rowcb, k, fld.id))
                         data = k
                         if not fld.isJson:
                             raise Exception("Not implemented")
+                        if fld.fldDef.isPrime:
+                            data = v
                         fld.show(data)
                     else:
                         fld.clear()
@@ -140,7 +142,11 @@ class Table:
                 for fldId, fld in row.items():
                     if fld.isJson:
                         try:
-                            item[fldId] = fld.get()
+                            data = fld.get()
+                            if fld.fldDef.isPrime:
+                                item = data
+                            else:
+                                item[fldId] = data
                         except (ValueError, KeyError):
                             pass
                 jsonObj[newk] = item

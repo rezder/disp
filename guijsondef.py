@@ -6,7 +6,8 @@ class JsonFld:
                  toStr,
                  fromStr,
                  align: str,
-                 isKey: bool = False
+                 isKey: bool = False,
+                 isPrime: bool = False
                  ):
         self.align = align
         self.header = header
@@ -15,6 +16,7 @@ class JsonFld:
         self.fromStr = fromStr
         self.jsonHead = jsonHead
         self.isKey = isKey
+        self.isPrime = isPrime
 
 
 class GuiFld:
