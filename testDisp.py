@@ -150,10 +150,14 @@ def testDispDataEncoding():
 
 def testPathRefSearch(conf: Config):
     path = "environment.depth.belowTransducer"
-    tabs = conf.pathsGetRefs(path)
+    tabs, isBig, isAlarm = conf.pathsGetRefs(path)
     print(tabs)
     if len(tabs) != 0:
         print("expected path references in tabs: {}".format(tabs))
+    if isBig:
+        print("Error did not expect a big value")
+    if not isAlarm:
+        print("Error expected a alarm")
 
 
 def main():
@@ -161,7 +165,7 @@ def main():
           "###################################################")
     status = Status()
     conf = Config(isDefault=True)
-    skData = SkData(conf.pathsGet(), status)
+    skData = SkData(conf, status)
 
     testSubSk(skData)
     testPathCreateMsg(skData, status, conf)

@@ -27,7 +27,7 @@ class DispServer:
     def __init__(self):
         self.status = Status()
         self.conf = Config()
-        self.skData = SkData(self.conf.pathsGet(), self.status)
+        self.skData = SkData(self.conf, self.status)
         self.conf = Config()
         self.loop = None
         self.queue = None
@@ -210,8 +210,6 @@ class DispServer:
         Saves a path setting.
         Validate before saving:
         Buffer frequenz must be less or equal to buffer size.
-        All big fields that can be empty (bigDispUnit cant)
-        must be empty or sat.
         Saving: save to file, update conf create new skData
         :param pathId: the path that is being saved
         :param pathJson: The path json object
@@ -235,18 +233,6 @@ class DispServer:
                 txt = "\nError! Buffer frequenze must"\
                     " not be bigger than buffer size"
                 errTxt = errTxt + txt
-            # "bigDispUnit"  cant be empty
-            flds = ["bigValue", "bigDecimals"]
-            usedFlds = list()
-            for fld in flds:
-                if fld in pathJson.keys:
-                    usedFlds.append(fld)
-            if len(flds) > len(usedFlds) and len(usedFlds) > 0:
-                txt = "\nError all or no big field must be filled"
-                errTxt = errTxt + txt
-                for fld in usedFlds:
-                    errFlds.add(fld)
-
         else:
             isOk = False
             errTxt = errTxt+"\nError! Server is running!"\
@@ -254,8 +240,7 @@ class DispServer:
         if isOk:
             self.conf.pathsSetPath(pathId, pathJson)
             self.conf.save()
-            pathsJson = self.conf.pathsGet()
-            self.skData = SkData(pathsJson, self.status)
+            self.skData = SkData(self.conf, self.status)
 
         return isOk, errFlds, errTxt, pathsJson
 
@@ -284,8 +269,7 @@ class DispServer:
         if isOk:
             self.conf.pathsDeletePath(pathId)
             self.conf.save()
-            pathsJson = self.conf.pathsGet()
-            self.skData = SkData(pathsJson, self.status)
+            self.skData = SkData(self.conf, self.status)
 
         return isOk, errTxt, pathsJson
 

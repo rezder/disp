@@ -19,7 +19,7 @@ def creatDummyMsg(skData) -> bytes:
 async def main():
     conf = Config()
     status = Status()
-    skData = SkData(conf.pathsGet, status)
+    skData = SkData(conf, status)
     id = "b1"
     mac = "f0:f5:bd:76:91:9d"
     display = ble.Display(id, mac, status)

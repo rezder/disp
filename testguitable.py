@@ -3,6 +3,7 @@ import guipaths as gp
 import guiflds as gf
 import guijsondef as gdef
 import guijsontable as gt
+from config import Config
 
 
 def cb(path, head):
@@ -10,80 +11,12 @@ def cb(path, head):
     print(head)
 
 
-paths = {"environment.depth.belowTransducer": {
-                "minPeriod": 1000,
-                "decimals": 1,
-                "units": 0,
-                "dispUnits": 0,
-                "label": "DBT",
-                "bufSize": 4,
-                "bufFreq": 4
-            },
-         "navigation.speedOverGround": {
-                "minPeriod": 1000,
-                "decimals": 1,
-                "units": 10,
-                "dispUnits": 11,
-                "label": "SOG",
-                "bufSize": 4,
-                "bufFreq": 4
-            },
-         "navigation.courseOverGroundTrue": {
-                "minPeriod": 1000,
-                "decimals": 0,
-                "units": 20,
-                "dispUnits": 21,
-                "label": "COG",
-                "bufSize": 4,
-                "bufFreq": 4
-            },
-         "navigation.speedThroughWater": {
-                "minPeriod": 2000,
-                "decimals": 1,
-                "units": 10,
-                "dispUnits": 11,
-                "label": "STW",
-                "bufSize": 0,
-                "bufFreq": 0
-            },
-         "navigation.courseRhumbline.crossTrackError": {
-                "minPeriod": 4000,
-                "decimals": 0,
-                "units": 0,
-                "dispUnits": 0,
-                "label": "XTE",
-                "bufSize": 0,
-                "bufFreq": 0
-            },
-         "navigation.courseRhumbline.nextPoint.bearingTrue": {
-                "minPeriod": 1000,
-                "decimals": 0,
-                "units": 20,
-                "dispUnits": 21,
-                "label": "BEA",
-                "bufSize": 4,
-                "bufFreq": 4
-            },
-         "navigation.courseRhumbline.nextPoint.distance": {
-                "minPeriod": 4000,
-                "decimals": 0,
-                "units": 0,
-                "dispUnits": 0,
-                "label": "DIS",
-                "bufSize": 0,
-                "bufFreq": 0,
-                "bigValue": 999,
-                "bigDispUnit": 1,
-                "bigDecimals": 1
-            }
-         }
-
-
 class TestTable:
 
     def __init__(self):
         self.window = tk.Tk()
         self.window.title("Test table")
+        paths = Config(isDefault=True).pathsGet()
         self.jsonObj = paths
         path = "navigation.courseRhumbline.nextPoint.bearingTrue"
         self.rowFrame = tk.Frame(self.window)

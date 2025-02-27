@@ -162,8 +162,8 @@ class FldLabel(Fld):
 
 
 class FldLabelHead(FldLabel):
-    def __init__(self, parent: tk.Frame, fldDef: gdef.JsonFld, width: int):
-        super().__init__(parent, fldDef, width,
+    def __init__(self, parent: tk.Frame, fldDef: gdef.JsonFld):
+        super().__init__(parent, fldDef, None,
                          noCap=True, isMan=False, default=None, isJson=False)
         self.show(self.fldDef.shortHeader)
 
@@ -364,7 +364,10 @@ def createFld(parent: tk.Frame, guiFld: gdef.GuiFld, isTab=False) -> Fld:
     width = guiFld.width
     if isTab:
         noCap = True
-        width = guiFld.shortWidth
+        width = None  # guiFld.shortWidth
+        lins = [FldEntry, FldOpt, FldOptJson]
+        if guiFld.fldClass in lins:
+            width = guiFld.shortWidth
 
     fld = None
     if guiFld.fldClass == FldLabel:

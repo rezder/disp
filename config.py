@@ -20,8 +20,7 @@ class Config:
                     "dispUnits": 0,
                     "label": "DBT",
                     "bufSize": 0,
-                    "bufFreq": 0,
-                    "min": 5.0
+                    "bufFreq": 0
                 },
                 "navigation.speedOverGround": {
                     "minPeriod": 500,
@@ -75,12 +74,21 @@ class Config:
                     "dispUnits": 0,
                     "label": "DIS",
                     "bufSize": 0,
-                    "bufFreq": 0,
-                    "bigValue": 999,
-                    "bigDispUnit": 1,
-                    "bigDecimals": 1
+                    "bufFreq": 0
                     }
                 },
+            "bigs": {
+                "navigation.courseRhumbline.nextPoint.distance": {
+                    "limit": 999,
+                    "dispUnits": 1,
+                    "decimals": 1
+                }
+            },
+            "alarms": {
+                "environment.depth.belowTransducer": {
+                    "min": 5.0
+                }
+            },
             "tabs": {
                 "None": {},
                 "Default": {
@@ -175,13 +183,27 @@ class Config:
 
     #  ############## Paths #################
 
-    def pathsGetRefs(self, path: str) -> list[str]:
+    def pathsGetRefs(self, path: str) -> tuple[list[str], bool, bool]:
+        """
+        return reference to path.
+        :returns:
+        - tabs     - reference on displays tab
+        - inBigs   - if it have a big unit
+        - inAlarms = if it have an alarm
+        """
         tabs = set()
+        inBigs = False
+        inAlarms = False
         for id, tab in self.conf["tabs"].items():
             for tabPath, pos in tab.items():
                 if path == tabPath:
                     tabs.add(id)
-        return tabs
+        if path in self.conf["bigs"]:
+            inBigs = True
+
+        if path in self.conf["alarms"]:
+            inAlarms = True
+        return tabs, inBigs, inAlarms
 
     def pathsGet(self) -> dict:
         """
@@ -194,6 +216,18 @@ class Config:
 
     def pathsDeletePath(self, pathId: str):
         del self.conf["paths"][pathId]
+
+    def pathsGetAlarm(self, pathId) -> dict | None:
+        res = None
+        if pathId in self.conf["alarms"].keys():
+            res = self.conf["alarms"][pathId]
+        return res
+
+    def pathsGetBigUnit(self, pathId) -> dict | None:
+        res = None
+        if pathId in self.conf["bigs"].keys():
+            res = self.conf["bigs"][pathId]
+        return res
 
     # ############### Misc ##################
 

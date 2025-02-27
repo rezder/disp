@@ -4,6 +4,7 @@ import asyncio as ass
 from status import Status
 from status import AlarmMsg
 from dispdata import DispData
+from config import Config
 
 
 class Alarm:
@@ -190,7 +191,8 @@ class PathBig:
 
 
 class Path(PathBig):
-    def __init__(self, path, pathJson, status):
+    def __init__(self, path, pathJson, bigJson):
+        self.id = path
         self.minPeriod = pathJson["minPeriod"]
         super().__init__(pathJson["label"],
                          pathJson["decimals"],
@@ -199,31 +201,17 @@ class Path(PathBig):
                          pathJson["bufSize"],
                          pathJson["bufFreq"])
 
-        fld = "bigValue"
         self.pathBig = None
         self.bigValue = None
-        if fld in pathJson.keys():
-            self.bigValue = pathJson[fld]
+        if bigJson is not None:
+            self.bigValue = bigJson["limit"]
             self.pathBig = PathBig(pathJson["label"],
-                                   pathJson["bigDecimals"],
+                                   bigJson["decimals"],
                                    pathJson["units"],
-                                   pathJson["bigDispUnit"],
+                                   bigJson["dispUnits"],
                                    pathJson["bufSize"],
                                    pathJson["bufFreq"])
         self.alarm = None
-        max = None
-        min = None
-        isMax = "max" in pathJson
-        isMin = "min" in pathJson
-        if isMax:
-            max = pathJson["max"]
-        if isMin:
-            min = pathJson["min"]
-        if isMin or isMax:
-            alarm = Alarm(path, self.label, max, min, 5, status)
-            self.alarm = alarm
-        else:
-            self.alarm = None
 
     def createDispData(self, value) -> DispData | None:
         dd, bv = super().createDispData(value)
@@ -246,6 +234,19 @@ class Path(PathBig):
     def setEnableAlarm(self, isEnable: bool):
         self.alarm.setEnable(isEnable)
 
+    def setAlarm(self, alarmJson: dict, status):
+        max = None
+        min = None
+        isMax = "max" in alarmJson
+        isMin = "min" in alarmJson
+        if isMax:
+            max = alarmJson["max"]
+        if isMin:
+            min = alarmJson["min"]
+
+        alarm = Alarm(self.id, self.label, max, min, 5, status)
+        self.alarm = alarm
+
 
 class SkData:
     """
@@ -259,10 +260,16 @@ class SkData:
     pointer and that have a dot notaion. May have to add it later if
     I get multible source problems.
     """
-    def __init__(self, pathsJson: dict, status):
+    def __init__(self, conf: Config, status):
         self.paths: dict[str, Path] = dict()
+        pathsJson = conf.pathsGet()
         for (p, d) in pathsJson.items():
-            self.paths[p] = Path(p, d, status)
+            big = conf.pathsGetBigUnit(p)
+            path = Path(p, d, big)
+            alarmJson = conf.pathsGetAlarm(p)
+            if alarmJson is not None:
+                path.setAlarm(alarmJson, status)
+            self.paths[p] = path
 
     def msgUnsubAll(self) -> str:
         jsonDict = {

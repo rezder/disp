@@ -31,8 +31,7 @@ class Table:
         columNo = 0
         for tabFldDef in self.tabFldDefs:
             headFld = gf.FldLabelHead(self.mainFrame,
-                                      tabFldDef.jsonFld,
-                                      tabFldDef.shortWidth)
+                                      tabFldDef.jsonFld)
             if tabFldDef.isVis:
                 headFld.mainFrame.grid(row=0, column=columNo)
                 columNo = columNo+1

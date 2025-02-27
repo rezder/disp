@@ -59,7 +59,7 @@ class Path:
         buffFreqFld.mainFrame.grid(row=4, column=1, sticky="ew")
         self.flds[buffFreqFld.id] = buffFreqFld
         self.fldDefs.append(pathFlds.bufFreq)
-
+        """
         minFld = gf.createFld(self.mainFrame, pathFlds.min)
         minFld.mainFrame.grid(row=5, column=0, sticky="ew", padx=(0, 5))
         self.flds[minFld.id] = minFld
@@ -84,6 +84,7 @@ class Path:
         bigDecFld.mainFrame.grid(row=7, column=0, sticky="ew", padx=(0, 5))
         self.flds[bigDecFld.id] = bigDecFld
         self.fldDefs.append(pathFlds.bigDec)
+        """
 
     def show(self, path: str, pathJson: dict):
         self.clear()
@@ -97,7 +98,6 @@ class Path:
     def get(self) -> tuple[str, dict]:
         path = None
         pathJson = dict()
-        bigFldIsEmpty = True  # Nasty hack as opt fld is mandatry
         for fld in self.flds.values():
             if fld.fldDef.isKey:
                 path = fld.get()
@@ -105,11 +105,8 @@ class Path:
                 try:
                     pathJson[fld.id] = fld.get()
                 except ValueError:
-                    if fld.id == "bigValue":
-                        bigFldIsEmpty = True
+                    pass
                     # removes optional flds with no content
-        if bigFldIsEmpty:
-            del pathJson["bigDispUnit"]
         return (path, pathJson)
 
     def clear(self):

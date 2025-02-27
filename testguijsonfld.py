@@ -170,7 +170,7 @@ class TestFlds:
 
         jsonDef = self.fldDefs["label"].jsonFld
         key = "head"
-        fld = gf.FldLabelHead(self.window, jsonDef, 6)
+        fld = gf.FldLabelHead(self.window, jsonDef)
         fld.mainFrame.pack(fill="x")
         self.flds[key] = fld
 

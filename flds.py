@@ -13,7 +13,7 @@ class defs:
                         isKey=True)
     minPer = gdef.JsonFld("minPeriod",
                           "Min Period",
-                          "Min Period",
+                          "Min Per",
                           str,
                           int,
                           "e"
@@ -66,24 +66,12 @@ class defs:
                        str,
                        float,
                        "e")
-    bigVal = gdef.JsonFld("bigValue",
-                          "Big Value",
-                          "Big Val",
-                          str,
-                          int,
-                          "e")
-    bigUnit = gdef.JsonFld("bigDispUnit",
-                           "Big Unit",
-                           "Big Unit",
-                           units.shortTxt,
-                           units.noShort,
-                           "w")
-    bigDec = gdef.JsonFld("bigDecimals",
-                          "Big Decimals",
-                          "Big Dec",
-                          str,
-                          int,
-                          "e")
+    limit = gdef.JsonFld("limit",
+                         "Limit",
+                         "limit",
+                         str,
+                         int,
+                         "e")
 
 
 class paths:
@@ -93,39 +81,39 @@ class paths:
                        guiflds.FldEntry)
     minPer = gdef.GuiFld(defs.minPer,
                          10,
-                         8,
+                         5,
                          guiflds.FldEntry)
     dec = gdef.GuiFld(defs.dec,
                       10,
-                      4,
+                      3,
                       guiflds.FldEntry)
     label = gdef.GuiFld(defs.label,
                         10,
-                        5,
+                        4,
                         guiflds.FldEntry
                         )
     skUnit = gdef.GuiFld(defs.skUnit,
                          4,
-                         6,
+                         4,
                          guiflds.FldOpt,
                          options=units.all(),
                          defaultVal=units.m
                          )
     dpUnit = gdef.GuiFld(defs.dpUnit,
                          4,
-                         6,
+                         4,
                          guiflds.FldOpt,
                          options=units.all(),
                          defaultVal=units.m
-                          )
+                         )
     bufSize = gdef.GuiFld(defs.bufSize,
                           10,
-                          8,
+                          3,
                           guiflds.FldEntry
                           )
     bufFreq = gdef.GuiFld(defs.bufFreq,
                           10,
-                          8,
+                          3,
                           guiflds.FldEntry
                           )
     min = gdef.GuiFld(defs.min,
@@ -140,22 +128,8 @@ class paths:
                       guiflds.FldEntry,
                       isMan=False)
 
-    bigVal = gdef.GuiFld(defs.bigVal,
-                         10,
-                         7,
-                         guiflds.FldEntry,
-                         isMan=False)
-    bigUnit = gdef.GuiFld(defs.bigUnit,
-                          4,
-                          7,
-                          guiflds.FldOpt,
-                          options=units.all(),
-                          defaultVal=units.m,
-                          isMan=False
-                          )
-    bigDec = gdef.GuiFld(defs.bigDec,
-                         10,
-                         7,
-                         guiflds.FldEntry,
-                         isMan=False
-                         )
+    limit = gdef.GuiFld(defs.limit,
+                        10,
+                        4,
+                        guiflds.FldEntry,
+                        isMan=False)

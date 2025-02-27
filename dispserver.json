@@ -8,7 +8,6 @@
       "label": "DBT",
       "bufSize": 0,
       "bufFreq": 0,
-      "min": 5.0
     },
     "navigation.speedOverGround": {
       "minPeriod": 500,
@@ -63,9 +62,18 @@
       "label": "DIS",
       "bufSize": 0,
       "bufFreq": 0,
-      "bigValue": 999,
-      "bigDispUnit": 1,
-      "bigDecimals": 1
+    }
+  },
+  "bigs": {
+    "navigation.courseRhumbline.nextPoint.distance": {
+      "limit": 999,
+      "dispUnits": 1,
+      "decimals": 1
+    }
+  }
+  "alarms": {
+    "environment.depth.belowTransducer": {
+      "min": 5.0
     }
   },
   "tabs": {
@@ -89,7 +97,7 @@
     },
     "None": {}
   },
-  "curTabs": {
+  "displays": {
     "b1": "Default",
     "1": "Default"
   },
