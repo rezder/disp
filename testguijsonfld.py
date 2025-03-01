@@ -1,81 +1,81 @@
 import tkinter as tk
 import guiflds as gf
-import guijsondef as gd
 import units
 from config import Config
-from flds import paths
+from guiflddefs import paths, FldDef
+from flds import Fld
 
 
-def createFldDefs() -> dict[str, gd.GuiFld]:
-    flds: dict[str, gd.GuiFld] = dict()
-    jf = gd.JsonFld("entryInt",
-                    "Long Int",
-                    "Sh Int",
-                    str,
-                    int,
-                    "e"
-                    )
-    flds[jf.jsonHead] = gd.GuiFld(jf, 10, 5, gf.FldEntry)
+def createFldDefs() -> dict[str, FldDef]:
+    flds: dict[str, gf.GuiFldDef] = dict()
+    jf = Fld("entryInt",
+             "Long Int",
+             "Sh Int",
+             str,
+             int,
+             "e"
+             )
+    flds[jf.jsonHead] = FldDef(jf, 10, 5, gf.FldEntry)
 
-    jf = gd.JsonFld("entryStr",
-                    "Long Str",
-                    "Sh Str",
-                    str,
-                    gf.strJson,
-                    "w"
-                    )
-    flds[jf.jsonHead] = gd.GuiFld(jf, 8, 5, gf.FldEntry)
-    flds["manda"] = gd.GuiFld(jf, 8, 5, gf.FldEntry, isMan=False)
+    jf = Fld("entryStr",
+             "Long Str",
+             "Sh Str",
+             str,
+             gf.strJson,
+             "w"
+             )
+    flds[jf.jsonHead] = FldDef(jf, 8, 5, gf.FldEntry)
+    flds["manda"] = FldDef(jf, 8, 5, gf.FldEntry, isMan=False)
 
-    jf = gd.JsonFld("options",
-                    "Long options",
-                    "Opts",
-                    units.shortTxt,
-                    units.noShort,
-                    "w"
-                    )
-    flds[jf.jsonHead] = gd.GuiFld(jf, 4, 5, gf.FldOpt,
-                                  options=units.all(),
-                                  defaultVal=units.m
-                                  )
-    jf = gd.JsonFld("label",
-                    "test4Label",
-                    "label",
-                    str,
-                    str,
-                    "w")
-    flds[jf.jsonHead] = gd.GuiFld(jf, 15, 5, gf.FldLabel)
+    jf = Fld("options",
+             "Long options",
+             "Opts",
+             units.shortTxt,
+             units.noShort,
+             "w"
+             )
+    flds[jf.jsonHead] = FldDef(jf, 4, 5, gf.FldOpt,
+                                     options=units.all(),
+                                     defaultVal=units.m
+                                     )
+    jf = Fld("label",
+             "test4Label",
+             "label",
+             str,
+             str,
+             "w")
+    flds[jf.jsonHead] = FldDef(jf, 15, 5, gf.FldLabel)
 
     conf = Config(isDefault=True)
 
     tabsJson = conf.tabsGet()
-    jf = gd.JsonFld("jsonTabs",
-                    "Json Tabs",
-                    "Tabs",
-                    str,
-                    str,
-                    "e"
-                    )
-    flds[jf.jsonHead] = gd.GuiFld(jf, 10, 5, gf.FldOptJson,
-                                  optJson=tabsJson,
-                                  optJsonHead=None,
-                                  defaultVal=("Default", {})
-                                  )
+    jf = Fld("jsonTabs",
+             "Json Tabs",
+             "Tabs",
+             str,
+             str,
+             "e"
+             )
+    flds[jf.jsonHead] = FldDef(jf, 10, 5, gf.FldOptJson,
+                                     optJson=tabsJson,
+                                     optJsonHead=None,
+                                     defaultVal=("Default", {})
+                                     )
     pathsJson, _, _ = conf.pathsGet()
     key = "DBT"
     v = pathsJson["environment.depth.belowTransducer"]
-    jf = gd.JsonFld("jsonPaths",
-                    "Json Paths",
-                    "Paths",
-                    str,
-                    str,
-                    "e"
-                    )
-    flds[jf.jsonHead] = gd.GuiFld(jf, 10, 5, gf.FldOptJson,
-                                  optJson=pathsJson,
-                                  optJsonHead="label",
-                                  defaultVal=((key, v))
-                                  )
+    jf = Fld("jsonPaths",
+             "Json Paths",
+             "Paths",
+             str,
+             str,
+             "e"
+             )
+    flds[jf.jsonHead] = FldDef(jf, 10, 5, gf.FldOptJson,
+                                     optJson=pathsJson,
+                                     optJsonHead="label",
+                                     defaultVal=((key, v))
+                                     )
     return flds
 
 
@@ -103,14 +103,14 @@ class TestFlds:
     def testPathsFlds(self):
         paths.dec
         key = "pathsDec"
-        fld = gf.createFld(self.window, paths.dec)
+        fld = paths.dec.createFld(self.window)
         self.flds[key] = fld
         fld.mainFrame.pack(fill="x")
         fld.show(3)
 
     def testFldOpt(self):
         key = "options"
-        fld = gf.createFld(self.window, self.fldDefs[key])
+        fld = self.fldDefs[key].createFld(self.window)
         self.flds[key] = fld
         fld.mainFrame.pack(fill="x")
 
@@ -133,7 +133,7 @@ class TestFlds:
 
     def testFldEntry(self):
         key = "entryInt"
-        fld = gf.createFld(self.window, self.fldDefs[key])
+        fld = self.fldDefs[key].createFld(self.window)
         fld.mainFrame.pack(fill="x")
         self.flds[key] = fld
 
@@ -141,7 +141,7 @@ class TestFlds:
         fld.setError(True)
 
         key = "entryStr"
-        fld = gf.createFld(self.window, self.fldDefs[key])
+        fld = self.fldDefs[key].createFld(self.window)
         fld.mainFrame.pack(fill="x")
         self.flds[fld.id] = fld
 
@@ -149,7 +149,7 @@ class TestFlds:
         fld.validate()
 
         key = "manda"
-        fld = gf.createFld(self.window, self.fldDefs[key])
+        fld = self.fldDefs[key].createFld(self.window)
         fld.mainFrame.pack(fill="x")
         self.flds[key] = fld
 
@@ -165,14 +165,14 @@ class TestFlds:
 
     def testFldLabel(self):
         key = "label"
-        fld = gf.createFld(self.window, self.fldDefs[key])
+        fld = self.fldDefs[key].createFld(self.window)
         fld.mainFrame.pack(fill="x")
         self.flds[key] = fld
 
         fld.show("asdfh34j")
         fld.validate()
 
-        jsonDef = self.fldDefs["label"].jsonFld
+        jsonDef = self.fldDefs["label"].fld
         key = "head"
         fld = gf.FldLabelHead(self.window, jsonDef)
         fld.mainFrame.pack(fill="x")
@@ -186,7 +186,7 @@ class TestFlds:
         key = "jsonTabs"
         df = self.fldDefs[key]
         tabsJson = df.optJson
-        fld = gf.createFld(self.window, self.fldDefs[key])
+        fld = self.fldDefs[key].createFld(self.window)
         fld.mainFrame.pack(fill="x")
         self.flds[key] = fld
 
@@ -196,7 +196,7 @@ class TestFlds:
         key = "jsonPaths"
         df = self.fldDefs[key]
         pathsJson = df.optJson
-        fld = gf.createFld(self.window, self.fldDefs[key])
+        fld = self.fldDefs[key].createFld(self.window)
         fld.mainFrame.pack(fill="x")
         self.flds[key] = fld
 

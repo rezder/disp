@@ -1,8 +1,8 @@
 import tkinter as tk
 import guiflds as gf
-import guijsondef as gdef
 from guijsontable import Table
-from flds import paths as pathFlds
+from guiflddefs import paths as pathFlds
+from guiflddefs import FldDef
 
 
 class Path:
@@ -14,35 +14,35 @@ class Path:
         self.mainFrame = tk.Frame(self.parent)
         self.mainFrame.columnconfigure(1, weight=1)
         self.mainFrame.columnconfigure(0, weight=1)
-        self.flds: dict[str, gf.Fld] = dict()
-        self.fldDefs: list[gdef.GuiFld] = list()
+        self.flds: dict[str, gf.GuiFld] = dict()
+        self.fldDefs: list[FldDef] = list()
 
-        pathFld = gf.createFld(self.mainFrame, pathFlds.path)
+        pathFld = pathFlds.path.createFld(self.mainFrame)
         pathFld.mainFrame.grid(row=0, column=0, columnspan=2, sticky="w")
         self.flds[pathFld.id] = pathFld
         self.fldDefs.append(pathFlds.path)
 
-        minPerFld = gf.createFld(self.mainFrame, pathFlds.minPer)
+        minPerFld = pathFlds.minPer.createFld(self.mainFrame)
         minPerFld.mainFrame.grid(row=1, column=0, sticky="ew", padx=(0, 5))
         self.flds[minPerFld.id] = minPerFld
         self.fldDefs.append(pathFlds.minPer)
 
-        decFld = gf.createFld(self.mainFrame, pathFlds.dec)
+        decFld = pathFlds.dec.createFld(self.mainFrame)
         decFld.mainFrame.grid(row=2, column=0, sticky="ew", padx=(0, 5))
         self.flds[decFld.id] = decFld
         self.fldDefs.append(pathFlds.dec)
 
-        labelFld = gf.createFld(self.mainFrame, pathFlds.label)
+        labelFld = pathFlds.label.createFld(self.mainFrame)
         labelFld.mainFrame.grid(row=2, column=1, sticky="ew")
         self.flds[labelFld.id] = labelFld
         #  label adde later to ksep order
 
-        unitFld = gf.createFld(self.mainFrame, pathFlds.skUnit)
+        unitFld = pathFlds.skUnit.createFld(self.mainFrame)
         unitFld.mainFrame.grid(row=3, column=0, sticky="ew", padx=(0, 5))
         self.flds[unitFld.id] = unitFld
         self.fldDefs.append(pathFlds.skUnit)
 
-        dpUnitFld = gf.createFld(self.mainFrame, pathFlds.dpUnit)
+        dpUnitFld = pathFlds.dpUnit.createFld(self.mainFrame)
         dpUnitFld.mainFrame.grid(row=3, column=1, sticky="ew")
         self.flds[dpUnitFld.id] = dpUnitFld
         self.fldDefs.append(pathFlds.dpUnit)
@@ -50,17 +50,17 @@ class Path:
         # Adding label
         self.fldDefs.append(pathFlds.label)
 
-        buffSizeFld = gf.createFld(self.mainFrame, pathFlds.bufSize)
+        buffSizeFld = pathFlds.bufSize.createFld(self.mainFrame)
         buffSizeFld.mainFrame.grid(row=4, column=0, sticky="ew", padx=(0, 5))
         self.flds[buffSizeFld.id] = buffSizeFld
         self.fldDefs.append(pathFlds.bufSize)
 
-        buffFreqFld = gf.createFld(self.mainFrame, pathFlds.bufFreq)
+        buffFreqFld = pathFlds.bufFreq.createFld(self.mainFrame)
         buffFreqFld.mainFrame.grid(row=4, column=1, sticky="ew")
         self.flds[buffFreqFld.id] = buffFreqFld
         self.fldDefs.append(pathFlds.bufFreq)
         """
-        minFld = gf.createFld(self.mainFrame, pathFlds.min)
+        minFld = pathFlds.min.createFld(self.mainFrame)
         minFld.mainFrame.grid(row=5, column=0, sticky="ew", padx=(0, 5))
         self.flds[minFld.id] = minFld
         self.fldDefs.append(pathFlds.min)
@@ -88,47 +88,47 @@ class Path:
 
     def show(self, path: str, pathJson: dict):
         self.clear()
-        for fld in self.flds.values():
-            if fld.fldDef.isKey:
-                fld.show(path)
+        for guiFld in self.flds.values():
+            if guiFld.fld.isKey:
+                guiFld.show(path)
             else:
-                if fld.id in pathJson.keys():
-                    fld.show(pathJson[fld.id])
+                if guiFld.id in pathJson.keys():
+                    guiFld.show(pathJson[guiFld.id])
 
     def get(self) -> tuple[str, dict]:
         path = None
         pathJson = dict()
-        for fld in self.flds.values():
-            if fld.fldDef.isKey:
-                path = fld.get()
+        for guiFld in self.flds.values():
+            if guiFld.fld.isKey:
+                path = guiFld.get()
             else:
                 try:
-                    pathJson[fld.id] = fld.get()
+                    pathJson[guiFld.id] = guiFld.get()
                 except ValueError:
                     pass
                     # removes optional flds with no content
         return (path, pathJson)
 
     def clear(self):
-        for fld in self.flds.values():
-            fld.clear()
+        for guiFld in self.flds.values():
+            guiFld.clear()
 
     def validateFlds(self) -> bool:
         isOk = True
-        for fld in self.flds.values():
-            fldOk = fld.validate()
+        for guiFld in self.flds.values():
+            fldOk = guiFld.validate()
             if not fldOk:
-                print(fld.fldDef.header)
+                print(guiFld.fld.header)
             isOk = isOk and fldOk
         return isOk
 
     def setErrorFld(self, jsonHead: str):
         self.flds[jsonHead].setError(True)
 
-    def getGuiFldDefs(self) -> list[gdef.GuiFld]:
+    def getGuiFldDefs(self) -> list[FldDef]:
         return self.fldDefs
 
-    def getFlds(self) -> dict[str, gf.Fld]:
+    def getFlds(self) -> dict[str, gf.GuiFld]:
         return self.flds
 
 
@@ -161,11 +161,11 @@ class Paths:
 
         sortGuiFldDef = None
 
-        tabFlds: list[gdef.GuiFld] = list()
+        tabFlds: list[FldDef] = list()
         for guiFldDef in self.pathGui.getGuiFldDefs():
             tabFld = guiFldDef.cp()
             tabFld.fldClass = gf.FldLabel
-            if tabFld.jsonFld.isKey:
+            if tabFld.fld.isKey:
                 sortGuiFldDef = tabFld
             tabFlds.append(tabFld)
 

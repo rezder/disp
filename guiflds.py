@@ -1,6 +1,6 @@
 import tkinter as tk
 from gui import BORDER_COLOR_ERR as BCE
-import guijsondef as gdef
+from flds import Fld
 
 
 def strJson(txt: str) -> str:
@@ -37,10 +37,10 @@ def compJson(json1: dict, json2: dict) -> bool:
     return isEqual
 
 
-class Fld:
+class GuiFld:
     def __init__(self,
                  parent: tk.Frame,
-                 fldDef: gdef.JsonFld,
+                 fld: Fld,
                  width: int,
                  noCap: bool,
                  isMan: bool,
@@ -48,12 +48,12 @@ class Fld:
                  isJson: bool
                  ):
         self.parent = parent
-        self.fldDef = fldDef
+        self.fld = fld
         self.width = width
         self.noCap = noCap
         self.isMan = isMan
         self.isJson = isJson
-        self.id = fldDef.jsonHead
+        self.id = fld.jsonHead
         if default is None:
             self.defaultStr = ""
         else:
@@ -61,7 +61,7 @@ class Fld:
         self.mainFrame = tk.Frame(self.parent)
         self.mainFrame.config(highlightbackground=BCE)
         self.mainFrame.config(highlightthickness=0)
-        txt = "{}:  ".format(self.fldDef.header)
+        txt = "{}:  ".format(self.fld.header)
         self.fldVar = tk.StringVar(value=self.defaultStr)
         self.fldHead = None
         self.column = 0
@@ -70,7 +70,7 @@ class Fld:
         if not self.noCap:
             self.mainFrame.columnconfigure(1, weight=1)
             self.mainFrame.columnconfigure(0, weight=0)
-            txt = "{}:  ".format(self.fldDef.header)
+            txt = "{}:  ".format(self.fld.header)
             self.fldHead = tk.Label(self.mainFrame, text=txt)
             self.fldHead.grid(row=0, column=0)
             self.column = 1
@@ -82,7 +82,10 @@ class Fld:
             widget.grid(sticky="e", row=0, column=self.column)
 
     def show(self, data):
-        self.fldVar.set(self.toStr(data))
+        if data is None:
+            self.fldVar.set(self.defaultStr)
+        else:
+            self.fldVar.set(self.toStr(data))
 
     def bind(self, seq: str, cb):
         if not self.noCap:
@@ -121,16 +124,16 @@ class Fld:
             self.mainFrame.config(highlightthickness=0)
 
     def toStr(self, value) -> str:
-        return self.fldDef.toStr(value)
+        return self.fld.toStr(value)
 
     def fromStr(self, txt: str):
-        return self.fldDef.fromStr(txt)
+        return self.fld.fromStr(txt)
 
 
-class FldLabel(Fld):
-    def __init__(self, parent: tk.Frame, fldDef: gdef.JsonFld, width: int,
+class FldLabel(GuiFld):
+    def __init__(self, parent: tk.Frame, fld: Fld, width: int,
                  noCap=False, isMan=False, default=None, isJson=True):
-        super().__init__(parent, fldDef, width, noCap, isMan, default, isJson)
+        super().__init__(parent, fld, width, noCap, isMan, default, isJson)
         align = self.getAlign()
         self.fldLabelOut = tk.Label(self.mainFrame,
                                     textvariable=self.fldVar,
@@ -141,9 +144,9 @@ class FldLabel(Fld):
 
     def getAlign(self):
         align = tk.CENTER
-        if self.fldDef.align == "e":
+        if self.fld.align == "e":
             align = tk.E
-        elif self.fldDef.align == "w":
+        elif self.fld.align == "w":
             align = tk.W
         return align
 
@@ -176,10 +179,10 @@ class FldLabel(Fld):
 
 
 class FldLabelHead(FldLabel):
-    def __init__(self, parent: tk.Frame, fldDef: gdef.JsonFld):
-        super().__init__(parent, fldDef, None,
+    def __init__(self, parent: tk.Frame, fld: Fld):
+        super().__init__(parent, fld, None,
                          noCap=True, isMan=False, default=None, isJson=False)
-        self.show(self.fldDef.shortHeader)
+        self.show(self.fld.shortHeader)
 
     def addWidget(self, widget):
         widget.grid(row=0, column=self.column)
@@ -189,19 +192,19 @@ class FldLabelHead(FldLabel):
 
     def fromStr(self, txt: str):
         raise Exception("Should not be use")
-        return self.fldDef.fromStr(txt)
+        return self.fld.fromStr(txt)
 
     def getAlign(self):
         return tk.CENTER
 
 
-class FldEntry(Fld):
-    def __init__(self, parent: tk.Frame, fldDef: gdef.JsonFld, width: int,
+class FldEntry(GuiFld):
+    def __init__(self, parent: tk.Frame, fld: Fld, width: int,
                  noCap=False, isMan=True, default=None, isJson=True):
-        super().__init__(parent, fldDef, width, noCap,
+        super().__init__(parent, fld, width, noCap,
                          isMan=isMan, default=default, isJson=isJson)
         align = "left"
-        if self.fldDef.align == "e":
+        if self.fld.align == "e":
             align = "right"
         self.fldEntry = tk.Entry(self.mainFrame,
                                  textvariable=self.fldVar,
@@ -240,16 +243,16 @@ class FldEntry(Fld):
         return isOk
 
 
-class FldOpt(Fld):
+class FldOpt(GuiFld):
     def __init__(self,
                  parent: tk.Frame,
-                 fldDef: gdef.JsonFld,
+                 fld: Fld,
                  width: int,
                  options: list,
                  default,
                  noCap=False,
                  isJson=True):
-        super().__init__(parent, fldDef, width, noCap, isMan=True,
+        super().__init__(parent, fld, width, noCap, isMan=True,
                          default=default, isJson=isJson)
 
         self.options: list[str] = list()
@@ -312,7 +315,7 @@ class FldOptJson(FldOpt):
     """
     def __init__(self,
                  parent: tk.Frame,
-                 fldDef: gdef.JsonFld,
+                 fld: Fld,
                  width: int,
                  itemsJson: dict,
                  dpHeadJson: str | None,
@@ -325,7 +328,7 @@ class FldOptJson(FldOpt):
         self.dpHeadJson = dpHeadJson
 
         super().__init__(parent,
-                         fldDef,
+                         fld,
                          width,
                          self.getSortedOptions(),
                          default,
@@ -344,10 +347,10 @@ class FldOptJson(FldOpt):
     def toStr(self, value):  # could work for other flds
         k, jsonItem = value
         if self.dpHeadJson is None:
-            return self.fldDef.toStr(k)
+            return self.fld.toStr(k)
         else:
             v = jsonItem[self.dpHeadJson]
-            return self.fldDef.toStr(v)
+            return self.fld.toStr(v)
 
     def fromStr(self, txt):
         res = None
@@ -357,7 +360,7 @@ class FldOptJson(FldOpt):
                 v = item[self.dpHeadJson]
             else:
                 v = key
-            if v == self.fldDef.fromStr(txt):
+            if v == self.fld.fromStr(txt):
                 res = (key, item)
                 break
         return res
@@ -371,48 +374,3 @@ class FldOptJson(FldOpt):
     def replaceOpts(self, itemsJson: dict):
         self.itemsJson = itemsJson
         super().replaceOpts(self.getSortedOptions())
-
-
-def createFld(parent: tk.Frame, guiFld: gdef.GuiFld, isTab=False) -> Fld:
-    noCap = False
-    width = guiFld.width
-    if isTab:
-        noCap = True
-        width = None  # guiFld.shortWidth
-        lins = [FldEntry, FldOpt, FldOptJson]
-        if guiFld.fldClass in lins:
-            width = guiFld.shortWidth
-
-    fld = None
-    if guiFld.fldClass == FldLabel:
-        fld = FldLabel(parent,
-                       guiFld.jsonFld,
-                       width,
-                       noCap=noCap,
-                       isMan=guiFld.isMan,
-                       default=guiFld.defaultVal)
-    elif guiFld.fldClass == FldEntry:
-        fld = FldEntry(parent,
-                       guiFld.jsonFld,
-                       width,
-                       noCap=noCap,
-                       isMan=guiFld.isMan,
-                       default=guiFld.defaultVal)
-    elif guiFld.fldClass == FldOpt:
-        fld = FldOpt(parent,
-                     guiFld.jsonFld,
-                     width,
-                     guiFld.options,
-                     guiFld.defaultVal,
-                     noCap=noCap
-                     )
-    elif guiFld.fldClass == FldOptJson:
-        fld = FldOptJson(parent,
-                         guiFld.jsonFld,
-                         width,
-                         guiFld.optJson,
-                         guiFld.optJsonHead,
-                         guiFld.defaultVal,
-                         noCap=noCap
-                         )
-    return fld

@@ -1,10 +1,9 @@
 import tkinter as tk
 import guipaths as gp
 import guiflds as gf
-import guijsondef as gdef
 import guijsontable as gt
-from flds import paths as PathsFlds
-from flds import tabs as TabsFlds
+from guiflddefs import paths as PathsFlds
+from guiflddefs import tabs as TabsFlds
 from config import Config
 
 
@@ -79,11 +78,11 @@ class TestTable:
 
     def createTable(self, classFld):
         sortGuiFldDef = None
-        tabFlds: list[gdef.GuiFld] = list()
+        tabFlds: list[gf.GuiFldDef] = list()
         for guiFldDef in self.row.getGuiFldDefs():
             tabFld = guiFldDef.cp()
             tabFld.fldClass = classFld
-            if tabFld.jsonFld.isKey:
+            if tabFld.fld.isKey:
                 sortGuiFldDef = tabFld
             tabFlds.append(tabFld)
 
