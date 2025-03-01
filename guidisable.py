@@ -5,7 +5,7 @@ from status import AlarmMsg
 from gui import BORDER_COLOR, BORDER_WIDTH
 
 
-class Table:
+class Table:  # TODO bad name allaround this is guialarm.py Alarm
     def __init__(self, parent: tk.Frame, disActFn):
         self.disActFn = disActFn
         self.pathsGui = dict()
@@ -19,52 +19,52 @@ class Table:
         self.bgColor = self.parent.cget("bg")
         self.tabFrame.pack()
 
-    def show(self, pathsJson: dict):
+    def show(self, pathsJson: dict, alarmsJson: dict):
         self.pathsGui.clear()
         for c in self.tabFrame.winfo_children():
             c.destroy()
-        la = tk.Label(self.tabFrame, text="Label")
+        la = tk.Label(self.tabFrame, text="Label")  # labelJson fld
         la.grid(row=0, column=0)
         la = tk.Label(self.tabFrame, text="Min", width=6)
         la.grid(row=0, column=1)
-        la = tk.Label(self.tabFrame, text="Value")
+        la = tk.Label(self.tabFrame, text="Value")  # not a json fld
         la.grid(row=0, column=2)
         la = tk.Label(self.tabFrame, text="Max", width=6)
         la.grid(row=0, column=3)
-        la = tk.Label(self.tabFrame, text="Disable")
+        la = tk.Label(self.tabFrame, text="Disable")  # not a json fld maybe
+        #  it should be.
 
         la.grid(row=0, column=4)
         i = 1
-        for (path, data) in pathsJson.items():
-            if "max" in data or "min" in data:
-                label = tk.Label(self.tabFrame, text=data["label"])
-                label.grid(row=i, column=0)
-                txt = ""
-                if "min" in data:
-                    txt = data["min"]
-                minl = tk.Label(self.tabFrame, text=txt)
-                minl.grid(row=i, column=1)
-                valueVar = tk.StringVar(value="")
-                vl = tk.Label(self.tabFrame, textvariable=valueVar)
-                vl.grid(row=i, column=2)
-                txt = ""
-                if "max" in data:
-                    txt = data["max"]
-                maxl = tk.Label(self.tabFrame, text=txt)
-                maxl.grid(row=i, column=3)
-                checkVar = tk.IntVar(value=0)
-                fn = partial(self.checkFn, path, data["label"], checkVar)
-                checkB = tk.Checkbutton(self.tabFrame,
-                                        variable=checkVar,
-                                        onvalue=1,
-                                        offvalue=0,
-                                        command=fn,
-                                        selectcolor="grey10",
-                                        state=tk.DISABLED)
-                checkB.grid(row=i, column=4)
-                self.pathsGui[path] = (valueVar, vl, checkB)
-                i = i + 1
-            
+        for (path, alarmJson) in alarmsJson.items():
+            pathJson = pathsJson[path]
+            label = tk.Label(self.tabFrame, text=pathJson["label"])
+            label.grid(row=i, column=0)
+            txt = ""
+            if "min" in alarmJson:
+                txt = alarmJson["min"]
+            minl = tk.Label(self.tabFrame, text=txt)
+            minl.grid(row=i, column=1)
+            valueVar = tk.StringVar(value="")
+            vl = tk.Label(self.tabFrame, textvariable=valueVar)
+            vl.grid(row=i, column=2)
+            txt = ""
+            if "max" in alarmJson:
+                txt = alarmJson["max"]
+            maxl = tk.Label(self.tabFrame, text=txt)
+            maxl.grid(row=i, column=3)
+            checkVar = tk.IntVar(value=0)
+            fn = partial(self.checkFn, path, pathJson["label"], checkVar)
+            checkB = tk.Checkbutton(self.tabFrame,
+                                    variable=checkVar,
+                                    onvalue=1,
+                                    offvalue=0,
+                                    command=fn,
+                                    selectcolor="grey10",
+                                    state=tk.DISABLED)
+            checkB.grid(row=i, column=4)
+            self.pathsGui[path] = (valueVar, vl, checkB)
+            i = i + 1
 
     def checkFn(self, path, label, checkVar: tk.IntVar):
         if checkVar.get() == 1:
@@ -91,5 +91,5 @@ class Table:
             else:
                 checkBox.config(state=tk.DISABLED)
 
-    def updDatePaths(self, jsonPaths: dict):
-        self.show(jsonPaths)
+    def updDatePaths(self, jsonPaths: dict, alarmsJson: dict):
+        self.show(jsonPaths, alarmsJson)

@@ -61,7 +61,7 @@ def createFldDefs() -> dict[str, gd.GuiFld]:
                                   optJsonHead=None,
                                   defaultVal=("Default", {})
                                   )
-    pathsJson = conf.pathsGet()
+    pathsJson, _, _ = conf.pathsGet()
     key = "DBT"
     v = pathsJson["environment.depth.belowTransducer"]
     jf = gd.JsonFld("jsonPaths",
@@ -86,6 +86,10 @@ class TestFlds:
         self.flds: dict[str, gf.Fld] = dict()
         self.window = tk.Tk()
         self.window.title("Test table")
+        if paths.dec != paths.dec:
+            print("Some thing is wrong")
+        if paths.dec == paths.dpUnit:
+            print("something wrong")
 
         self.testFldEntry()
 

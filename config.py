@@ -205,11 +205,14 @@ class Config:
             inAlarms = True
         return tabs, inBigs, inAlarms
 
-    def pathsGet(self) -> dict:
+    def pathsGet(self) -> tuple[dict, dict, dict]:
         """
-        :returns: All the paths json object
+        :returns: All the paths json objects
+        - paths
+        - alarms
+        - bigs
         """
-        return self.conf["paths"]
+        return self.conf["paths"], self.conf["alarms"], self.conf["bigs"]
 
     def pathsSetPath(self, pathId: str, pathJson: dict):
         self.conf["paths"][pathId] = pathJson
@@ -223,11 +226,17 @@ class Config:
             res = self.conf["alarms"][pathId]
         return res
 
+    def pathsGetAlarms(self) -> dict:
+        return self.conf["alarms"]
+
     def pathsGetBigUnit(self, pathId) -> dict | None:
         res = None
         if pathId in self.conf["bigs"].keys():
             res = self.conf["bigs"][pathId]
         return res
+
+    def pathsGetBigUnits(self) -> dict:
+        return self.conf["bigs"]
 
     # ############### Misc ##################
 

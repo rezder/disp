@@ -1,9 +1,10 @@
 import tkinter as tk
 from functools import partial
 import guiflds as gf
-from guijsondef import GuiFld
+from guijsondef import GuiFld,JsonFld
 
-Row = type(dict[str, gf.Fld])
+
+# Row = type(dict[str, gf.Fld]) did not work with the editor
 
 
 class Table:
@@ -11,10 +12,12 @@ class Table:
                  parent: tk.Frame,
                  sortFldDef: GuiFld,
                  rowClickCb,
-                 tabFldDefs: list[GuiFld]):
+                 tabFldDefs: list[GuiFld],
+                 showCb=None):
         self.parent = parent
         self.mainFrame = tk.Frame(self.parent)
 
+        self.showCb = showCb
         self.tabFldDefs = tabFldDefs
         self.sortFldDef = sortFldDef.jsonFld
         self.rowsNo = 0
@@ -25,8 +28,8 @@ class Table:
 
         self.delKeys: list[str] = list()
         self.headFlds: list[gf.FldLabelHead] = list()
-        self.rowsFlds: dict[str | int, Row] = dict()
-        self.unUsedRows: list[Row] = list()
+        self.rowsFlds: dict[str | int, dict[str, gf.Fld]] = dict()
+        self.unUsedRows: list[dict[str, gf.Fld]] = list()
         self.keyId = None
         columNo = 0
         for tabFldDef in self.tabFldDefs:
@@ -45,8 +48,8 @@ class Table:
         _ = self.createRow(self.newRowsNo)
         self.newRowsNo = self.newRowsNo+1
 
-    def createRow(self, id) -> Row:
-        row: Row = dict()
+    def createRow(self, id) -> dict[str, gf.Fld]:
+        row: dict[str, gf.Fld] = dict()
         columnNo = 0
         try:
             row = self.unUsedRows.pop(0)
@@ -117,7 +120,7 @@ class Table:
                                      partial(self.rowcb, k, fld.id))
                         data = k
                         if not fld.isJson:
-                            raise Exception("Not implemented")
+                            data = self.showCb(fld.fldDef, k, sjsonObj)
                         if fld.fldDef.isPrime:
                             data = v
                         fld.show(data)
@@ -125,6 +128,12 @@ class Table:
                         fld.clear()
             rowNo = rowNo + 1
             self.rowsFlds[k] = row
+
+    def setFld(self, fld: JsonFld, key: str, value):
+        self.rowsFlds[key][fld.jsonHead].show(value)
+
+    def getFld(self, fld: JsonFld, key):
+        return self.rowsFlds[key][fld.jsonHead].get()
 
     def rowcb(self, path, head, event):
         self.rowClickCb(path, head)

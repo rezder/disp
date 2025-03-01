@@ -18,6 +18,9 @@ class JsonFld:
         self.isKey = isKey
         self.isPrime = isPrime
 
+    def __eq__(self, o):
+        return o is self
+
 
 class GuiFld:
     def __init__(self,
@@ -47,6 +50,9 @@ class GuiFld:
         self.isKey = isKey
         self.isJson = isJson
         self.delkeys: list[str] = list()
+
+    def __eq__(self, o):
+        return o is self
 
     def cp(self):
         res = GuiFld(self.jsonFld,

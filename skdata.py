@@ -262,7 +262,7 @@ class SkData:
     """
     def __init__(self, conf: Config, status):
         self.paths: dict[str, Path] = dict()
-        pathsJson = conf.pathsGet()
+        pathsJson, _, _ = conf.pathsGet()
         for (p, d) in pathsJson.items():
             big = conf.pathsGetBigUnit(p)
             path = Path(p, d, big)

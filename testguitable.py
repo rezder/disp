@@ -18,8 +18,12 @@ class TestTable:
     def __init__(self):
         self.window = tk.Tk()
         self.window.title("Test table")
-        paths = Config(isDefault=True).pathsGet()
-        self.jsonObj = paths
+        self.conf = Config(isDefault=True)
+        pathsJson, alarmsJson, bigsJson, = self.conf.pathsGet()
+        self.pathsJson = pathsJson
+        self.alarmsJson = alarmsJson
+        self.bigsJson = bigsJson
+        self.jsonObj = pathsJson
         path = "navigation.courseRhumbline.nextPoint.bearingTrue"
         self.rowFrame = tk.Frame(self.window)
         self.rowFrame.pack()
@@ -59,7 +63,6 @@ class TestTable:
                     if not gf.compJson(v, jsonObjDel[k]):
                         print("Error on key:{}".format(k))
 
-        self.conf = Config(isDefault=True)
         tab = self.conf.tabsGetTab("Default")
         tabFlds = [PathsFlds.path, TabsFlds.pos]
         self.tabTable = gt.Table(self.window,
@@ -71,6 +74,8 @@ class TestTable:
         tabNew, _, _ = self.tabTable.get()
         if not gf.compJson(tab, tabNew):
             print("Error prime table does not match")
+        print(gf.jsonInerJoin(self.alarmsJson, self.pathsJson))
+        print(gf.jsonInerJoin(self.bigsJson, self.pathsJson))
 
     def createTable(self, classFld):
         sortGuiFldDef = None

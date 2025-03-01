@@ -217,12 +217,15 @@ class DispServer:
         - isOk     - If path saved
         - errFlds  - List of json fld headers causing the error
         - errTxt   - Error text
-        - pathsJson - The update paths json object(all paths)
+        - pjjj -(pathsJson,alarmsJson,bigJson)
         """
+        #  TODO change pathsJson to (pathsJson,alarms,bigs)
+        # orr join alarms with pathsJson as that is what is used
+        #
         isOk = True
         errFlds = set()
         errTxt = ""
-        pathsJson = None
+        pjjj = None
         # TODO one day translate json fields to gui flds
         # in error text us jsonFld list
         if not self.exist():
@@ -241,8 +244,8 @@ class DispServer:
             self.conf.pathsSetPath(pathId, pathJson)
             self.conf.save()
             self.skData = SkData(self.conf, self.status)
-
-        return isOk, errFlds, errTxt, pathsJson
+            pjjj = self.conf.pathsGet(),
+        return isOk, errFlds, errTxt, pjjj
 
     def pathsDelete(self, pathId):
         """
@@ -255,11 +258,11 @@ class DispServer:
         :returns:
         - isOk     - If path deleted
         - errTxt   - Error text
-        - pathsJson - The update paths json object(all paths)
+        - pjj - pathsJson,alarmsJson,bigsJson
         """
         isOk = True
         errTxt = ""
-        pathsJson = None
+        pjjj = None
         tabRefs = self.conf.pathsGetRefs(pathId)
         if len(tabRefs) > 0:
             isOk = False
@@ -270,8 +273,9 @@ class DispServer:
             self.conf.pathsDeletePath(pathId)
             self.conf.save()
             self.skData = SkData(self.conf, self.status)
+            pjjj = self.conf.pathsGet()
 
-        return isOk, errTxt, pathsJson
+        return isOk, errTxt, pjjj
 
 
 async def serve(status: Status,

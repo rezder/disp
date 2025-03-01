@@ -63,7 +63,8 @@ class GuiDispServer:
         # Centre Frame
         self.disTabGui = guidisable.Table(self.centreFrame,
                                           self.server.alarmDisable)
-        self.disTabGui.show(self.server.conf.pathsGet())
+        pathsJson, alarmsJson, _ = self.server.conf.pathsGet()
+        self.disTabGui.show(pathsJson, alarmsJson)
         self.disTabGui.mainFrame.pack()
 
         # Menu bar
@@ -80,7 +81,6 @@ class GuiDispServer:
                                             self.menuBar,
                                             self.server.pathsSave,
                                             self.server.pathsDelete,
-                                            self.server.conf.pathsGet(),
                                             self.logger)
 
         self.menuBarGui = guimenu.Bar(self.menuBar,

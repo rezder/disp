@@ -9,7 +9,6 @@ class Settings:
                  parentMenu,
                  savePath,
                  deletePath,
-                 pathJson,
                  logger):
         self.parent = parent
         self.parentMenu = parentMenu
@@ -19,7 +18,6 @@ class Settings:
         self.pathsWindow, windowFrame = createWindow(self.parent,
                                                      "Paths")
         self.pathsGui = guipaths.Paths(windowFrame,
-                                       pathJson,
                                        self.logger,
                                        self.deletePath,
                                        self.savePath)

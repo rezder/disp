@@ -135,7 +135,6 @@ class Path:
 class Paths:
     def __init__(self,
                  parent: tk.Frame,
-                 pathJson: dict,
                  logger,
                  deleteCb,
                  saveCb

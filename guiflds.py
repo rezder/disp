@@ -9,6 +9,20 @@ def strJson(txt: str) -> str:
     return txt
 
 
+def jsonInerJoin(json1: dict, json2: dict) -> dict:
+    res = dict()
+    for k1, item1 in json1.items():
+        resItem = dict(item1.items())
+        if k1 in json2.keys():
+            item2 = json2[k1]
+            for h, v in item2.items():
+                if h not in resItem.keys():
+                    resItem[h] = v
+        res[k1] = resItem
+
+    return res
+
+
 def compJson(json1: dict, json2: dict) -> bool:
     isEqual = True
     for k, v in json1.items():
@@ -327,7 +341,7 @@ class FldOptJson(FldOpt):
                                    key=lambda item: item[1][self.dpHeadJson]))
         return sortList
 
-    def toStr(self, value):
+    def toStr(self, value):  # could work for other flds
         k, jsonItem = value
         if self.dpHeadJson is None:
             return self.fldDef.toStr(k)
