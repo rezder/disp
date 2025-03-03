@@ -1,6 +1,6 @@
 import tkinter as tk
 from gui import BORDER_COLOR_ERR as BCE
-from flds import Fld
+from flds import Fld, Link
 
 
 def strJson(txt: str) -> str:
@@ -45,7 +45,8 @@ class GuiFld:
                  noCap: bool,
                  isMan: bool,
                  default,
-                 isJson: bool
+                 isJson: bool,
+                 linkDef: Link
                  ):
         self.parent = parent
         self.fld = fld
@@ -53,6 +54,10 @@ class GuiFld:
         self.noCap = noCap
         self.isMan = isMan
         self.isJson = isJson
+        self.linkDef = linkDef
+        self.filter = None
+        self.jsonFilter = None
+
         self.id = fld.jsonHead
         if default is None:
             self.defaultStr = ""
@@ -81,11 +86,13 @@ class GuiFld:
         else:
             widget.grid(sticky="e", row=0, column=self.column)
 
-    def show(self, data):
-        if data is None:
-            self.fldVar.set(self.defaultStr)
-        else:
-            self.fldVar.set(self.toStr(data))
+    def show(self, inData):
+        data = self.defaultStr
+        try:
+            data = self.toStr(inData)
+        except (ValueError, KeyError):
+            pass
+        self.fldVar.set(data)
 
     def bind(self, seq: str, cb):
         if not self.noCap:
@@ -98,6 +105,9 @@ class GuiFld:
     def setVis(self, isVis: bool):
         self.isVis = isVis
 
+    def isEmpty(self):
+        return "" == self.fldVar.get()
+
     def get(self):
         """
         translate the string value if possible and
@@ -106,15 +116,29 @@ class GuiFld:
         str will never fail use strJson
         :raises: ValueError if translation fails
         """
-        return self.fromStr(self.fldVar.get())
+        data = None
+        try:
+            data = self.fromStr(self.fldVar.get())
+        except (ValueError, KeyError):
+            pass
+        return data
 
     def clear(self):
         self.fldVar.set(self.defaultStr)
         self.mainFrame.config(highlightthickness=0)
 
     def validate(self) -> bool:
-        isOk = True
+        isOk = True  #TODO validate should include filter
         self.setError(not isOk)
+        v = self.get()
+        if v is None:
+            if self.isEmpty():
+                if self.isMan:
+                    isOk = False
+            else:
+                isOk = False
+        if not isOk:
+            self.setError(True)
         return isOk
 
     def setError(self, isError: bool):
@@ -123,17 +147,36 @@ class GuiFld:
         else:
             self.mainFrame.config(highlightthickness=0)
 
-    def toStr(self, value) -> str:
-        return self.fld.toStr(value)
+    def setJsonObj(self, linkJson: dict):
+        if self.jsonFilter is not None:
+            self.jsonFilter.replaceItems(linkJson)
+        else:
+            self.jsonFilter = JsonFilter(linkJson,
+                                         self.linkDef)
+            self.jsonFilter.setGuiFld(self)
 
-    def fromStr(self, txt: str):
-        return self.fld.fromStr(txt)
+    def setFilter(self, filter):
+        self.filter = filter
+
+    def toStr(self, value) -> str:
+        if self.jsonFilter is None:
+            return self.fld.toStr(value)
+        else:
+            return self.jsonFilter.toStr(value)
+
+    def fromStr(self, txt):
+        if self.jsonFilter is None:
+            return self.fld.fromStr(txt)
+        else:
+            return self.jsonFilter.fromStr(txt)
 
 
 class FldLabel(GuiFld):
     def __init__(self, parent: tk.Frame, fld: Fld, width: int,
-                 noCap=False, isMan=False, default=None, isJson=True):
-        super().__init__(parent, fld, width, noCap, isMan, default, isJson)
+                 noCap=False, isMan=False, default=None,
+                 isJson=True):
+        super().__init__(parent, fld, width, noCap,
+                         isMan, default, isJson, None)
         align = self.getAlign()
         self.fldLabelOut = tk.Label(self.mainFrame,
                                     textvariable=self.fldVar,
@@ -157,25 +200,6 @@ class FldLabel(GuiFld):
     def unbind(self, seq: str):
         super().unbind(seq)
         self.fldLabelOut.unbind(seq)
-
-    def validate(self) -> bool:
-        isOk = super().validate()
-        txt = self.fldVar.get()
-        if txt == "":
-            if self.isMan:
-                if self.defaultStr == "":
-                    self.setError(True)
-                    isOk = False
-                else:
-                    self.fldVar.set(self.defaultStr)
-        else:
-            try:
-                self.fromStr(txt)
-            except ValueError:
-                self.setError(True)
-                isOk = False
-
-        return isOk
 
 
 class FldLabelHead(FldLabel):
@@ -202,7 +226,7 @@ class FldEntry(GuiFld):
     def __init__(self, parent: tk.Frame, fld: Fld, width: int,
                  noCap=False, isMan=True, default=None, isJson=True):
         super().__init__(parent, fld, width, noCap,
-                         isMan=isMan, default=default, isJson=isJson)
+                         isMan, default, isJson, None)
         align = "left"
         if self.fld.align == "e":
             align = "right"
@@ -221,27 +245,6 @@ class FldEntry(GuiFld):
         super().unbind(seq)
         self.fldEntry.unbind(seq)
 
-    def validate(self) -> bool:
-        isOk = super().validate()
-        txt = self.fldVar.get()
-        txt = txt.strip()
-        self.fldVar.set(txt)
-        if txt == "":
-            if self.isMan:
-                if self.defaultStr == "":
-                    self.setError(True)
-                    isOk = False
-                else:
-                    self.fldVar.set(self.defaultStr)
-        else:
-            try:
-                self.fromStr(txt)
-            except ValueError:
-                self.setError(True)
-                isOk = False
-
-        return isOk
-
 
 class FldOpt(GuiFld):
     def __init__(self,
@@ -249,11 +252,19 @@ class FldOpt(GuiFld):
                  fld: Fld,
                  width: int,
                  options: list,
-                 default,
+                 default=None,
                  noCap=False,
-                 isJson=True):
+                 isJson=True,
+                 linkDef=None):
+        if options is None:
+            options = [""]
+            if default is not None:
+                options = [default]
+        if default is None:
+            default = options[0]
+
         super().__init__(parent, fld, width, noCap, isMan=True,
-                         default=default, isJson=isJson)
+                         default=default, isJson=isJson, linkDef=linkDef)
 
         self.options: list[str] = list()
         for i in options:
@@ -274,6 +285,8 @@ class FldOpt(GuiFld):
         self.fldOpt.unbind(seq)
 
     def addOpt(self, opt):
+        if self.jsonFilter is not None:
+            raise Exception("Not possibel with json ")
         strOpt = self.toStr(opt)
         if strOpt not in self.options:
             self.options.append(strOpt)
@@ -282,6 +295,8 @@ class FldOpt(GuiFld):
                                                              strOpt))
 
     def removeOpt(self, opt):
+        if self.jsonFilter is not None:
+            raise Exception("Not possibel with json")
         strOpt = self.toStr(opt)
         ix = self.options.index(strOpt)  # raise ValueError
         if self.defaultStr == strOpt or self.fldVar.get() == strOpt:
@@ -296,81 +311,155 @@ class FldOpt(GuiFld):
         for opt in opts:
             so = self.toStr(opt)
             strOpts.append(so)
-        default = self.defaultStr
-        if default not in strOpts or self.fldVar.get() not in strOpts:
-            raise ValueError
+        if self.fldVar.get() not in strOpts:  # default may no be in restricted list
+            txt = "Value: {} not in list:{}"
+            raise Exception(txt.format(self.fldVar.get(), strOpts))
         menu.delete(0, 'end')
         for strOpt in strOpts:
             menu.add_command(label=strOpt, command=tk._setit(self.fldVar,
                                                              strOpt))
         self.options = strOpts
 
+    def setFilter(self, options):
+        self.replaceOpts(options)
 
-class FldOptJson(FldOpt):
-    """
-    Option fld based on json object.
-    Could be improved with own popup table
-    and entry field. To allow for more
-    header fields.
-    """
-    def __init__(self,
-                 parent: tk.Frame,
-                 fld: Fld,
-                 width: int,
-                 itemsJson: dict,
-                 dpHeadJson: str | None,
-                 default,
-                 noCap=False,
-                 isJson=True
-                 ):
 
-        self.itemsJson = itemsJson
-        self.dpHeadJson = dpHeadJson
-
-        super().__init__(parent,
-                         fld,
-                         width,
-                         self.getSortedOptions(),
-                         default,
-                         noCap=noCap, isJson=isJson)
-
-    def getSortedOptions(self):
-        sortList = None
-        if self.dpHeadJson is None:
-            sortList = list(sorted(self.itemsJson.items(),
-                                   key=lambda item: item[0]))
+class JsonFilter:
+    def __init__(self, items: dict, linkDef: Link):
+        self.slaveFilters: list[JsonFilter] = list()
+        self.items = items
+        self.linkDef = linkDef
+        self.negfilter = set()
+        self.isMaster = False
+        if linkDef is None:
+            self.isMaster = True
         else:
-            sortList = list(sorted(self.itemsJson.items(),
-                                   key=lambda item: item[1][self.dpHeadJson]))
+            self.dpFld = linkDef.dpFld
+        self.isCbIgnore = False
+        self.sortList = self.creaSortedOptions()
+
+    def setGuiFld(self, guiFld: GuiFld):
+        self.guiFld = guiFld
+        self.guiFld.setFilter(self.sortList)
+        if self.isMaster:
+            self.setFldChgCb(self.fldChgCb)
+
+    def setSlave(self, slaveGuiFld: GuiFld):
+        slaveGuiFld.setJsonObj(self.items)
+        slaveFilter = slaveGuiFld.jsonFilter
+        self.slaveFilters.append(slaveFilter)
+        slaveFilter.setFldChgCb(self.slaveCb)
+        v = self.guiFld.get()
+        if v is not None:
+            self.ignoreCb = True
+            slaveFilter.setKeyDpValue(v)
+            self.ignoreCb = False
+        else:
+            self.updFilter()
+
+    def setFldChgCb(self, fn):
+        _ = self.guiFld.fldVar.trace_add('write', fn)
+
+    def fldChgCb(self, var, index, mode):
+        v = self.guiFld.get()
+        if v is not None:
+            for slave in self.slaveFilters:
+                self.ignoreCb = True
+                slave.setKeyDpValue(v)
+            self.ignoreCb = False
+
+    def updFilter(self):
+        removes = set()
+        for slave in self.slaveFilters:
+            negSet = slave.negFilter()
+            removes = removes.union(negSet)
+        no = len(self.items)
+        if no - len(removes) == 1:
+            removes.clear()
+            all = set(self.items.keys())
+            v = all.difference(removes).pop()
+            if v != self.guiFld.get():
+                self.guiFld.show(v)
+                # for slave in self.slaveGuiFlds: fldChgCb should take care of it
+                # slave.setKeyDpValue(v)
+        elif len(removes) == no:
+            self.guiFld.show(None)
+            removes.clear()
+        if removes != self.negfilter:
+            self.negfilter = removes
+            options = self.creaSortedOptions()
+            self.guiFld.setFilter(options)
+            curVal = self.guiFld.get
+            if curVal is not None:
+                if curVal not in options:
+                    self.guiFld.show(None)
+
+    def slaveCb(self, var, index, mode):
+        if not self.isCbIgnore:
+            self.updFilter()
+
+    def setKeyDpValue(self, key):
+        if key is not None:
+            v = self.items[key][self.dpFld.jsonHead]
+            self.guiFld.show(v)
+
+    def negFilter(self) -> set:
+        res = set()
+        if self.linkDef.isFilter:
+            value = self.guiFld.get()
+            isEmpty = self.guiFld.isEmpty()
+            for key in self.items.keys():
+                isOk = True
+                if not isEmpty:
+                    if value is None:
+                        isOk = False
+                    else:
+                        isOk = self.items[key][self.dpFld.jsonHead] == value
+                if not isOk:
+                    res.add(key)
+        return res
+
+    def creaSortedOptions(self) -> list:
+        sortList = None
+        if self.isMaster:
+            temp = list(sorted(self.items.keys()))
+            for v in self.negfilter:
+                temp.remove(v)
+            sortList = [None]
+            sortList.extend(temp)
+        else:
+            s = set()
+            for r in self.items.values():
+                s.add(r[self.dpFld.jsonHead])
+            ll = list(sorted(s))
+            sortList = [None]
+            sortList.extend(ll)
         return sortList
 
-    def toStr(self, value):  # could work for other flds
-        k, jsonItem = value
-        if self.dpHeadJson is None:
-            return self.fld.toStr(k)
-        else:
-            v = jsonItem[self.dpHeadJson]
-            return self.fld.toStr(v)
+    def replaceItems(self, items: dict) -> list:
+        self.items = items
+        self.negfilter.clear()
+        self.sortList = self.creaSortedOptions()
+        self.guiFld.setFilter(self.sortList)
+
+    def isValue(self, value) -> bool:
+        isIn = value in self.sortList
+        return isIn
+
+    def toStr(self, value) -> str:
+        res = ""
+        if value is not None:
+            if self.isMaster:
+                res = self.guiFld.fld.toStr(value)
+            else:
+                res = self.dpFld.toStr(value)
+        return res
 
     def fromStr(self, txt):
         res = None
-        for key, item in self.itemsJson.items():
-            v = None
-            if self.dpHeadJson in item.keys():
-                v = item[self.dpHeadJson]
+        if txt != "":
+            if self.isMaster:
+                res = self.guiFld.fld.fromStr(txt)
             else:
-                v = key
-            if v == self.fld.fromStr(txt):
-                res = (key, item)
-                break
+                res = self.dpFld.fromStr(txt)
         return res
-
-    def addOpt(self, opt):
-        raise ValueError("Not possible")
-
-    def removeOpt(self, opt):
-        raise ValueError("Not possible")
-
-    def replaceOpts(self, itemsJson: dict):
-        self.itemsJson = itemsJson
-        super().replaceOpts(self.getSortedOptions())

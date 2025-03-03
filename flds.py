@@ -25,6 +25,13 @@ class Fld:
         return o is self
 
 
+class Link:
+    def __init__(self, dpFld: Fld, linkFld: Fld, isFilter: bool = False):
+        self.dpFld = dpFld
+        self.linkFld = linkFld
+        self.isFilter = isFilter
+
+
 class flds:
     path = Fld("path",
                "Path",

@@ -3,7 +3,7 @@ import guiflds as gf
 import units
 from config import Config
 from guiflddefs import paths, FldDef
-from flds import Fld
+from flds import Fld, Link
 
 
 def createFldDefs() -> dict[str, FldDef]:
@@ -35,9 +35,9 @@ def createFldDefs() -> dict[str, FldDef]:
              "w"
              )
     flds[jf.jsonHead] = FldDef(jf, 4, 5, gf.FldOpt,
-                                     options=units.all(),
-                                     defaultVal=units.m
-                                     )
+                               options=units.all(),
+                               defaultVal=units.m
+                               )
     jf = Fld("label",
              "test4Label",
              "label",
@@ -46,9 +46,6 @@ def createFldDefs() -> dict[str, FldDef]:
              "w")
     flds[jf.jsonHead] = FldDef(jf, 15, 5, gf.FldLabel)
 
-    conf = Config(isDefault=True)
-
-    tabsJson = conf.tabsGet()
     jf = Fld("jsonTabs",
              "Json Tabs",
              "Tabs",
@@ -56,14 +53,11 @@ def createFldDefs() -> dict[str, FldDef]:
              str,
              "e"
              )
-    flds[jf.jsonHead] = FldDef(jf, 10, 5, gf.FldOptJson,
-                                     optJson=tabsJson,
-                                     optJsonHead=None,
-                                     defaultVal=("Default", {})
-                                     )
-    pathsJson, _, _ = conf.pathsGet()
-    key = "DBT"
-    v = pathsJson["environment.depth.belowTransducer"]
+    flds[jf.jsonHead] = FldDef(jf, 10, 5, gf.FldOpt,
+                               options=None,
+                               defaultVal="Default"
+                               )
+
     jf = Fld("jsonPaths",
              "Json Paths",
              "Paths",
@@ -71,11 +65,12 @@ def createFldDefs() -> dict[str, FldDef]:
              str,
              "e"
              )
-    flds[jf.jsonHead] = FldDef(jf, 10, 5, gf.FldOptJson,
-                                     optJson=pathsJson,
-                                     optJsonHead="label",
-                                     defaultVal=((key, v))
-                                     )
+    flds[jf.jsonHead] = FldDef(jf, 10, 5, gf.FldOpt,
+                               options=None,
+                               linkDef=Link(flds["label"].fld, jf),
+                               defaultVal=("DBT")
+                               )
+
     return flds
 
 
@@ -96,7 +91,7 @@ class TestFlds:
         self.testFldOpt()
 
         self.testFldJsonOpt()
-
+        self.testFldJsonOptPaths()
         self.testFldLabel()
         self.testPathsFlds()
 
@@ -155,12 +150,7 @@ class TestFlds:
 
         fld.show("")
         fld.validate()
-        lx = True
-        try:
-            fld.get()
-        except ValueError:
-            lx = False
-        if lx:
+        if fld.get() is not None:
             print("Failed ValueError raise on str")
 
     def testFldLabel(self):
@@ -182,34 +172,53 @@ class TestFlds:
         fld.mainFrame.pack(fill="x")
 
     def testFldJsonOpt(self):
+        conf = Config(isDefault=True)
+        tabsJson = conf.tabsGet()
+        pathsJson, alarmsJson, bigsJson = conf.pathsGet()
 
         key = "jsonTabs"
         df = self.fldDefs[key]
-        tabsJson = df.optJson
-        fld = self.fldDefs[key].createFld(self.window)
+        fld: gf.FldOptJson = self.fldDefs[key].createFld(self.window)
+        fld.setJsonObj(tabsJson)
         fld.mainFrame.pack(fill="x")
         self.flds[key] = fld
 
-        fld.show(("Default", tabsJson["Default"]))
+        fld.show("Default")
         fld.validate()
-
         key = "jsonPaths"
         df = self.fldDefs[key]
-        pathsJson = df.optJson
-        fld = self.fldDefs[key].createFld(self.window)
+        fld: gf.FldOptJson = self.fldDefs[key].createFld(self.window)
+        fld.setJsonObj(pathsJson)
         fld.mainFrame.pack(fill="x")
         self.flds[key] = fld
 
         newId = "navigation.courseRhumbline.nextPoint.distance"
         defaultId = "environment.depth.belowTransducer"
-        k, v = fld.get()
-        if k != defaultId:
+        v = fld.get()
+        exV = pathsJson[defaultId][df.linkDef.dpFld.jsonHead]
+        if exV != v:
             print("Error")
-        fld.show((newId, pathsJson[newId]))
+        fld.show(pathsJson[newId][df.linkDef.dpFld.jsonHead])
         fld.validate()
-        k, v = fld.get()
-        if k != newId:
+        v = fld.get()
+        exV = pathsJson[newId][df.linkDef.dpFld.jsonHead]
+
+        if v != exV:
             print("Error")
+
+    def testFldJsonOptPaths(self):
+        conf = Config(isDefault=True)
+        #  tabsJson = conf.tabsGet()
+        pathsJson, alarmsJson, bigsJson = conf.pathsGet()
+        fldMaster: gf.FldOptJson = paths.pathJs.createFld(self.window)
+        fldMaster.setJsonObj(pathsJson)
+        fldMaster.mainFrame.pack(fill="x")
+        fldLabel: gf.FldOptJson = paths.labelJs.createFld(self.window)
+        fldLabel.mainFrame.pack(fill="x")
+        fldUnit: gf.FldOptJson = paths.dpUnitJs.createFld(self.window)
+        fldUnit.mainFrame.pack(fill="x")
+        fldMaster.jsonFilter.setSlave(fldLabel)
+        fldMaster.jsonFilter.setSlave(fldUnit)
 
     def start(self):
         self.window.mainloop()

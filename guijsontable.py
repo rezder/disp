@@ -1,7 +1,7 @@
 import tkinter as tk
 from functools import partial
 import guiflds as gf
-from guiflddefs import FldDef,Fld
+from guiflddefs import FldDef, Fld
 
 
 # Row = type(dict[str, gf.GuiFld]) did not work with the editor
@@ -16,9 +16,26 @@ class Table:
                  showCb=None):
         self.parent = parent
         self.mainFrame = tk.Frame(self.parent)
-
         self.showCb = showCb
-        self.tabFldDefs = tabFldDefs
+
+        self.tabFldDefs: dict[str, FldDef] = dict()
+        self.primeFld = None
+        for v in tabFldDefs:
+            self.tabFldDefs[v.fld.jsonHead] = v
+            if v.fld.isPrime:
+                self.primeFld = v
+
+        # TODO use new link
+        self.links: dict[str, list[FldDef]] = dict()
+        self.calcFlds: list[FldDef] = list()
+        for k, fldDef in self.tabFldDefs.items():
+            if fldDef.linkJson is not None:
+                if fldDef.linkFld is not None:
+                    cl = self.links.get(fldDef.linkFld.jsonHead, list())
+                    cl.append(fldDef)
+            if not fldDef.isJson:
+                self.calcFlds.append(fldDef)
+
         self.sortFld = sortGuiFldDef.fld
         self.rowsNo = 0
         self.newRowsNo = 0
@@ -32,7 +49,7 @@ class Table:
         self.unUsedRows: list[dict[str, gf.GuiFld]] = list()
         self.keyId = None
         columNo = 0
-        for tabFldDef in self.tabFldDefs:
+        for tabFldDef in self.tabFldDefs.values():
             headFld = gf.FldLabelHead(self.mainFrame,
                                       tabFldDef.fld)
             if tabFldDef.isVis:
@@ -62,7 +79,7 @@ class Table:
                 else:
                     guiFld.setVis(False)
         except IndexError:
-            for tabFldDef in self.tabFldDefs:
+            for tabFldDef in self.tabFldDefs.values():
                 guiFld = tabFldDef.createFld(self.mainFrame, isTab=True)
                 if guiFld.isVis:
                     guiFld.mainFrame.grid(row=self.rowsNo+1,
@@ -90,7 +107,40 @@ class Table:
             del self.rowsFlds[d]
         self.rowsNo = 0
 
+    def show_AddPrimeCp(self, jsonsObj: dict) -> dict:
+        res = dict()
+        for k, v in jsonsObj.items():
+            newItemJson = None
+            if type(v) is dict:
+                newItemJson = dict(v)
+            else:
+                newItemJson = dict()
+                newItemJson[self.primeFld.fld.jsonHead] = v
+            res[k] = newItemJson
+        return res
+
+    def show_AddLink(self, jsonsObj):
+        if self.links is not None:  # TODO use nw lnk
+            for k, itemJson in jsonsObj.items():
+                for keyId, linklist in self.links.items():
+                    keyValue = itemJson[keyId]
+                    for fldDef in linklist:
+                        fldId = fldDef.fld.jsonHead
+                        dpId = fldDef.linkDpFld.jsonHead
+                        itemJson[fldId] = fldDef.linkJson[keyValue][dpId]
+
+    def show_AddCalc(self, jsonsObj):
+        if len(self.calcFlds) > 0 and self.showCb is not None:
+            for k, itemJson in jsonsObj.items():
+                for fldDef in self.calcFlds:
+                    id = fldDef.fld.jsonHead
+                    itemJson[id] = self.showCb(k, fldDef.fld, itemJson)
+
     def show(self, jsonObj: dict):
+        jsonObj = self.show_AddPrimeCp(jsonObj)
+        self.show_AddLink(jsonObj)
+        self.show_AddCalc(jsonObj)
+
         #  sort
         self.newRowsNo = 0
         self.delKeys.clear()
@@ -108,22 +158,17 @@ class Table:
         for k, v in sjsonObj.items():
             row = self.createRow(k)
             for guiFld in row.values():
-                if guiFld.isJson and type(v) is dict and guiFld.id in v.keys():
+                if guiFld.id in v.keys():
                     if guiFld.isVis:
                         guiFld.bind("<ButtonRelease-1>",
                                     partial(self.rowcb, k, guiFld.id))
                     guiFld.show(v[guiFld.id])
                 else:
-                    if guiFld.fld.isKey or guiFld.fld.isPrime:
+                    if guiFld.fld.isKey:
                         if guiFld.isVis:
                             guiFld.bind("<ButtonRelease-1>",
                                         partial(self.rowcb, k, guiFld.id))
-                        data = k
-                        if not guiFld.isJson:
-                            data = self.showCb(guiFld.fld, k, sjsonObj)
-                        if guiFld.fld.isPrime:
-                            data = v
-                        guiFld.show(data)
+                        guiFld.show(k)
                     else:
                         guiFld.clear()
             rowNo = rowNo + 1
@@ -150,14 +195,12 @@ class Table:
                     chgkeys.append((k, newk))
                 for fldId, guiFld in row.items():
                     if guiFld.isJson:
-                        try:
-                            data = guiFld.get()
+                        data = guiFld.get()
+                        if data is None:
                             if guiFld.fld.isPrime:
                                 item = data
                             else:
                                 item[fldId] = data
-                        except (ValueError, KeyError):
-                            pass
                 jsonObj[newk] = item
 
         return jsonObj, self.delKeys, chgkeys

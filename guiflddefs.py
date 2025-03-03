@@ -1,5 +1,4 @@
-from flds import Fld
-from flds import flds
+from flds import Fld, flds, Link
 import guiflds as gf
 import tkinter as tk
 import units
@@ -13,8 +12,7 @@ class FldDef:
                  fldClass,
                  isVis: bool = True,
                  options:  list | None = None,
-                 optJson: dict | None = None,
-                 optJsonHead: str | None = None,
+                 linkDef: Link | None = None,
                  defaultVal=None,
                  isMan: bool = True,
                  isKey: bool = False,
@@ -26,8 +24,7 @@ class FldDef:
         self.fldClass = fldClass
         self.isVis = isVis
         self.options = options
-        self.optJson = optJson
-        self.optJsonHead = optJsonHead
+        self.linkDef = linkDef
         self.defaultVal = defaultVal
         self.isMan = isMan
         self.isKey = isKey
@@ -44,8 +41,7 @@ class FldDef:
                      self.fldClass,
                      isVis=self.isVis,
                      options=self.options,
-                     optJson=self.optJson,
-                     optJsonHead=self.optJsonHead,
+                     linkDef=self.linkDef,
                      defaultVal=self.defaultVal,
                      isMan=self.isMan,
                      isKey=self.isKey,
@@ -83,17 +79,9 @@ class FldDef:
                                width,
                                self.options,
                                self.defaultVal,
-                               noCap=noCap
+                               noCap=noCap,
+                               linkDef=self.linkDef
                                )
-        elif self.fldClass == gf.FldOptJson:
-            guiFld = gf.FldOptJson(parent,
-                                   self.fld,
-                                   width,
-                                   self.optJson,
-                                   self.optJsonHead,
-                                   self.defaultVal,
-                                   noCap=noCap
-                                   )
         return guiFld
 
 
@@ -163,3 +151,18 @@ class paths:
                    4,
                    gf.FldEntry,
                    isMan=False)
+
+    pathJs = FldDef(flds.path, 44, 44, gf.FldOpt,
+                    linkDef=None,
+                    options=None,
+                    defaultVal="navigation.courseRhumbline.nextPoint.distance"
+                    )
+
+    labelJs = FldDef(flds.label, 4, 4, gf.FldOpt,
+                     linkDef=Link(flds.label, flds.path, True),
+                     options=None,
+                     defaultVal="COG")
+    dpUnitJs = FldDef(flds.dpUnit, 4, 4, gf.FldOpt,
+                      linkDef=Link(flds.dpUnit, flds.path),
+                      options=None,
+                      defaultVal=units.m)
