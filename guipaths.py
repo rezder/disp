@@ -206,11 +206,12 @@ class Paths:
             else:
                 txt = "Creating new path: {}"
                 self.logger(txt.format(path))
-            isOk, errFlds, errTxt, pathJson = self.saveCb(path, itemJson)
+            isOk, errFlds, errTxt, tPathsJson = self.saveCb(path, itemJson)
+            pathsJson, alarmsJson, bigsJson = tPathsJson
             if isOk:
                 self.clear()
-                self.show(pathJson)
-                self.execPathUdp(pathJson)
+                self.show(pathsJson)
+                self.execPathUdp(tPathsJson)
             else:
                 for head in errFlds:
                     self.pathGui.setErrorFld(head)
@@ -221,11 +222,13 @@ class Paths:
     def delete(self):
         path, itemJson = self.pathGui.get()
         if path in self.pathJsonOld.keys():
-            isOk, errTxt, pathJson = self.deleteCb(path)
+            isOk, errTxt, tPathsJson = self.deleteCb(path)
+            pathsJson, alarmsJson, bigsJson = tPathsJson
+
             if isOk:
                 self.clear()
-                self.show(pathJson)
-                self.execPathUdp(pathJson)
+                self.show(pathsJson)
+                self.execPathUdp(tPathsJson)
                 self.logger("Path: {} deleted".format(path))
             else:
                 self.pathGui.setErrorFld(self.phJson)
@@ -240,9 +243,9 @@ class Paths:
     def subScribePathUpd(self, fn):
         self.subPathUpdList.append(fn)
 
-    def execPathUdp(self, pathJson: dict):
+    def execPathUdp(self, tPathJson: tuple[dict, dict, dict]):
         for f in self.subPathUpdList:
-            f(pathJson)
+            f(tPathJson)
 
     def serverOn(self, isOn: bool):
         if isOn:

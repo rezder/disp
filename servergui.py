@@ -80,6 +80,7 @@ class GuiDispServer:
         self.menuSettGui = guimenu.Settings(self.window,
                                             self.menuBar,
                                             self.server.pathsSave,
+                                            self.server.conf.pathsGet(),
                                             self.server.pathsDelete,
                                             self.logger)
 

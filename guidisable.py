@@ -91,5 +91,6 @@ class Table:  # TODO bad name allaround this is guialarm.py Alarm
             else:
                 checkBox.config(state=tk.DISABLED)
 
-    def updDatePaths(self, jsonPaths: dict, alarmsJson: dict):
-        self.show(jsonPaths, alarmsJson)
+    def updDatePaths(self, tPathsJson):
+        pathsJson, alarmsJson, bigsJson = tPathsJson
+        self.show(pathsJson, alarmsJson)

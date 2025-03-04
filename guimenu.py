@@ -8,21 +8,20 @@ class Settings:
                  parent,
                  parentMenu,
                  savePath,
+                 tPathsJson,
                  deletePath,
                  logger):
         self.parent = parent
         self.parentMenu = parentMenu
-        self.savePath = savePath
-        self.deletePath = deletePath
         self.logger = logger
         self.pathsWindow, windowFrame = createWindow(self.parent,
                                                      "Paths")
         self.pathsGui = guipaths.Paths(windowFrame,
                                        self.logger,
-                                       self.deletePath,
-                                       self.savePath)
+                                       deletePath,
+                                       savePath)
         self.pathsGui.mainFrame.pack()
-        self.pathsGui.show(pathJson)
+        self.pathsGui.show(tPathsJson[0])
         self.menuSettings = tk.Menu(self.parentMenu, tearoff=0)
         self.menuSettings.add_command(label="Paths", command=self.pathCreaWin)
         self.pathsWindow.withdraw()
