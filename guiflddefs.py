@@ -54,7 +54,7 @@ class FldDef:
         if isTab:
             noCap = True
             width = None
-            lins = [gf.FldEntry, gf.FldOpt, gf.FldOptJson]
+            lins = [gf.FldEntry, gf.FldOpt]
             if self.fldClass in lins:
                 width = self.shortWidth
 

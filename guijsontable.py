@@ -25,14 +25,13 @@ class Table:
             if v.fld.isPrime:
                 self.primeFld = v
 
-        # TODO use new link
         self.links: dict[str, list[FldDef]] = dict()
         self.calcFlds: list[FldDef] = list()
         for k, fldDef in self.tabFldDefs.items():
-            if fldDef.linkJson is not None:
-                if fldDef.linkFld is not None:
-                    cl = self.links.get(fldDef.linkFld.jsonHead, list())
-                    cl.append(fldDef)
+            if fldDef.linkDef is not None:
+                linkJId = fldDef.linkDef.linkFld.jsonHead
+                cl = self.links.get(linkJId, list())
+                cl.append(fldDef)
             if not fldDef.isJson:
                 self.calcFlds.append(fldDef)
 
@@ -89,6 +88,10 @@ class Table:
                 else:
                     guiFld.setVis(False)
                 row[guiFld.id] = guiFld
+            for k, v in self.links.items():
+                masterFld = row[k]
+                for slaveFld in v:
+                    masterFld.jsonFilter.setSlave(slaveFld)
         self.rowsNo = self.rowsNo + 1
         self.rowsFlds[id] = row
         return row
@@ -119,16 +122,6 @@ class Table:
             res[k] = newItemJson
         return res
 
-    def show_AddLink(self, jsonsObj):
-        if self.links is not None:  # TODO use nw lnk
-            for k, itemJson in jsonsObj.items():
-                for keyId, linklist in self.links.items():
-                    keyValue = itemJson[keyId]
-                    for fldDef in linklist:
-                        fldId = fldDef.fld.jsonHead
-                        dpId = fldDef.linkDpFld.jsonHead
-                        itemJson[fldId] = fldDef.linkJson[keyValue][dpId]
-
     def show_AddCalc(self, jsonsObj):
         if len(self.calcFlds) > 0 and self.showCb is not None:
             for k, itemJson in jsonsObj.items():
@@ -138,7 +131,6 @@ class Table:
 
     def show(self, jsonObj: dict):
         jsonObj = self.show_AddPrimeCp(jsonObj)
-        self.show_AddLink(jsonObj)
         self.show_AddCalc(jsonObj)
 
         #  sort

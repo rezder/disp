@@ -219,15 +219,13 @@ class DispServer:
         - errTxt   - Error text
         - pjjj -(pathsJson,alarmsJson,bigJson)
         """
-        #  TODO change pathsJson to (pathsJson,alarms,bigs)
-        # orr join alarms with pathsJson as that is what is used
-        #
         isOk = True
         errFlds = set()
         errTxt = ""
         pjjj = None
-        # TODO one day translate json fields to gui flds
-        # in error text us jsonFld list
+        # TODO one day translate json ids to gui flds
+        # Make a function that translate marked text like
+        # @path@ to Path. It just needs a dict of flds
         if not self.exist():
             fld = "bufFreq"
             if pathJson[fld] > pathJson["bufSize"]:
@@ -347,7 +345,8 @@ async def serve(status: Status,
                 await ws.close()
 
             await cleanTask(dones, runnings, status)
-            if done.is_set() or True:  # TODOremoveTrue for restart after crash
+            if done.is_set() or True:  # TODO remove True for
+                #                         restart after crash
                 await skData.clearTask()
                 ok = await displays.close()
                 if not ok:

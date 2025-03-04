@@ -178,7 +178,7 @@ class TestFlds:
 
         key = "jsonTabs"
         df = self.fldDefs[key]
-        fld: gf.FldOptJson = self.fldDefs[key].createFld(self.window)
+        fld: gf.FldOpt = self.fldDefs[key].createFld(self.window)
         fld.setJsonObj(tabsJson)
         fld.mainFrame.pack(fill="x")
         self.flds[key] = fld
@@ -187,7 +187,7 @@ class TestFlds:
         fld.validate()
         key = "jsonPaths"
         df = self.fldDefs[key]
-        fld: gf.FldOptJson = self.fldDefs[key].createFld(self.window)
+        fld: gf.FldOpt = self.fldDefs[key].createFld(self.window)
         fld.setJsonObj(pathsJson)
         fld.mainFrame.pack(fill="x")
         self.flds[key] = fld
@@ -210,12 +210,12 @@ class TestFlds:
         conf = Config(isDefault=True)
         #  tabsJson = conf.tabsGet()
         pathsJson, alarmsJson, bigsJson = conf.pathsGet()
-        fldMaster: gf.FldOptJson = paths.pathJs.createFld(self.window)
+        fldMaster: gf.FldOpt = paths.pathJs.createFld(self.window)
         fldMaster.setJsonObj(pathsJson)
         fldMaster.mainFrame.pack(fill="x")
-        fldLabel: gf.FldOptJson = paths.labelJs.createFld(self.window)
+        fldLabel: gf.FldOpt = paths.labelJs.createFld(self.window)
         fldLabel.mainFrame.pack(fill="x")
-        fldUnit: gf.FldOptJson = paths.dpUnitJs.createFld(self.window)
+        fldUnit: gf.FldOpt = paths.dpUnitJs.createFld(self.window)
         fldUnit.mainFrame.pack(fill="x")
         fldMaster.jsonFilter.setSlave(fldLabel)
         fldMaster.jsonFilter.setSlave(fldUnit)

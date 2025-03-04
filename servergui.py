@@ -74,8 +74,8 @@ class GuiDispServer:
                                            self.menuBar,
                                            self.server.addNewUdpDisp,
                                            self.server.addNewBleDisp,
-                                           self.logger)
-        self.menuRegGui.show(self.server.conf.getSubPort())
+                                           self.logger,
+                                           self.server.conf.getSubPort())
 
         self.menuSettGui = guimenu.Settings(self.window,
                                             self.menuBar,

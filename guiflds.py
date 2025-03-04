@@ -55,11 +55,12 @@ class GuiFld:
         self.isMan = isMan
         self.isJson = isJson
         self.linkDef = linkDef
-        self.filter = None
+        self.filter: list|None = None
         self.jsonFilter = None
 
         self.id = fld.jsonHead
-        if default is None:
+        self.default = default
+        if self.default is None:
             self.defaultStr = ""
         else:
             self.defaultStr = self.toStr(default)
@@ -124,11 +125,17 @@ class GuiFld:
         return data
 
     def clear(self):
-        self.fldVar.set(self.defaultStr)
+        if self.filter is not None:
+            if self.default in self.filter:
+                self.show(self.default)
+            else:
+                self.show(self.filter[0])
+        else:
+            self.fldVar.set(self.defaultStr)
         self.mainFrame.config(highlightthickness=0)
 
     def validate(self) -> bool:
-        isOk = True  #TODO validate should include filter
+        isOk = True
         self.setError(not isOk)
         v = self.get()
         if v is None:
@@ -136,6 +143,9 @@ class GuiFld:
                 if self.isMan:
                     isOk = False
             else:
+                isOk = False
+        elif self.filter is not None:
+            if v not in self.filter:
                 isOk = False
         if not isOk:
             self.setError(True)
@@ -155,7 +165,7 @@ class GuiFld:
                                          self.linkDef)
             self.jsonFilter.setGuiFld(self)
 
-    def setFilter(self, filter):
+    def setFilter(self, filter: list):
         self.filter = filter
 
     def toStr(self, value) -> str:
@@ -311,9 +321,9 @@ class FldOpt(GuiFld):
         for opt in opts:
             so = self.toStr(opt)
             strOpts.append(so)
-        if self.fldVar.get() not in strOpts:  # default may no be in restricted list
-            txt = "Value: {} not in list:{}"
-            raise Exception(txt.format(self.fldVar.get(), strOpts))
+        value = self.fldVar.get()
+        if value not in strOpts:
+            self.show(opts[0])
         menu.delete(0, 'end')
         for strOpt in strOpts:
             menu.add_command(label=strOpt, command=tk._setit(self.fldVar,
@@ -361,8 +371,11 @@ class JsonFilter:
         _ = self.guiFld.fldVar.trace_add('write', fn)
 
     def fldChgCb(self, var, index, mode):
+        """
+        Call back for master when strVar changes
+        """
         v = self.guiFld.get()
-        if v is not None:
+        if v is not None and v in self.guiFld.filter:
             for slave in self.slaveFilters:
                 self.ignoreCb = True
                 slave.setKeyDpValue(v)
@@ -380,8 +393,6 @@ class JsonFilter:
             v = all.difference(removes).pop()
             if v != self.guiFld.get():
                 self.guiFld.show(v)
-                # for slave in self.slaveGuiFlds: fldChgCb should take care of it
-                # slave.setKeyDpValue(v)
         elif len(removes) == no:
             self.guiFld.show(None)
             removes.clear()

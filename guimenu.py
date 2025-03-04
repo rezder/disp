@@ -43,7 +43,8 @@ class Registor:
                  parentMenu,
                  addNewUdpDisp,
                  addNewBleDisp,
-                 logger):
+                 logger,
+                 port):
         self.parent = parent
         self.parentMenu = parentMenu
         self.addNewUdpDisp = addNewUdpDisp
@@ -66,15 +67,13 @@ class Registor:
         self.menuRegistor = tk.Menu(self.parentMenu, tearoff=0)
         self.menuRegistor.add_command(label="Ble", command=self.bleRegistor)
         self.menuRegistor.add_command(label="Udp", command=self.udpRegistor)
+        self.udpGui.show(port)
+        self.bleGui.show()
         self.udpWindow.withdraw()
         self.bleWindow.withdraw()
 
     def getMenu(self) -> tk.Menu:
         return self.menuRegistor
-
-    def show(self, port):  # TODO move to init
-        self.udpGui.show(port)
-        self.bleGui.show()
 
     def bleRegistor(self):
         self.bleWindow.deiconify()
