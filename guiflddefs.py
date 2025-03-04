@@ -15,7 +15,6 @@ class FldDef:
                  linkDef: Link | None = None,
                  defaultVal=None,
                  isMan: bool = True,
-                 isKey: bool = False,
                  isJson: bool = True
                  ):
         self.fld = fld
@@ -27,7 +26,6 @@ class FldDef:
         self.linkDef = linkDef
         self.defaultVal = defaultVal
         self.isMan = isMan
-        self.isKey = isKey
         self.isJson = isJson
         self.delkeys: list[str] = list()
 
@@ -44,7 +42,6 @@ class FldDef:
                      linkDef=self.linkDef,
                      defaultVal=self.defaultVal,
                      isMan=self.isMan,
-                     isKey=self.isKey,
                      isJson=self.isJson)
         return res
 
@@ -65,6 +62,7 @@ class FldDef:
                                  width,
                                  noCap=noCap,
                                  isMan=self.isMan,
+                                 isJson=self.isJson,
                                  default=self.defaultVal)
         elif self.fldClass == gf.FldEntry:
             guiFld = gf.FldEntry(parent,
@@ -72,6 +70,7 @@ class FldDef:
                                  width,
                                  noCap=noCap,
                                  isMan=self.isMan,
+                                 isJson=self.isJson,
                                  default=self.defaultVal)
         elif self.fldClass == gf.FldOpt:
             guiFld = gf.FldOpt(parent,
@@ -80,8 +79,16 @@ class FldDef:
                                self.options,
                                self.defaultVal,
                                noCap=noCap,
+                               isJson=self.isJson,
                                linkDef=self.linkDef
                                )
+        elif self.fldClass == gf.FldBool:
+            guiFld = gf.FldBool(parent,
+                                self.fld,
+                                default=self.defaultVal,
+                                noCap=noCap,
+                                isJson=self.isJson,
+                                linkDef=self.linkDef)
         return guiFld
 
 
@@ -166,3 +173,5 @@ class paths:
                       linkDef=Link(flds.dpUnit, flds.path),
                       options=None,
                       defaultVal=units.m)
+    dis = FldDef(flds.dis, 1, 1, gf.FldBool,
+                 defaultVal=False)

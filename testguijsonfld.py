@@ -94,6 +94,7 @@ class TestFlds:
         self.testFldJsonOptPaths()
         self.testFldLabel()
         self.testPathsFlds()
+        self.testFldBool()
 
     def testPathsFlds(self):
         paths.dec
@@ -152,6 +153,15 @@ class TestFlds:
         fld.validate()
         if fld.get() is not None:
             print("Failed ValueError raise on str")
+
+    def testFldBool(self):
+        fld = paths.dis.createFld(self.window)
+        fld.mainFrame.pack(fill="x")
+        if fld.get():
+            print("Error expected false")
+        fld.show(True)
+        if not fld.get():
+            print("Error expected True")
 
     def testFldLabel(self):
         key = "label"

@@ -55,7 +55,7 @@ class GuiFld:
         self.isMan = isMan
         self.isJson = isJson
         self.linkDef = linkDef
-        self.filter: list|None = None
+        self.filter: list | None = None
         self.jsonFilter = None
 
         self.id = fld.jsonHead
@@ -95,7 +95,7 @@ class GuiFld:
             pass
         self.fldVar.set(data)
 
-    def bind(self, seq: str, cb):
+    def bind(self, seq: str, cb):  # TODO maybe we need the 3. argument "add""
         if not self.noCap:
             self.fldHead.bind(seq, cb)
 
@@ -256,6 +256,44 @@ class FldEntry(GuiFld):
         self.fldEntry.unbind(seq)
 
 
+class FldBool(GuiFld):
+    def __init__(self,
+                 parent: tk.Frame,
+                 fld: Fld,
+                 default: bool = False,
+                 noCap: bool = False,
+                 isJson: bool = True,
+                 linkDef: Link | None = None):
+
+        super().__init__(parent, fld, 1, noCap, isMan=True,
+                         default=default, isJson=isJson, linkDef=linkDef)
+
+        self.fldCheck = tk.Checkbutton(self.mainFrame,
+                                       variable=self.fldVar,
+                                       onvalue="1",
+                                       offvalue="",
+                                       # command=fn,
+                                       selectcolor="grey10")  # color issue
+        self.addWidget(self.fldCheck)
+
+    def bind(self, seq: str, cb):
+        super().bind(seq, cb)
+        self.fldCheck.bind(seq, cb)
+
+    def unbind(self, seq: str):
+        super().unbind(seq)
+        self.fldCheck.unbind(seq)
+
+    def toStr(self, value) -> str:
+        txt = ""
+        if value:
+            txt = "1"
+        return txt
+
+    def fromStr(self, txt):
+        return bool(txt)
+
+
 class FldOpt(GuiFld):
     def __init__(self,
                  parent: tk.Frame,
@@ -331,6 +369,7 @@ class FldOpt(GuiFld):
         self.options = strOpts
 
     def setFilter(self, options):
+        super().setFilter(options)
         self.replaceOpts(options)
 
 
