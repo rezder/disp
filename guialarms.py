@@ -5,7 +5,7 @@ from status import AlarmMsg
 from gui import BORDER_COLOR, BORDER_WIDTH
 
 
-class Table:  # TODO bad name allaround this is guialarm.py Alarm
+class Alarms:
     def __init__(self, parent: tk.Frame, disActFn):
         self.disActFn = disActFn
         self.pathsGui = dict()

@@ -5,7 +5,7 @@ from gui import BORDER_COLOR, BORDER_WIDTH
 import guistatus
 import guidisp
 import guimenu
-import guidisable
+import guialarms
 from server import DispServer
 
 
@@ -61,11 +61,11 @@ class GuiDispServer:
         self.dispListGui.mainFrame.pack()
 
         # Centre Frame
-        self.disTabGui = guidisable.Table(self.centreFrame,
+        self.alarmsGui = guialarms.Alarms(self.centreFrame,
                                           self.server.alarmDisable)
         pathsJson, alarmsJson, _ = self.server.conf.pathsGet()
-        self.disTabGui.show(pathsJson, alarmsJson)
-        self.disTabGui.mainFrame.pack()
+        self.alarmsGui.show(pathsJson, alarmsJson)
+        self.alarmsGui.mainFrame.pack()
 
         # Menu bar
         self.menuBar = tk.Menu(self.window, tearoff=0)
@@ -94,15 +94,15 @@ class GuiDispServer:
         # Gui inter connectioncs
         self.stButton.subscribeOnOff(self.menuRegGui.serverOn)
         self.stButton.subscribeOnOff(self.menuSettGui.serverOn)
-        self.stButton.subscribeOnOff(self.disTabGui.setOnOff)
+        self.stButton.subscribeOnOff(self.alarmsGui.setOnOff)
 
         self.statusGui.subscribeOns(self.dispListGui.serverOns)
-        self.statusGui.subscribeAlarms(self.disTabGui.alarmMsg)
+        self.statusGui.subscribeAlarms(self.alarmsGui.alarmMsg)
 
         self.menuRegGui.udpGui.subScribeNewIds(self.dispListGui.newId)
         self.menuRegGui.bleGui.subScribeNewIds(self.dispListGui.newId)
 
-        self.menuSettGui.pathsGui.subScribePathUpd(self.disTabGui.updDatePaths)
+        self.menuSettGui.pathsGui.subScribePathUpd(self.alarmsGui.updDatePaths)
 
         # window callbacks
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
