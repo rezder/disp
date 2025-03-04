@@ -122,8 +122,8 @@ class Path:
             isOk = isOk and fldOk
         return isOk
 
-    def setErrorFld(self, jsonHead: str):
-        self.flds[jsonHead].setError(True)
+    def setErrorFld(self, jId: str):
+        self.flds[jId].setError(True)
 
     def getGuiFldDefs(self) -> list[FldDef]:
         return self.fldDefs

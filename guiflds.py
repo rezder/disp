@@ -58,7 +58,7 @@ class GuiFld:
         self.filter: list | None = None
         self.jsonFilter = None
 
-        self.id = fld.jsonHead
+        self.id = fld.jId
         self.default = default
         if self.default is None:
             self.defaultStr = ""
@@ -450,7 +450,7 @@ class JsonFilter:
 
     def setKeyDpValue(self, key):
         if key is not None:
-            v = self.items[key][self.dpFld.jsonHead]
+            v = self.items[key][self.dpFld.jId]
             self.guiFld.show(v)
 
     def negFilter(self) -> set:
@@ -464,7 +464,7 @@ class JsonFilter:
                     if value is None:
                         isOk = False
                     else:
-                        isOk = self.items[key][self.dpFld.jsonHead] == value
+                        isOk = self.items[key][self.dpFld.jId] == value
                 if not isOk:
                     res.add(key)
         return res
@@ -480,7 +480,7 @@ class JsonFilter:
         else:
             s = set()
             for r in self.items.values():
-                s.add(r[self.dpFld.jsonHead])
+                s.add(r[self.dpFld.jId])
             ll = list(sorted(s))
             sortList = [None]
             sortList.extend(ll)

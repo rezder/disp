@@ -19,17 +19,17 @@ class Table:
         self.showCb = showCb
 
         self.tabFldDefs: dict[str, FldDef] = dict()
-        self.primeFld = None
+        self.primeFldDef = None
         for v in tabFldDefs:
-            self.tabFldDefs[v.fld.jsonHead] = v
+            self.tabFldDefs[v.fld.jId] = v
             if v.fld.isPrime:
-                self.primeFld = v
+                self.primeFldDef = v
 
         self.links: dict[str, list[FldDef]] = dict()
         self.calcFlds: list[FldDef] = list()
         for k, fldDef in self.tabFldDefs.items():
             if fldDef.linkDef is not None:
-                linkJId = fldDef.linkDef.linkFld.jsonHead
+                linkJId = fldDef.linkDef.linkFld.jId
                 cl = self.links.get(linkJId, list())
                 cl.append(fldDef)
             if not fldDef.isJson:
@@ -57,7 +57,7 @@ class Table:
             else:
                 headFld.setVis(False)
             if tabFldDef.fld.isKey:
-                self.keyId = tabFldDef.fld.jsonHead
+                self.keyId = tabFldDef.fld.jId
             self.headFlds.append(headFld)
 
     def addNewRow(self):
@@ -118,7 +118,7 @@ class Table:
                 newItemJson = dict(v)
             else:
                 newItemJson = dict()
-                newItemJson[self.primeFld.fld.jsonHead] = v
+                newItemJson[self.primeFldDef.fld.jId] = v
             res[k] = newItemJson
         return res
 
@@ -126,7 +126,7 @@ class Table:
         if len(self.calcFlds) > 0 and self.showCb is not None:
             for k, itemJson in jsonsObj.items():
                 for fldDef in self.calcFlds:
-                    id = fldDef.fld.jsonHead
+                    id = fldDef.fld.jId
                     itemJson[id] = self.showCb(k, fldDef.fld, itemJson)
 
     def show(self, jsonObj: dict):
@@ -137,9 +137,9 @@ class Table:
         self.newRowsNo = 0
         self.delKeys.clear()
         sjsonObj = None
-        k = self.sortFld.jsonHead
+        k = self.sortFld.jId
         if not self.sortFld.isKey:
-            k = self.sortFld.jsonHead
+            k = self.sortFld.jId
             sjsonObj = dict(sorted(jsonObj.items(),
                                    key=lambda item: item[1][k]))
         else:
@@ -167,10 +167,10 @@ class Table:
             self.rowsFlds[k] = row
 
     def setFld(self, fld: Fld, key: str, value):
-        self.rowsFlds[key][fld.jsonHead].show(value)
+        self.rowsFlds[key][fld.jId].show(value)
 
     def getFld(self, fld: Fld, key):
-        return self.rowsFlds[key][fld.jsonHead].get()
+        return self.rowsFlds[key][fld.jId].get()
 
     def rowcb(self, path, head, event):
         self.rowClickCb(path, head)

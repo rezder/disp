@@ -15,7 +15,7 @@ def createFldDefs() -> dict[str, FldDef]:
              int,
              "e"
              )
-    flds[jf.jsonHead] = FldDef(jf, 10, 5, gf.FldEntry)
+    flds[jf.jId] = FldDef(jf, 10, 5, gf.FldEntry)
 
     jf = Fld("entryStr",
              "Long Str",
@@ -24,7 +24,7 @@ def createFldDefs() -> dict[str, FldDef]:
              gf.strJson,
              "w"
              )
-    flds[jf.jsonHead] = FldDef(jf, 8, 5, gf.FldEntry)
+    flds[jf.jId] = FldDef(jf, 8, 5, gf.FldEntry)
     flds["manda"] = FldDef(jf, 8, 5, gf.FldEntry, isMan=False)
 
     jf = Fld("options",
@@ -34,7 +34,7 @@ def createFldDefs() -> dict[str, FldDef]:
              units.noShort,
              "w"
              )
-    flds[jf.jsonHead] = FldDef(jf, 4, 5, gf.FldOpt,
+    flds[jf.jId] = FldDef(jf, 4, 5, gf.FldOpt,
                                options=units.all(),
                                defaultVal=units.m
                                )
@@ -44,7 +44,7 @@ def createFldDefs() -> dict[str, FldDef]:
              str,
              str,
              "w")
-    flds[jf.jsonHead] = FldDef(jf, 15, 5, gf.FldLabel)
+    flds[jf.jId] = FldDef(jf, 15, 5, gf.FldLabel)
 
     jf = Fld("jsonTabs",
              "Json Tabs",
@@ -53,7 +53,7 @@ def createFldDefs() -> dict[str, FldDef]:
              str,
              "e"
              )
-    flds[jf.jsonHead] = FldDef(jf, 10, 5, gf.FldOpt,
+    flds[jf.jId] = FldDef(jf, 10, 5, gf.FldOpt,
                                options=None,
                                defaultVal="Default"
                                )
@@ -65,7 +65,7 @@ def createFldDefs() -> dict[str, FldDef]:
              str,
              "e"
              )
-    flds[jf.jsonHead] = FldDef(jf, 10, 5, gf.FldOpt,
+    flds[jf.jId] = FldDef(jf, 10, 5, gf.FldOpt,
                                options=None,
                                linkDef=Link(flds["label"].fld, jf),
                                defaultVal=("DBT")
@@ -205,13 +205,13 @@ class TestFlds:
         newId = "navigation.courseRhumbline.nextPoint.distance"
         defaultId = "environment.depth.belowTransducer"
         v = fld.get()
-        exV = pathsJson[defaultId][df.linkDef.dpFld.jsonHead]
+        exV = pathsJson[defaultId][df.linkDef.dpFld.jId]
         if exV != v:
             print("Error")
-        fld.show(pathsJson[newId][df.linkDef.dpFld.jsonHead])
+        fld.show(pathsJson[newId][df.linkDef.dpFld.jId])
         fld.validate()
         v = fld.get()
-        exV = pathsJson[newId][df.linkDef.dpFld.jsonHead]
+        exV = pathsJson[newId][df.linkDef.dpFld.jId]
 
         if v != exV:
             print("Error")

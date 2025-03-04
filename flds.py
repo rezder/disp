@@ -3,7 +3,7 @@ import units
 
 class Fld:
     def __init__(self,
-                 jsonHead: str,
+                 jId: str,
                  header: str,
                  shortHeader: str,
                  toStr,
@@ -17,7 +17,7 @@ class Fld:
         self.shortHeader = shortHeader
         self.toStr = toStr
         self.fromStr = fromStr
-        self.jsonHead = jsonHead
+        self.jId = jId
         self.isKey = isKey
         self.isPrime = isPrime
 
