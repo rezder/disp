@@ -7,7 +7,7 @@
       "dispUnits": 0,
       "label": "DBT",
       "bufSize": 0,
-      "bufFreq": 0,
+      "bufFreq": 0
     },
     "navigation.speedOverGround": {
       "minPeriod": 500,
@@ -61,7 +61,7 @@
       "dispUnits": 0,
       "label": "DIS",
       "bufSize": 0,
-      "bufFreq": 0,
+      "bufFreq": 0
     }
   },
   "bigs": {

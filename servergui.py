@@ -6,6 +6,8 @@ import guistatus
 import guidisp
 import guimenu
 import guialarms
+import guipaths
+import guiserial
 from server import DispServer
 
 
@@ -70,39 +72,61 @@ class GuiDispServer:
         # Menu bar
         self.menuBar = tk.Menu(self.window, tearoff=0)
 
-        self.menuRegGui = guimenu.Registor(self.window,
-                                           self.menuBar,
-                                           self.server.addNewUdpDisp,
-                                           self.server.addNewBleDisp,
-                                           self.logger,
-                                           self.server.conf.getSubPort())
+        # Menu Registor
+        menuRegistor = tk.Menu(self.menuBar, tearoff=0)
+        # Upd
+        udpFrame = guimenu.addWinMenuItem(self.window,
+                                          menuRegistor,
+                                          "Udp Display Registor",
+                                          titleMenu="Udp")
+        self.udpGui = guiserial.Udp(udpFrame,
+                                    self.server.addNewUdpDisp,
+                                    self.logger)
+        self.udpGui.mainFrame.pack()
+        self.udpGui.show(self.server.conf.getSubPort())
+        # Ble
+        bleFrame = guimenu.addWinMenuItem(self.window,
+                                          menuRegistor,
+                                          "Ble Display Registor",
+                                          "Ble")
+        self.bleGui = guiserial.Ble(bleFrame,
+                                    self.server.addNewBleDisp,
+                                    self.logger)
+        self.bleGui.mainFrame.pack()
+        self.bleGui.show()
 
-        self.menuSettGui = guimenu.Settings(self.window,
-                                            self.menuBar,
-                                            self.server.pathsSave,
-                                            self.server.conf.pathsGet(),
-                                            self.server.pathsDelete,
-                                            self.logger)
+        # Menu settings
+        menuSettings = tk.Menu(self.menuBar, tearoff=0)
+        # Paths
+        pathsFrame = guimenu.addWinMenuItem(self.window, menuSettings, "Paths")
+        self.pathsGui = guipaths.Paths(pathsFrame,
+                                       self.logger,
+                                       self.server.pathsDelete,
+                                       self.server.pathsSave)
+        self.pathsGui.mainFrame.pack()
+        self.pathsGui.show(self.server.conf.pathsGet())
+        # Add  Menu bar
+        self.menuBar.add_cascade(label="Registor Display",
+                                 menu=menuRegistor,
+                                 background="grey26")
+        self.menuBar.add_cascade(label="Settings",
+                                 menu=menuSettings)
 
-        self.menuBarGui = guimenu.Bar(self.menuBar,
-                                      self.menuRegGui.getMenu(),
-                                      self.menuSettGui.getMenu())
-        self.menuBarGui.createMenuBar()
-
-        self.window.config(menu=self.menuBarGui.menuBar)
+        self.window.config(menu=self.menuBar)
 
         # Gui inter connectioncs
-        self.stButton.subscribeOnOff(self.menuRegGui.serverOn)
-        self.stButton.subscribeOnOff(self.menuSettGui.serverOn)
+        self.stButton.subscribeOnOff(self.bleGui.serverOn)
+        self.stButton.subscribeOnOff(self.udpGui.serverOn)
+        self.stButton.subscribeOnOff(self.pathsGui.serverOn)
         self.stButton.subscribeOnOff(self.alarmsGui.setOnOff)
 
         self.statusGui.subscribeOns(self.dispListGui.serverOns)
         self.statusGui.subscribeAlarms(self.alarmsGui.alarmMsg)
 
-        self.menuRegGui.udpGui.subScribeNewIds(self.dispListGui.newId)
-        self.menuRegGui.bleGui.subScribeNewIds(self.dispListGui.newId)
+        self.udpGui.subScribeNewIds(self.dispListGui.newId)
+        self.bleGui.subScribeNewIds(self.dispListGui.newId)
 
-        self.menuSettGui.pathsGui.subScribePathUpd(self.alarmsGui.updDatePaths)
+        self.pathsGui.subScribePathUpd(self.alarmsGui.updDatePaths)
 
         # window callbacks
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)

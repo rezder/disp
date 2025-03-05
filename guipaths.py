@@ -190,9 +190,9 @@ class Paths:
                                  command=self.delete)
         self.delButt.pack(anchor=tk.W)
 
-    def show(self, pathJson):
-        self.pathJsonOld = pathJson
-        self.tabelGui.show(pathJson)
+    def show(self, tPathsJson):
+        self.pathJsonOld = tPathsJson[0]
+        self.tabelGui.show(tPathsJson[0])
 
     def rowClick(self, path: str, head: str):
         self.pathGui.show(path, self.pathJsonOld[path])
