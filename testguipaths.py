@@ -8,13 +8,14 @@ class TestPaths:
         self.window = tk.Tk()
         self.window.title("Test paths")
         conf = Config(True)
-        self.pathsJson, self.alarmsJson, self.bigsJson = conf.pathsGet()
+        self.tPathsJson = conf.pathsGet()
         self.paths = Paths(self.window,
+                           self.window,
                            self.logger,
                            self.delete,
                            self.save)
         self.paths.mainFrame.pack()
-        self.paths.show(self.pathsJson)
+        self.paths.show(self.tPathsJson)
 
     def start(self):
         self.window.mainloop()

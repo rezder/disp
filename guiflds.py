@@ -491,6 +491,8 @@ class JsonFilter:
         self.negfilter.clear()
         self.sortList = self.creaSortedOptions()
         self.guiFld.setFilter(self.sortList)
+        for slave in self.slaveFilters:
+            slave.replaceItems(items)
 
     def isValue(self, value) -> bool:
         isIn = value in self.sortList

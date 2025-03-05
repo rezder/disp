@@ -152,7 +152,6 @@ class paths:
                  4,
                  gf.FldEntry,
                  isMan=False)
-
     limit = FldDef(flds.limit,
                    10,
                    4,

@@ -261,11 +261,25 @@ class DispServer:
         isOk = True
         errTxt = ""
         pjjj = None
-        tabRefs = self.conf.pathsGetRefs(pathId)
+        tabRefs, bigs, alarms = self.conf.pathsGetRefs(pathId)
         if len(tabRefs) > 0:
             isOk = False
             txt = "Error! Path: {} is reference on tabs:\n{}."
             errTxt = errTxt + txt.format(pathId, tabRefs)
+        if len(bigs) > 0:
+            isOk = False
+            txt = ""
+            if len(errTxt) > 0:
+                txt = "\n"
+            txt = "Error! Path: {} is reference on bigs:\n{}."
+            errTxt = errTxt + txt.format(pathId, bigs)
+        if len(alarms) > 0:
+            isOk = False
+            txt = ""
+            if len(errTxt) > 0:
+                txt = "\n"
+            txt = "Error! Path: {} is reference on alarms:\n{}."
+            errTxt = errTxt + txt.format(pathId, alarms)
 
         if isOk:
             self.conf.pathsDeletePath(pathId)

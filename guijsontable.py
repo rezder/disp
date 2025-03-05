@@ -13,11 +13,14 @@ class Table:
                  sortGuiFldDef: FldDef,
                  rowClickCb,
                  tabFldDefs: list[FldDef],
+                 tabFldsJson: dict[str, dict] | None = None,
                  showCb=None):
         self.parent = parent
         self.mainFrame = tk.Frame(self.parent)
         self.showCb = showCb
-
+        self.tabFldsJson = tabFldsJson
+        if self.tabFldsJson is None:
+            self.tabFldsJson = dict()
         self.tabFldDefs: dict[str, FldDef] = dict()
         self.primeFldDef = None
         for v in tabFldDefs:
@@ -64,6 +67,15 @@ class Table:
         _ = self.createRow(self.newRowsNo)
         self.newRowsNo = self.newRowsNo+1
 
+    def setTabFldsJson(self, tabFldsJson: dict[str, dict]):
+        self.tabFldsJson = tabFldsJson
+        for row in self.unUsedRows:
+            for jId, itemsJson in tabFldsJson.items():
+                row[jId].setJsonObj(itemsJson)
+        for row in self.rowsFlds.values():
+            for jId, itemsJson in tabFldsJson.items():
+                row[jId].setJsonObj(itemsJson)
+
     def createRow(self, id) -> dict[str, gf.GuiFld]:
         row: dict[str, gf.GuiFld] = dict()
         columnNo = 0
@@ -88,6 +100,9 @@ class Table:
                 else:
                     guiFld.setVis(False)
                 row[guiFld.id] = guiFld
+            for jId, itemsJson in self.tabFldsJson.items():
+                row[jId].setJsonObj(self.tabFldsJson[jId])
+
             for k, v in self.links.items():
                 masterFld = row[k]
                 for slaveFld in v:
@@ -173,7 +188,8 @@ class Table:
         return self.rowsFlds[key][fld.jId].get()
 
     def rowcb(self, path, head, event):
-        self.rowClickCb(path, head)
+        if self.rowClickCb is not None:
+            self.rowClickCb(path, head)
 
     def get(self) -> tuple[dict, list[str], list[tuple[str, str]]]:
         jsonObj = None

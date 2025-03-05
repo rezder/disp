@@ -4,8 +4,8 @@ import tkinter as tk
 def addWinMenuItem(parentWin: tk.Toplevel,
                    menu: tk.Menu,
                    titleWin: str,
-                   titleMenu: str = None,
-                   ) -> tk.Frame:
+                   titleMenu: str = None
+                   ) -> tuple[tk.Frame, tk.Toplevel]:
     if titleMenu is None:
         titleMenu = titleWin
     w = tk.Toplevel(parentWin)
@@ -15,4 +15,4 @@ def addWinMenuItem(parentWin: tk.Toplevel,
     wf.pack()
     menu.add_command(label=titleMenu, command=w.deiconify)
     w.withdraw()  # This has to be this late else it will not work
-    return wf
+    return wf, w

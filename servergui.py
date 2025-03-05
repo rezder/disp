@@ -75,20 +75,20 @@ class GuiDispServer:
         # Menu Registor
         menuRegistor = tk.Menu(self.menuBar, tearoff=0)
         # Upd
-        udpFrame = guimenu.addWinMenuItem(self.window,
-                                          menuRegistor,
-                                          "Udp Display Registor",
-                                          titleMenu="Udp")
+        udpFrame, _ = guimenu.addWinMenuItem(self.window,
+                                             menuRegistor,
+                                             "Udp Display Registor",
+                                             titleMenu="Udp")
         self.udpGui = guiserial.Udp(udpFrame,
                                     self.server.addNewUdpDisp,
                                     self.logger)
         self.udpGui.mainFrame.pack()
         self.udpGui.show(self.server.conf.getSubPort())
         # Ble
-        bleFrame = guimenu.addWinMenuItem(self.window,
-                                          menuRegistor,
-                                          "Ble Display Registor",
-                                          "Ble")
+        bleFrame, _ = guimenu.addWinMenuItem(self.window,
+                                             menuRegistor,
+                                             "Ble Display Registor",
+                                             "Ble")
         self.bleGui = guiserial.Ble(bleFrame,
                                     self.server.addNewBleDisp,
                                     self.logger)
@@ -98,8 +98,11 @@ class GuiDispServer:
         # Menu settings
         menuSettings = tk.Menu(self.menuBar, tearoff=0)
         # Paths
-        pathsFrame = guimenu.addWinMenuItem(self.window, menuSettings, "Paths")
-        self.pathsGui = guipaths.Paths(pathsFrame,
+        pathsFrame, pathsWin = guimenu.addWinMenuItem(self.window,
+                                                      menuSettings,
+                                                      "Paths")
+        self.pathsGui = guipaths.Paths(pathsWin,
+                                       pathsFrame,
                                        self.logger,
                                        self.server.pathsDelete,
                                        self.server.pathsSave)

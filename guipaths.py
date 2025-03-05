@@ -3,6 +3,7 @@ import guiflds as gf
 from guijsontable import Table
 from guiflddefs import paths as pathFlds
 from guiflddefs import FldDef
+from guimenu import addWinMenuItem
 
 
 class Path:
@@ -59,32 +60,6 @@ class Path:
         buffFreqFld.mainFrame.grid(row=4, column=1, sticky="ew")
         self.flds[buffFreqFld.id] = buffFreqFld
         self.fldDefs.append(pathFlds.bufFreq)
-        """
-        minFld = pathFlds.min.createFld(self.mainFrame)
-        minFld.mainFrame.grid(row=5, column=0, sticky="ew", padx=(0, 5))
-        self.flds[minFld.id] = minFld
-        self.fldDefs.append(pathFlds.min)
-
-        maxFld = gf.createFld(self.mainFrame, pathFlds.max)
-        maxFld.mainFrame.grid(row=5, column=1, sticky="ew")
-        self.flds[maxFld.id] = maxFld
-        self.fldDefs.append(pathFlds.max)
-
-        bigValFld = gf.createFld(self.mainFrame, pathFlds.bigVal)
-        bigValFld.mainFrame.grid(row=6, column=0, sticky="ew", padx=(0, 5))
-        self.flds[bigValFld.id] = bigValFld
-        self.fldDefs.append(pathFlds.bigVal)
-
-        bigUnitFld = gf.createFld(self.mainFrame, pathFlds.bigUnit)
-        bigUnitFld.mainFrame.grid(row=6, column=1, sticky="ew")
-        self.flds[bigUnitFld.id] = bigUnitFld
-        self.fldDefs.append(pathFlds.bigUnit)
-
-        bigDecFld = gf.createFld(self.mainFrame, pathFlds.bigDec)
-        bigDecFld.mainFrame.grid(row=7, column=0, sticky="ew", padx=(0, 5))
-        self.flds[bigDecFld.id] = bigDecFld
-        self.fldDefs.append(pathFlds.bigDec)
-        """
 
     def show(self, path: str, pathJson: dict):
         self.clear()
@@ -134,12 +109,13 @@ class Path:
 
 class Paths:
     def __init__(self,
+                 parentWin: tk.Toplevel,
                  parent: tk.Frame,
                  logger,
                  deleteCb,
                  saveCb
                  ):
-        self.phJson = "path"
+        self.parentWin = parentWin
         self.subPathUpdList = list()
         self.parent = parent
         self.logger = logger
@@ -174,6 +150,7 @@ class Paths:
                               self.rowClick,
                               tabFlds)
         self.tabelGui.mainFrame.pack()
+        self.alarmsGui, self.bigsGui = self.creatMenu(self.parentWin)
 
         self.saveButt = tk.Button(self.buttFrame,
                                   text="Save",
@@ -190,9 +167,49 @@ class Paths:
                                  command=self.delete)
         self.delButt.pack(anchor=tk.W)
 
+    def creatMenu(self, win: tk.Toplevel) -> tuple[Table, Table]:
+        """
+        Creates the menu with alarms and bigs
+        :returns:
+        - Alarms table gui
+        - Bigs table gui
+        """
+        menuBar = tk.Menu(win, tearoff=0)
+        alarmsFrame, _ = addWinMenuItem(win,
+                                        menuBar,
+                                        "Alarms")
+        alarmsFlds = [pathFlds.pathJs, pathFlds.min, pathFlds.max]
+        alarmsTableGui = Table(
+            alarmsFrame,
+            pathFlds.path,
+            None,
+            alarmsFlds)
+        alarmsTableGui.mainFrame.pack()
+        bigsFrame, _ = addWinMenuItem(win,
+                                      menuBar,
+                                      "Bigs")
+        bigsFlds = [pathFlds.pathJs, pathFlds.limit,
+                    pathFlds.dpUnit, pathFlds.dec]
+        bigsTableGui = Table(
+            bigsFrame,
+            pathFlds.pathJs,
+            None,
+            bigsFlds)
+        bigsTableGui.mainFrame.pack()
+        win.config(menu=menuBar)
+
+        return alarmsTableGui, bigsTableGui
+
     def show(self, tPathsJson):
-        self.pathJsonOld = tPathsJson[0]
-        self.tabelGui.show(tPathsJson[0])
+        paths, alarms, bigs = tPathsJson
+        self.pathJsonOld = paths
+        self.tabelGui.show(paths)
+        jId = pathFlds.pathJs.fld.jId
+        fldsJson = {jId: paths}
+        self.alarmsGui.setTabFldsJson(fldsJson)
+        self.alarmsGui.show(alarms)
+        self.bigsGui.setTabFldsJson(fldsJson)
+        self.bigsGui.show(bigs)
 
     def rowClick(self, path: str, head: str):
         self.pathGui.show(path, self.pathJsonOld[path])
@@ -206,11 +223,13 @@ class Paths:
             else:
                 txt = "Creating new path: {}"
                 self.logger(txt.format(path))
+            #  TODO save and delete need to include alarms and bigs
+            # maybe with a button on each tabel
+            # delte row and new row is also missing
             isOk, errFlds, errTxt, tPathsJson = self.saveCb(path, itemJson)
-            pathsJson, alarmsJson, bigsJson = tPathsJson
             if isOk:
                 self.clear()
-                self.show(pathsJson)
+                self.show(tPathsJson)
                 self.execPathUdp(tPathsJson)
             else:
                 for head in errFlds:
@@ -223,15 +242,14 @@ class Paths:
         path, itemJson = self.pathGui.get()
         if path in self.pathJsonOld.keys():
             isOk, errTxt, tPathsJson = self.deleteCb(path)
-            pathsJson, alarmsJson, bigsJson = tPathsJson
 
             if isOk:
                 self.clear()
-                self.show(pathsJson)
+                self.show(tPathsJson)
                 self.execPathUdp(tPathsJson)
                 self.logger("Path: {} deleted".format(path))
             else:
-                self.pathGui.setErrorFld(self.phJson)
+                self.pathGui.setErrorFld(pathFlds.path.fld.jId)
                 txt = "Error deleting path: {}:\n{}"
                 self.logger(txt.format(path, errTxt))
         else:
