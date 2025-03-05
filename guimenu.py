@@ -5,16 +5,16 @@ import guipaths
 
 class Settings:
     def __init__(self,
-                 parent,
-                 parentMenu,
+                 parentWin: tk.Toplevel,
+                 parentMenu: tk.Menu,
                  savePath,
                  tPathsJson,
                  deletePath,
                  logger):
-        self.parent = parent
+        self.parentWin = parentWin
         self.parentMenu = parentMenu
         self.logger = logger
-        self.pathsWindow, windowFrame = createWindow(self.parent,
+        self.pathsWindow, windowFrame = createWindow(self.parentWin,
                                                      "Paths")
         self.pathsGui = guipaths.Paths(windowFrame,
                                        self.logger,
@@ -38,23 +38,23 @@ class Settings:
 
 class Registor:
     def __init__(self,
-                 parent,
-                 parentMenu,
+                 parentWin: tk.Toplevel,
+                 parentMenu: tk.Menu,
                  addNewUdpDisp,
                  addNewBleDisp,
                  logger,
-                 port):
-        self.parent = parent
+                 port: int):
+        self.parent = parentWin
         self.parentMenu = parentMenu
         self.addNewUdpDisp = addNewUdpDisp
         self.addNewBleDisp = addNewBleDisp
         self.logger = logger
-        self.udpWindow, windowFrame = createWindow(self.parent,
+        self.udpWindow, windowFrame = createWindow(self.parentWin,
                                                    "Udp Display Registor")
         self.udpGui = guiserial.Udp(windowFrame,
                                     self.addNewUdpDisp,
                                     self.logger)
-        self.udpGui.mainFrame.pack(pady=(10, 0))
+        self.udpGui.mainFrame.pack(pady=(10, 0))  # TODO remove pady it leftover
 
         self.bleWindow, windowFrame = createWindow(self.parent,
                                                    "Ble Display Registor")
@@ -102,7 +102,7 @@ class Bar:
                                  menu=self.menuSett)
 
 
-def createWindow(parent, title) -> tuple[tk.Toplevel, tk.Frame]:
+def createWindow(parent: tk.Toplevel, title: str) -> tuple[tk.Toplevel, tk.Frame]:
     w = tk.Toplevel(parent)
     w.title(title)
     w.protocol("WM_DELETE_WINDOW", w.withdraw)
