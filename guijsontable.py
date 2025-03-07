@@ -9,15 +9,20 @@ from guiflddefs import FldDef, Fld
 
 class Table:
     def __init__(self,
+                 parentWin: tk.Toplevel,
                  parent: tk.Frame,
                  sortGuiFldDef: FldDef,
                  rowClickCb,
                  tabFldDefs: list[FldDef],
                  tabFldsJson: dict[str, dict] | None = None,
-                 showCb=None):
+                 showCb=None,
+                 isPopUp=True):
+        self.parentWin = parentWin
+        self.isPopUp = isPopUp
         self.parent = parent
         self.mainFrame = tk.Frame(self.parent)
         self.showCb = showCb
+        self.createPopupMenu(self.parentWin)
         self.tabFldsJson = tabFldsJson
         if self.tabFldsJson is None:
             self.tabFldsJson = dict()
@@ -51,6 +56,8 @@ class Table:
         self.unUsedRows: list[dict[str, gf.GuiFld]] = list()
         self.keyId = None
         columNo = 0
+        self.clickedKey = None  # Right click for now
+        self.clickedJId = None
         for tabFldDef in self.tabFldDefs.values():
             headFld = gf.FldLabelHead(self.mainFrame,
                                       tabFldDef.fld)
@@ -63,9 +70,35 @@ class Table:
                 self.keyId = tabFldDef.fld.jId
             self.headFlds.append(headFld)
 
+    def createPopupMenu(self, win: tk.Toplevel):
+        if self.isPopUp:
+            self.popMenu = tk.Menu(win, tearoff=0)
+            self.popMenu.add_command(label="Delete Row",
+                                     command=self.deleteRow)
+            self.popMenu.add_command(label="New Row",
+                                     command=self.addNewRow)
+
+    def popMenuUp(self, key, jId, event):
+        self.clickedJId = jId
+        self.clickedKey = key
+        try:
+            self.popMenu.tk_popup(event.x_root,
+                                  event.y_root)
+        finally:
+            self.popMenu.grab_release()
+
     def addNewRow(self):
         _ = self.createRow(self.newRowsNo)
         self.newRowsNo = self.newRowsNo+1
+
+    def deleteRow(self):
+        key = self.clickedKey
+        row = self.rowsFlds[key]
+        self.moveRowToUnused(row)
+        if type(key) is str:
+            self.delKeys.append(key)
+        del self.rowsFlds[key]
+        self.newRowsNo = self.newRowsNo-1
 
     def setTabFldsJson(self, tabFldsJson: dict[str, dict]):
         self.tabFldsJson = tabFldsJson
@@ -76,16 +109,21 @@ class Table:
             for jId, itemsJson in tabFldsJson.items():
                 row[jId].setJsonObj(itemsJson)
 
-    def createRow(self, id) -> dict[str, gf.GuiFld]:
+    def createRow(self, key) -> dict[str, gf.GuiFld]:
         row: dict[str, gf.GuiFld] = dict()
         columnNo = 0
         try:
             row = self.unUsedRows.pop(0)
-            for id, guiFld in row.items():
+            for guiFld in row.values():
                 if guiFld.isVis:
                     guiFld.mainFrame.grid(row=self.rowsNo+1,
                                           column=columnNo,
                                           sticky=guiFld.fld.align)
+                    guiFld.bind("<ButtonRelease-1>",
+                                partial(self.rowcb, key, guiFld.id))
+                    if self.isPopUp:
+                        guiFld.bind("<Button-3>",
+                                    partial(self.popMenuUp, key, guiFld.id))
                     columnNo = columnNo+1
                 else:
                     guiFld.setVis(False)
@@ -96,6 +134,11 @@ class Table:
                     guiFld.mainFrame.grid(row=self.rowsNo+1,
                                           column=columnNo,
                                           sticky=guiFld.fld.align)
+                    guiFld.bind("<ButtonRelease-1>",
+                                partial(self.rowcb, key, guiFld.id))
+                    if self.isPopUp:
+                        guiFld.bind("<Button-3>",
+                                    partial(self.popMenuUp, key, guiFld.id))
                     columnNo = columnNo+1
                 else:
                     guiFld.setVis(False)
@@ -108,22 +151,28 @@ class Table:
                 for slaveFld in v:
                     masterFld.jsonFilter.setSlave(slaveFld)
         self.rowsNo = self.rowsNo + 1
-        self.rowsFlds[id] = row
+        self.rowsFlds[key] = row
+
         return row
 
     def removeRows(self):
         delkeys = list()
         for k, row in self.rowsFlds.items():
-            self.unUsedRows.append(row)
             delkeys.append(k)
-            for guiFld in row.values():
-                guiFld.clear()
-                if guiFld.isVis:
-                    guiFld.unbind("<ButtonRelease-1>")
-                    guiFld.mainFrame.grid_forget()
+            self.moveRowToUnused(row)
         for d in delkeys:
             del self.rowsFlds[d]
         self.rowsNo = 0
+
+    def moveRowToUnused(self, row: dict[str, gf.GuiFld]):
+        self.unUsedRows.append(row)
+        for guiFld in row.values():
+            guiFld.clear()
+            if guiFld.isVis:
+                guiFld.unbind("<ButtonRelease-1>")
+                if self.isPopUp:
+                    guiFld.unbind("<Button-3>")
+                guiFld.mainFrame.grid_forget()
 
     def show_AddPrimeCp(self, jsonsObj: dict) -> dict:
         res = dict()
@@ -161,25 +210,16 @@ class Table:
             sjsonObj = dict(sorted(jsonObj.items(), key=lambda item: item[0]))
 
         self.removeRows()
-        rowNo = 0
         for k, v in sjsonObj.items():
             row = self.createRow(k)
             for guiFld in row.values():
                 if guiFld.id in v.keys():
-                    if guiFld.isVis:
-                        guiFld.bind("<ButtonRelease-1>",
-                                    partial(self.rowcb, k, guiFld.id))
                     guiFld.show(v[guiFld.id])
                 else:
                     if guiFld.fld.isKey:
-                        if guiFld.isVis:
-                            guiFld.bind("<ButtonRelease-1>",
-                                        partial(self.rowcb, k, guiFld.id))
                         guiFld.show(k)
                     else:
                         guiFld.clear()
-            rowNo = rowNo + 1
-            self.rowsFlds[k] = row
 
     def setFld(self, fld: Fld, key: str, value):
         self.rowsFlds[key][fld.jId].show(value)
@@ -187,9 +227,9 @@ class Table:
     def getFld(self, fld: Fld, key):
         return self.rowsFlds[key][fld.jId].get()
 
-    def rowcb(self, path, head, event):
+    def rowcb(self, key, jId, event):
         if self.rowClickCb is not None:
-            self.rowClickCb(path, head)
+            self.rowClickCb(key, jId)
 
     def get(self) -> tuple[dict, list[str], list[tuple[str, str]]]:
         jsonObj = None

@@ -65,6 +65,7 @@ class TestTable:
         tab = self.conf.tabsGetTab("Default")
         tabFlds = [PathsFlds.path, TabsFlds.pos]
         self.tabTable = gt.Table(self.window,
+                                 self.window,
                                  PathsFlds.path,
                                  self.cb,
                                  tabFlds)
@@ -87,6 +88,7 @@ class TestTable:
             tabFlds.append(tabFld)
 
         return gt.Table(self.window,
+                        self.window,
                         sortGuiFldDef,
                         self.cb,
                         tabFlds)

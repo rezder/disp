@@ -145,10 +145,12 @@ class Paths:
                 sortGuiFldDef = tabFld
             tabFlds.append(tabFld)
 
-        self.tabelGui = Table(self.tableFrame,
+        self.tabelGui = Table(self.parentWin,
+                              self.tableFrame,
                               sortGuiFldDef,
                               self.rowClick,
-                              tabFlds)
+                              tabFlds,
+                              isPopUp=False)
         self.tabelGui.mainFrame.pack()
         self.alarmsGui, self.bigsGui = self.creatMenu(self.parentWin)
 
@@ -180,6 +182,7 @@ class Paths:
                                         "Alarms")
         alarmsFlds = [pathFlds.pathJs, pathFlds.min, pathFlds.max]
         alarmsTableGui = Table(
+            win,
             alarmsFrame,
             pathFlds.path,
             None,
@@ -191,6 +194,7 @@ class Paths:
         bigsFlds = [pathFlds.pathJs, pathFlds.limit,
                     pathFlds.dpUnit, pathFlds.dec]
         bigsTableGui = Table(
+            win,
             bigsFrame,
             pathFlds.pathJs,
             None,

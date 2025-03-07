@@ -107,7 +107,8 @@ class paths:
     minPer = FldDef(flds.minPer,
                     10,
                     5,
-                    gf.FldEntry)
+                    gf.FldEntry,
+                    defaultVal=1000)
     dec = FldDef(flds.dec,
                  10,
                  3,
@@ -134,12 +135,14 @@ class paths:
     bufSize = FldDef(flds.bufSize,
                      10,
                      3,
-                     gf.FldEntry
+                     gf.FldEntry,
+                     defaultVal=0
                      )
     bufFreq = FldDef(flds.bufFreq,
                      10,
                      3,
-                     gf.FldEntry
+                     gf.FldEntry,
+                     defaultVal=0
                      )
     min = FldDef(flds.min,
                  10,
