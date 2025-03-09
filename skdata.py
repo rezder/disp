@@ -1,3 +1,4 @@
+import math
 import units
 import json
 import asyncio as ass
@@ -86,9 +87,14 @@ class Buffer:
     Small buffer to smoth the signalk data and
     slow it down for the e-paper screen.
     """
-    def __init__(self, size, freqNo):
+    def __init__(self, size, freqNo, dpUnit):
         self.size = size
         self.freqNo = freqNo
+        self.compassVal = 0
+        if dpUnit == units.deg:
+            self.compassVal = 180
+        elif dpUnit == units.rad:
+            self.compassVal = math.pi
         if size > 1:
             self.buf = [None, None]
             if size > 2:
@@ -117,14 +123,42 @@ class Buffer:
         self.fregIx = 0
         self.last = None
 
+    def compassAddToBuf(self, value):
+        if self.no > 0:
+            for ix in range(self.size):
+                if self.buf[ix] is not None:
+                    self.buf[ix] = self.buf[ix] + value
+            self.sum = self.sum+value*self.no
+
+    def compassModAvg(self, v):
+        if v >= 2*self.compassVal:
+            v = v-2*self.compassVal
+            self.compassAddToBuf(-2*self.compassVal)
+        if v < 0:
+            v = v+2*self.compassVal
+            self.compassAddToBuf(2*self.compassVal)
+        return v
+
+    def compassModifyVal(self, value):
+        newVal = value
+        if self.no > 0:
+            diff = (self.sum/self.no) - value
+            if diff > self.compassVal:
+                newVal = value + 2*self.compassVal
+            if diff <= -self.compassVal:
+                newVal = value - 2*self.compassVal
+        return newVal
+
     def add(self, value: float, dec: int) -> (bool, float):
         if self.size > 1:
+            if value is not None:
+                if self.compassVal != 0:
+                    value = self.compassModifyVal(value)
+                self.sum = self.sum + value
+                self.no = self.no + 1
             if self.buf[self.ix] is not None:
                 self.sum = self.sum - self.buf[self.ix]
                 self.no = self.no - 1
-            if value is not None:
-                self.sum = self.sum + value
-                self.no = self.no + 1
             self.buf[self.ix] = value
             self.ix = self.ix + 1
             if self.ix == self.size:
@@ -133,7 +167,9 @@ class Buffer:
             self.fregIx = self.fregIx + 1
             if self.fregIx == self.freqNo:
                 if self.no != 0:
-                    v = (self.sum/self.no)
+                    v = self.sum/self.no
+                    if self.compassVal != 0:
+                        v = self.compassModAvg(v)
                     v = round(v, dec)
                     if self.last != v:
                         res = (True, v)
@@ -178,7 +214,7 @@ class PathBig:
         self.decimals = decimals
         self.dispUnits = dpUnit
         self.fn = units.conversion(unit, dpUnit)
-        self.buffer = Buffer(bufSize, bufFreq)
+        self.buffer = Buffer(bufSize, bufFreq, dpUnit)
         self.label = label
 
     def createDispData(self, value):

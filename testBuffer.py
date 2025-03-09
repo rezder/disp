@@ -1,9 +1,18 @@
 from skdata import Buffer
+import units
+
+
+def testBuffer(values, buffer, expectVal):
+    for v in values:
+        isUpd, value = buffer.add(v, 0)
+        if isUpd:
+            if value != expectVal:
+                print("Error expected:{} got {}".format(expectVal, value))
+                print("Buffer: {}".format(buffer))
 
 
 def main():
-
-    b = Buffer(3, 3)
+    b = Buffer(3, 3, units.m)
     isUpdate, value = b.add(1.5, 1)
     print(1.5)
     print(b)
@@ -42,6 +51,16 @@ def main():
     if b.fregIx != 0 or b.ix != 0 or b.sum != 12 or b.no != 3:
         print("Failed add")
         print(b)
+
+    b2 = Buffer(4, 4, units.deg)
+    values = [200, 189, 175, 201]
+    testBuffer(values, b2, 191)
+    b2.clear()
+    values = [1, 355, 356, 357]
+    testBuffer(values, b2, 357)
+    b2.clear()
+    values = [355, 356, 357, 1]
+    testBuffer(values, b2, 357)
 
 
 if __name__ == "__main__":
