@@ -232,6 +232,12 @@ class Table:
             self.rowClickCb(key, jId)
 
     def get(self) -> tuple[dict, list[str], list[tuple[str, str]]]:
+        """
+        :returns:
+        - jsonObj      - The current json object
+        - delKeys      - A list of deleted keys
+        - chgKeys      - A list of key name change (oldKey,newKey)
+        """
         jsonObj = None
         chgkeys: list[tuple[str, str]] = list()
         if self.validate():
@@ -242,9 +248,9 @@ class Table:
                 if k != newk:
                     chgkeys.append((k, newk))
                 for fldId, guiFld in row.items():
-                    if guiFld.isJson:
+                    if guiFld.isJson and guiFld.linkDef is None:
                         data = guiFld.get()
-                        if data is None:
+                        if data is not None:
                             if guiFld.fld.isPrime:
                                 item = data
                             else:
@@ -261,7 +267,7 @@ class Table:
                 if not fldOk:
                     print(guiFld.fld.header)
                 isOk = isOk and fldOk
-        if not isOk:
+        if isOk:
             keys = dict()
             for k, row in self.rowsFlds.items():
                 row[self.keyId].setError(False)

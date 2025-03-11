@@ -112,15 +112,15 @@ class Paths:
                  parentWin: tk.Toplevel,
                  parent: tk.Frame,
                  logger,
-                 deleteCb,
-                 saveCb
+                 deletePathCb,
+                 savePathCb
                  ):
         self.parentWin = parentWin
         self.subPathUpdList = list()
         self.parent = parent
         self.logger = logger
-        self.deleteCb = deleteCb
-        self.saveCb = saveCb
+        self.deletePathCb = deletePathCb
+        self.savePathCb = savePathCb
         self.mainFrame = tk.Frame(self.parent)
         self.topFrame = tk.Frame(self.mainFrame)
         self.topFrame.pack()
@@ -207,6 +207,8 @@ class Paths:
     def show(self, tPathsJson):
         paths, alarms, bigs = tPathsJson
         self.pathJsonOld = paths
+        self.alarmsJsonOld = alarms
+        self.bigsJsonOld = bigs
         self.tabelGui.show(paths)
         jId = pathFlds.pathJs.fld.jId
         fldsJson = {jId: paths}
@@ -230,7 +232,7 @@ class Paths:
             #  TODO save and delete need to include alarms and bigs
             # maybe with a button on each tabel
             # delte row and new row is also missing
-            isOk, errFlds, errTxt, tPathsJson = self.saveCb(path, itemJson)
+            isOk, errFlds, errTxt, tPathsJson = self.savePathCb(path, itemJson)
             if isOk:
                 self.clear()
                 self.show(tPathsJson)
@@ -245,7 +247,7 @@ class Paths:
     def delete(self):
         path, itemJson = self.pathGui.get()
         if path in self.pathJsonOld.keys():
-            isOk, errTxt, tPathsJson = self.deleteCb(path)
+            isOk, errTxt, tPathsJson = self.deletePathCb(path)
 
             if isOk:
                 self.clear()
