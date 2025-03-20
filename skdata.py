@@ -77,9 +77,12 @@ class Alarm:
                 except ass.CancelledError:
                     pass
             else:
-                ex = self.alarmTask.exception()
-                if ex is not None:
-                    print(ex)
+                try: 
+                    ex = self.alarmTask.exception()
+                    if ex is not None:
+                        print(ex)
+                except ass.CancelledError:
+                    pass
 
 
 class Buffer:

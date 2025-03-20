@@ -55,6 +55,17 @@ class Displays:
         :rtype: set[str]
         """
         ids = set()
+        # I think only one Ble connection can be created at the time
+        # as BleakClient does a scann before it connect.
+        # If the first display fails to connect it blocks
+        # for everybody else. bleak.exc.BleakDBusError
+        # with the org.bluez.Error.InProgress in the
+        # ex.dbus_error field.
+        # I would expect that when the connection fails
+        # to connect after 10 seconds
+        # the other connection jumps the queue but that
+        # does not happens. Add a delay to the connect
+        # task it seems to work
         for (id, macObj) in disps.items():
             if not macObj["isDisable"]:
                 self.addBleDisp(id, macObj)

@@ -30,6 +30,10 @@ class Display:
     def getTab(self) -> dict:
         return self.tab
 
+    async def delayConnect(self):
+        await ass.sleep(1)
+        await self.client.connect()
+
     def checkConnTask(self):
         if not self.on and self.connTask.done():
             if self.client.is_connected:
@@ -45,7 +49,7 @@ class Display:
                     txt = "Connecting task done without succes and no error?"
                     self.status.setTxt(txt)
 
-                self.connTask = ass.create_task(self.client.connect())
+                self.connTask = ass.create_task(self.delayConnect())
 
     async def display(self, dp: DispData, path: str):
         self.checkConnTask()

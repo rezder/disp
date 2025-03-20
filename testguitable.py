@@ -54,7 +54,7 @@ class TestTable:
         if not self.table3.validate():
             print("Error should be ok")
         else:
-            jsonObj, dels, chgkeys = self.table3.get()
+            jsonObj, _, _, _ = self.table3.get()
             for k, v in jsonObjDel.items():
                 if k not in jsonObj:
                     print("ERrror key is missing: {}".format(k))
@@ -71,7 +71,7 @@ class TestTable:
                                  tabFlds)
         self.tabTable.mainFrame.pack()
         self.tabTable.show(tab)
-        tabNew, _, _ = self.tabTable.get()
+        tabNew, _, _, _ = self.tabTable.get()
         if not gf.compJson(tab, tabNew):
             print(tab)
             print(tabNew)

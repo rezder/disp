@@ -180,6 +180,12 @@ class Paths:
         alarmsFrame, _ = addWinMenuItem(win,
                                         menuBar,
                                         "Alarms")
+        # TODO add save and reload menu commands
+        # savecb must return isOk,list of (key,errFlds),
+        # errorTxt and tPathsJson
+        # only validation both min and max cant be empty.
+        # table and fld validation should take care of the rest
+        # if that is untrusted the validation should be repeated.
         alarmsFlds = [pathFlds.pathJs, pathFlds.min, pathFlds.max]
         alarmsTableGui = Table(
             win,

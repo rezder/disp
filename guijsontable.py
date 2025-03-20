@@ -237,16 +237,21 @@ class Table:
         - jsonObj      - The current json object
         - delKeys      - A list of deleted keys
         - chgKeys      - A list of key name change (oldKey,newKey)
+        - newKeys      - A list of new keys
         """
         jsonObj = None
-        chgkeys: list[tuple[str, str]] = list()
+        chgKeys: list[tuple[str, str]] = list()
+        newKeys: list[str] = list()
         if self.validate():
             jsonObj = dict()
             for k, row in self.rowsFlds.items():
                 item = dict()
                 newk = row[self.keyId].get()
                 if k != newk:
-                    chgkeys.append((k, newk))
+                    if type(k) is int:
+                        newKeys.append(newk)
+                    else:
+                        chgKeys.append((k, newk))
                 for fldId, guiFld in row.items():
                     if guiFld.isJson and guiFld.linkDef is None:
                         data = guiFld.get()
@@ -257,7 +262,7 @@ class Table:
                                 item[fldId] = data
                 jsonObj[newk] = item
 
-        return jsonObj, self.delKeys, chgkeys
+        return jsonObj, self.delKeys, chgKeys, newKeys
 
     def validate(self) -> bool:
         isOk = True

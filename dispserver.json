@@ -99,11 +99,16 @@
   },
   "displays": {
     "b1": "Default",
-    "1": "Default"
+    "1": "Default",
+    "b2": "Default"
   },
   "macs": {
     "b1": {
       "addr": "f0:f5:bd:76:91:9d",
+      "isDisable": false
+    },
+    "b2": {
+      "addr": "f0:f5:bd:76:96:c1",
       "isDisable": false
     }
   },
