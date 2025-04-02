@@ -30,7 +30,7 @@ class DispData:
                          self.isAlarm)
         return txt
 
-    def __repr__(self) ->str:
+    def __repr__(self) -> str:
         return self.__str__()
 
     def encode(self, pos: int) -> bytearray:
