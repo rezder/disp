@@ -28,7 +28,6 @@ class DispServer:
         self.status = Status()
         self.conf = Config()
         self.skData = SkData(self.conf, self.status)
-        self.conf = Config()
         self.loop = None
         self.queue = None
         self.queueShutDownEvent = None
