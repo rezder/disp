@@ -161,7 +161,7 @@ class Status:
             self.lock.release()
             isOk = True
         else:
-            print("failed to get lock")
+            txt = "failed to get lock"
 
         return (isOk, txt, st, c, s, a)
 
