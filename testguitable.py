@@ -2,8 +2,8 @@ import tkinter as tk
 import guipaths as gp
 import guiflds as gf
 import guijsontable as gt
-from guiflddefs import paths as PathsFlds
-from guiflddefs import tabs as TabsFlds
+from flds import paths as PathsFlds
+from flds import tabs as TabsFlds
 from config import Config
 
 

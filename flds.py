@@ -1,35 +1,7 @@
 import units
-
-
-class Fld:
-    def __init__(self,
-                 jId: str,
-                 header: str,
-                 shortHeader: str,
-                 toStr,
-                 fromStr,
-                 align: str,
-                 isKey: bool = False,
-                 isPrime: bool = False
-                 ):
-        self.align = align
-        self.header = header
-        self.shortHeader = shortHeader
-        self.toStr = toStr
-        self.fromStr = fromStr
-        self.jId = jId
-        self.isKey = isKey
-        self.isPrime = isPrime
-
-    def __eq__(self, o):
-        return o is self
-
-
-class Link:
-    def __init__(self, dpFld: Fld, linkFld: Fld, isFilter: bool = False):
-        self.dpFld = dpFld
-        self.linkFld = linkFld
-        self.isFilter = isFilter
+from guiflds import Fld, FldLink
+import guiflds as gf
+from guiflddefs import FldDef
 
 
 class flds:
@@ -114,3 +86,90 @@ class flds:
               None,
               None,
               "e")
+
+
+class tabs:
+    pos = FldDef(flds.pos,
+                 3,
+                 3,
+                 gf.FldEntry)
+
+
+class paths:
+    path = FldDef(flds.path,
+                  45,
+                  45,
+                  gf.FldEntry)
+    minPer = FldDef(flds.minPer,
+                    10,
+                    5,
+                    gf.FldEntry,
+                    defaultVal=1000)
+    dec = FldDef(flds.dec,
+                 10,
+                 3,
+                 gf.FldEntry)
+    label = FldDef(flds.label,
+                   10,
+                   4,
+                   gf.FldEntry
+                   )
+    skUnit = FldDef(flds.skUnit,
+                    4,
+                    4,
+                    gf.FldOpt,
+                    options=units.all(),
+                    defaultVal=units.m
+                    )
+    dpUnit = FldDef(flds.dpUnit,
+                    4,
+                    4,
+                    gf.FldOpt,
+                    options=units.all(),
+                    defaultVal=units.m
+                    )
+    bufSize = FldDef(flds.bufSize,
+                     10,
+                     3,
+                     gf.FldEntry,
+                     defaultVal=0
+                     )
+    bufFreq = FldDef(flds.bufFreq,
+                     10,
+                     3,
+                     gf.FldEntry,
+                     defaultVal=0
+                     )
+    min = FldDef(flds.min,
+                 10,
+                 4,
+                 gf.FldEntry,
+                 isMan=False
+                 )
+    max = FldDef(flds.max,
+                 10,
+                 4,
+                 gf.FldEntry,
+                 isMan=False)
+    limit = FldDef(flds.limit,
+                   10,
+                   4,
+                   gf.FldEntry,
+                   isMan=False)
+
+    pathJs = FldDef(flds.path, 44, 44, gf.FldOpt,
+                    linkDef=None,
+                    options=None,
+                    defaultVal="navigation.courseRhumbline.nextPoint.distance"
+                    )
+
+    labelJs = FldDef(flds.label, 4, 4, gf.FldOpt,
+                     linkDef=FldLink(flds.label, flds.path, True),
+                     options=None,
+                     defaultVal="COG")
+    dpUnitJs = FldDef(flds.dpUnit, 4, 4, gf.FldOpt,
+                      linkDef=FldLink(flds.dpUnit, flds.path),
+                      options=None,
+                      defaultVal=units.m)
+    dis = FldDef(flds.dis, 1, 1, gf.FldBool,
+                 defaultVal=False)

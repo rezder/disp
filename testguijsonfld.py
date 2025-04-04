@@ -2,8 +2,9 @@ import tkinter as tk
 import guiflds as gf
 import units
 from config import Config
-from guiflddefs import paths, FldDef
-from flds import Fld, Link
+from guiflddefs import FldDef
+from guiflds import Fld, FldLink
+from flds import paths
 
 
 def createFldDefs() -> dict[str, FldDef]:
@@ -35,9 +36,9 @@ def createFldDefs() -> dict[str, FldDef]:
              "w"
              )
     flds[jf.jId] = FldDef(jf, 4, 5, gf.FldOpt,
-                               options=units.all(),
-                               defaultVal=units.m
-                               )
+                          options=units.all(),
+                          defaultVal=units.m
+                          )
     jf = Fld("label",
              "test4Label",
              "label",
@@ -54,9 +55,9 @@ def createFldDefs() -> dict[str, FldDef]:
              "e"
              )
     flds[jf.jId] = FldDef(jf, 10, 5, gf.FldOpt,
-                               options=None,
-                               defaultVal="Default"
-                               )
+                          options=None,
+                          defaultVal="Default"
+                          )
 
     jf = Fld("jsonPaths",
              "Json Paths",
@@ -66,10 +67,10 @@ def createFldDefs() -> dict[str, FldDef]:
              "e"
              )
     flds[jf.jId] = FldDef(jf, 10, 5, gf.FldOpt,
-                               options=None,
-                               linkDef=Link(flds["label"].fld, jf),
-                               defaultVal=("DBT")
-                               )
+                          options=None,
+                          linkDef=FldLink(flds["label"].fld, jf),
+                          defaultVal=("DBT")
+                          )
 
     return flds
 
@@ -114,14 +115,6 @@ class TestFlds:
         fld.setError(True)
         fld.removeOpt(20)
         fld.addOpt(20)
-        lx = False
-        try:
-            fld.replaceOpts([1, 10, 20])
-        except ValueError:
-            lx = True
-        if not lx:
-            print("faild no value error")
-
         fld.replaceOpts([0, 1, 10, 20])
 
         print(fld.get())

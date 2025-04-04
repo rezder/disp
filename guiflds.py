@@ -1,6 +1,5 @@
 import tkinter as tk
 from gui import BORDER_COLOR_ERR as BCE
-from flds import Fld, Link
 
 
 def strJson(txt: str) -> str:
@@ -37,6 +36,37 @@ def compJson(json1: dict, json2: dict) -> bool:
     return isEqual
 
 
+class Fld:
+    def __init__(self,
+                 jId: str,
+                 header: str,
+                 shortHeader: str,
+                 toStr,
+                 fromStr,
+                 align: str,
+                 isKey: bool = False,
+                 isPrime: bool = False
+                 ):
+        self.align = align
+        self.header = header
+        self.shortHeader = shortHeader
+        self.toStr = toStr
+        self.fromStr = fromStr
+        self.jId = jId
+        self.isKey = isKey
+        self.isPrime = isPrime
+
+    def __eq__(self, o):
+        return o is self
+
+
+class FldLink:
+    def __init__(self, dpFld: Fld, linkFld: Fld, isFilter: bool = False):
+        self.dpFld = dpFld
+        self.linkFld = linkFld
+        self.isFilter = isFilter
+
+
 class GuiFld:
     def __init__(self,
                  parent: tk.Frame,
@@ -46,7 +76,7 @@ class GuiFld:
                  isMan: bool,
                  default,
                  isJson: bool,
-                 linkDef: Link
+                 linkDef: FldLink
                  ):
         self.parent = parent
         self.fld = fld
@@ -263,7 +293,7 @@ class FldBool(GuiFld):
                  default: bool = False,
                  noCap: bool = False,
                  isJson: bool = True,
-                 linkDef: Link | None = None):
+                 linkDef: FldLink | None = None):
 
         super().__init__(parent, fld, 1, noCap, isMan=True,
                          default=default, isJson=isJson, linkDef=linkDef)
@@ -374,7 +404,7 @@ class FldOpt(GuiFld):
 
 
 class JsonFilter:
-    def __init__(self, items: dict, linkDef: Link):
+    def __init__(self, items: dict, linkDef: FldLink):
         self.slaveFilters: list[JsonFilter] = list()
         self.items = items
         self.linkDef = linkDef

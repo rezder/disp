@@ -1,5 +1,5 @@
 """
-Units domain
+Units domain m(0),nm(1),ms(10),knot(11),rad(20),deg(21)
 """
 m = 0
 nm = 1

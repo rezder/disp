@@ -1,7 +1,7 @@
 import tkinter as tk
 import guiflds as gf
 from guijsontable import Table
-from guiflddefs import paths as pathFlds
+from flds import paths as pathFlds
 from guiflddefs import FldDef
 from guimenu import addWinMenuItem
 
