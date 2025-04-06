@@ -14,7 +14,8 @@ class FldDef:
                  linkDef: FldLink | None = None,
                  defaultVal=None,
                  isMan: bool = True,
-                 isJson: bool = True
+                 isJson: bool = True,
+                 isDisable: bool = False
                  ):
         self.fld = fld
         self.width = width
@@ -26,6 +27,7 @@ class FldDef:
         self.defaultVal = defaultVal
         self.isMan = isMan
         self.isJson = isJson
+        self.isDisable = isDisable
         self.delkeys: list[str] = list()
 
     def __eq__(self, o):
@@ -41,7 +43,8 @@ class FldDef:
                      linkDef=self.linkDef,
                      defaultVal=self.defaultVal,
                      isMan=self.isMan,
-                     isJson=self.isJson)
+                     isJson=self.isJson,
+                     isDisable=self.isDisable)
         return res
 
     def createFld(self, parent: tk.Frame, isTab=False) -> gf.GuiFld:
@@ -70,7 +73,8 @@ class FldDef:
                                  noCap=noCap,
                                  isMan=self.isMan,
                                  isJson=self.isJson,
-                                 default=self.defaultVal)
+                                 default=self.defaultVal,
+                                 isDisable=self.isDisable)
         elif self.fldClass == gf.FldOpt:
             guiFld = gf.FldOpt(parent,
                                self.fld,
@@ -87,5 +91,6 @@ class FldDef:
                                 default=self.defaultVal,
                                 noCap=noCap,
                                 isJson=self.isJson,
-                                linkDef=self.linkDef)
+                                linkDef=self.linkDef,
+                                isDisable=self.isDisable)
         return guiFld

@@ -264,16 +264,21 @@ class FldLabelHead(FldLabel):
 
 class FldEntry(GuiFld):
     def __init__(self, parent: tk.Frame, fld: Fld, width: int,
-                 noCap=False, isMan=True, default=None, isJson=True):
+                 noCap=False, isMan=True, default=None, isJson=True,
+                 isDisable=False):
         super().__init__(parent, fld, width, noCap,
                          isMan, default, isJson, None)
         align = "left"
         if self.fld.align == "e":
             align = "right"
+        state = tk.NORMAL
+        if isDisable:
+            state = tk.DISABLED
         self.fldEntry = tk.Entry(self.mainFrame,
                                  textvariable=self.fldVar,
                                  justify=align,
-                                 width=self.width
+                                 width=self.width,
+                                 state=state
                                  )
         self.addWidget(self.fldEntry)
 
@@ -293,18 +298,25 @@ class FldBool(GuiFld):
                  default: bool = False,
                  noCap: bool = False,
                  isJson: bool = True,
-                 linkDef: FldLink | None = None):
+                 linkDef: FldLink | None = None,
+                 isDisable: bool = False):
 
         super().__init__(parent, fld, 1, noCap, isMan=True,
                          default=default, isJson=isJson, linkDef=linkDef)
-
+        state = tk.NORMAL
+        if isDisable:
+            state = tk.DISABLED
         self.fldCheck = tk.Checkbutton(self.mainFrame,
                                        variable=self.fldVar,
                                        onvalue="1",
                                        offvalue="",
                                        # command=fn,
-                                       selectcolor="grey10")  # color issue
+                                       selectcolor="grey10",
+                                       state=state)  # color issue
         self.addWidget(self.fldCheck)
+
+    def postChgAdd(self, cb):
+        self.fldCheck.config(command=cb)
 
     def bind(self, seq: str, cb):
         super().bind(seq, cb)
