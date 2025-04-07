@@ -1,6 +1,7 @@
+import tkinter as tk
+
 import guiflds as gf
 from guiflds import Fld, FldLink
-import tkinter as tk
 
 
 class FldDef:

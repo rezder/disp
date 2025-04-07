@@ -1,5 +1,6 @@
 import tkinter as tk
 import tkinter.scrolledtext as scrolledtext
+
 import cmd
 import state
 

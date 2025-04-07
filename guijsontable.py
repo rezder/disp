@@ -1,5 +1,6 @@
 import tkinter as tk
 from functools import partial
+
 import guiflds as gf
 from guiflddefs import FldDef, Fld
 

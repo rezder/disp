@@ -1,8 +1,10 @@
 import serial
 import serial.tools.list_ports as sTools
-import tkinter as tk
-from gui import BORDER_COLOR, BORDER_WIDTH
 import time
+import tkinter as tk
+
+from gui import BORDER_COLOR, BORDER_WIDTH
+
 
 DEFAULT_BAUDRATE = 115200
 

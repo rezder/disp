@@ -1,12 +1,13 @@
 import asyncio as ass
 from websockets.asyncio import client as wsclient
+import json
+import asyncudp
+
 from displays import Displays
 from dispdata import DispData
 from config import Config
 from skdata import SkData
 from status import Status
-import json
-import asyncudp
 import guirequest as gr
 
 

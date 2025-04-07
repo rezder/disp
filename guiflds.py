@@ -1,4 +1,5 @@
 import tkinter as tk
+
 from gui import BORDER_COLOR_ERR as BCE
 
 
@@ -138,6 +139,9 @@ class GuiFld:
 
     def isEmpty(self):
         return "" == self.fldVar.get()
+
+    def isInput(self):
+        return False
 
     def get(self):
         """
@@ -282,6 +286,12 @@ class FldEntry(GuiFld):
                                  )
         self.addWidget(self.fldEntry)
 
+    def isInput(self):
+        return True
+
+    def postChgAdd(self, cb):
+        self.bind("<FocusOut>", cb)
+
     def bind(self, seq: str, cb):
         super().bind(seq, cb)
         self.fldEntry.bind(seq, cb)
@@ -317,6 +327,9 @@ class FldBool(GuiFld):
 
     def postChgAdd(self, cb):
         self.fldCheck.config(command=cb)
+
+    def isInput(self):
+        return True
 
     def bind(self, seq: str, cb):
         super().bind(seq, cb)
@@ -365,6 +378,12 @@ class FldOpt(GuiFld):
                                     *self.options)
         self.fldOpt.config(width=self.width)
         self.addWidget(self.fldOpt)
+
+    def isInput(self):
+        return True
+
+    def postChgAdd(self, cb):
+        self.fldCheck.config(command=cb)
 
     def bind(self, seq: str, cb):
         super().bind(seq, cb)

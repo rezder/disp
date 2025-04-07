@@ -1,7 +1,8 @@
-import cmd
-import state
 import threading
 import copy
+
+import cmd
+import state
 
 
 class AlarmMsg:
@@ -63,7 +64,7 @@ class Status:
         isMine = self.lock.acquire()  # blocks
         if isMine:
             if self.cmd == cmd.none and self.state == state.running:
-                self.cmd = cmd.queue  # TODO Is it necessary limits queue to one
+                self.cmd = cmd.queue  # TODO Is it necessary limits queue?
                 self.txt = self.txt + "\n" + txt
                 ok = True
             self.lock.release()

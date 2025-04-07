@@ -119,7 +119,7 @@ class Config:
         if not os.path.isfile(fileName):
             conf = Config.default()
             with open(fileName, "w") as f:
-                f.write(json.dumps(conf))
+                f.write(json.dumps(conf, indent=2))
         with open(fileName, "r") as f:
             conf = json.load(f)
         return conf

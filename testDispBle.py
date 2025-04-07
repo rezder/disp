@@ -1,10 +1,11 @@
+import asyncio
+import time
+
 from status import Status
 from skdata import SkData
 import ble
-import asyncio
 from config import Config
 from handler import createDispMsq
-import time
 
 
 def creatDummyMsg(skData) -> bytes:

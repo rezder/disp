@@ -1,4 +1,5 @@
 import tkinter as tk
+
 from guipaths import Paths
 from config import Config
 
