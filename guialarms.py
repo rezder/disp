@@ -60,8 +60,11 @@ class Alarms:
                                     onvalue=1,
                                     offvalue=0,
                                     command=fn,
-                                    selectcolor="grey10",
+                                    #selectcolor="grey10",
                                     state=tk.DISABLED)
+            txtcolor: str = self.tabFrame.cget("bg")
+            if int(txtcolor[1:3], 16) < 100:
+                self.fldCheck.config(selectcolor="#1a1a1a")
             checkB.grid(row=i, column=4)
             self.pathsGui[path] = (valueVar, vl, checkB)
             i = i + 1
