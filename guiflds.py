@@ -316,13 +316,25 @@ class FldBool(GuiFld):
         state = tk.NORMAL
         if isDisable:
             state = tk.DISABLED
+
         self.fldCheck = tk.Checkbutton(self.mainFrame,
                                        variable=self.fldVar,
                                        onvalue="1",
                                        offvalue="",
                                        # command=fn,
-                                       selectcolor="grey10",
-                                       state=state)  # color issue
+                                       # selectcolor="#1a1a1a",
+                                       state=state)
+        # The selectcolor is background of the checkmark.
+        # The checkmark looks to be fg color.
+        # Default selectcolor is white and classes with
+        # selectcolor on Arch on Raspberry fg is dark
+        # Checkmark have no fg. The hack uses
+        # bg on frame to guess fg
+
+        txtcolor: str = self.parent.cget("bg")
+        if int(txtcolor[1:3], 16) < 100:
+            self.fldCheck.config(selectcolor="#1a1a1a")
+
         self.addWidget(self.fldCheck)
 
     def postChgAdd(self, cb):
