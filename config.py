@@ -125,7 +125,7 @@ class Config:
         return conf
 
     def __init__(self, isDefault=False):
-        self.fileName = "./dispserver.json"
+        self.fileName = "./data/dispserver.json"
         if isDefault:
             self.conf = Config.default()
         else:
