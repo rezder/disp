@@ -223,7 +223,9 @@ class PathBig:
 
     def createDispData(self, value):
         dd = None
-        v = self.fn(value)
+        v = None
+        if value is not None:
+            v = self.fn(value)
         isUpdate, bv = self.buffer.add(v, self.decimals)
         if isUpdate:
             dd = DispData(bv, self.decimals, self.label, self.dispUnits, False)
