@@ -144,11 +144,19 @@ class Config:
             upd = True
         return upd
 
-    def dispUpdMac(self, id, mac):
+    def dispUpdMac(self, id, mac) -> bool:
+        upd = False
         mo = dict()
         mo["addr"] = mac
         mo["isDisable"] = False
-        self.conf["macs"][id] = mo
+        if id not in self.conf["macs"]:
+            self.conf["macs"][id] = mo
+            upd = True
+        else:
+            if self.conf["macs"][id]["addr"] != mac:
+                self.conf["macs"][id] = mo
+                upd = True
+        return upd
 
     def dispGetBles(self) -> dict:
         return dict(self.conf["macs"])

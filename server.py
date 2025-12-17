@@ -134,14 +134,17 @@ class DispServer:
         """
         Adds a new display with a mac address
         if not new only update mac address.
-        return true if new. Server must
+        return true if update. Server must
         not be running to succeed
         """
         upd = False
         if not self.exist():
             if self.conf.dispAdd(id):
                 upd = True
-            self.conf.dispUpdMac(id, mac)
+                _ = self.conf.dispUpdMac(id, mac)
+            else:
+                upd = self.conf.dispUpdMac(id, mac)
+
         return upd
 
     def disableDisp(self, id: str, isDisable: bool) -> bool:

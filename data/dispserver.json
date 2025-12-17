@@ -100,7 +100,8 @@
   "displays": {
     "b1": "Default",
     "1": "Default",
-    "b2": "Default"
+    "b2": "Default",
+    "b3": "Default"
   },
   "macs": {
     "b1": {
@@ -109,6 +110,10 @@
     },
     "b2": {
       "addr": "f0:f5:bd:76:96:c1",
+      "isDisable": true
+    },
+    "b3": {
+      "addr": "24:ec:4a:2c:50:09",
       "isDisable": false
     }
   },

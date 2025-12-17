@@ -180,16 +180,19 @@ class Ble:
         path = self.pathVar.get()
         if path != "":
             try:
+                self.logger("Create Serial connection")
                 con = serial.Serial(path,
                                     baudrate=DEFAULT_BAUDRATE,
                                     timeout=10)
                 cmd = 'M'
                 data = bytearray(cmd.encode(encoding="ascii"))
+                self.logger("Send serial data: {}".format(cmd))
                 con.write(data)
                 con.flush()
                 time.sleep(1.0)
                 dataSize = 17
                 bts = con.read(size=dataSize)
+                self.logger("Close serial connection")
                 con.close()
                 if len(bts) == dataSize:
                     mac = bts.decode("ascii")
@@ -198,6 +201,9 @@ class Ble:
                     id = self.idVar.get()
                     if self.cb(id, mac):  # Only adds if server not running
                         self.executeNewIds(id, mac)
+                else:  # timeout
+                    data = bts.decode("ascii")
+                    self.logger("Time out data recieved: {}".format(data))
 
             except serial.SerialException as ex:
                 txt = "\nConnection failed with: {}".format(ex)

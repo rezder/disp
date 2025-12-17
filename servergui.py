@@ -136,6 +136,7 @@ class GuiDispServer:
 
     def logger(self, txt):
         self.statusGui.write(txt)
+        self.window.update_idletasks()
 
     def on_closing(self):
         self.logger("Clossing server")
