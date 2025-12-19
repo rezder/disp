@@ -290,10 +290,13 @@ class FldEntry(GuiFld):
         return True
 
     def postChgAdd(self, cb):
-        self.bind("<FocusOut>", cb)
+        self.fldEntry.bind("<FocusOut>", cb)
+
+    def postChgRemov(self):
+        self.fldEntry.ubind("<FocusOut>")
 
     def bind(self, seq: str, cb):
-        super().bind(seq, cb)
+        super().bind(seq, cb)  # Binds to the header
         self.fldEntry.bind(seq, cb)
 
     def unbind(self, seq: str):
@@ -395,7 +398,7 @@ class FldOpt(GuiFld):
         return True
 
     def postChgAdd(self, cb):
-        self.fldCheck.config(command=cb)
+        self.fldOpt.config(command=cb)
 
     def bind(self, seq: str, cb):
         super().bind(seq, cb)
