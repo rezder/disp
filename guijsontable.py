@@ -65,6 +65,10 @@ class Table:
             if tabFldDef.isVis:
                 headFld.mainFrame.grid(row=0, column=columNo)
                 columNo = columNo+1
+                if self.isPopUp:
+                    headFld.bind("<Button-3>",
+                                 partial(self.popMenuUp, -1, headFld.id))
+
             else:
                 headFld.setVis(False)
             if tabFldDef.fld.isKey:
