@@ -126,11 +126,11 @@ class GuiFld:
             pass
         self.fldVar.set(data)
 
-    def bind(self, seq: str, cb):  # TODO maybe we need the 3. argument "add""
+    def bindHead(self, seq: str, cb):  # TODO maybe we need the 3. argument "add""
         if not self.noCap:
             self.fldHead.bind(seq, cb)
 
-    def unbind(self, seq: str):
+    def unbindHead(self, seq: str):
         if not self.noCap:
             self.fldHead.unbind(seq)
 
@@ -238,11 +238,9 @@ class FldLabel(GuiFld):
         return align
 
     def bind(self, seq: str, cb):
-        super().bind(seq, cb)
         self.fldLabelOut.bind(seq, cb)
 
     def unbind(self, seq: str):
-        super().unbind(seq)
         self.fldLabelOut.unbind(seq)
 
 
@@ -296,11 +294,9 @@ class FldEntry(GuiFld):
         self.fldEntry.ubind("<FocusOut>")
 
     def bind(self, seq: str, cb):
-        super().bind(seq, cb)  # Binds to the header
         self.fldEntry.bind(seq, cb)
 
     def unbind(self, seq: str):
-        super().unbind(seq)
         self.fldEntry.unbind(seq)
 
 
@@ -347,11 +343,9 @@ class FldBool(GuiFld):
         return True
 
     def bind(self, seq: str, cb):
-        super().bind(seq, cb)
         self.fldCheck.bind(seq, cb)
 
     def unbind(self, seq: str):
-        super().unbind(seq)
         self.fldCheck.unbind(seq)
 
     def toStr(self, value) -> str:
@@ -401,11 +395,9 @@ class FldOpt(GuiFld):
         self.fldOpt.config(command=cb)
 
     def bind(self, seq: str, cb):
-        super().bind(seq, cb)
         self.fldOpt.bind(seq, cb)
 
     def unbind(self, seq: str):
-        super().unbind(seq)
         self.fldOpt.unbind(seq)
 
     def addOpt(self, opt):
