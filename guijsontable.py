@@ -78,6 +78,10 @@ class Table:
                                      command=self.deleteRow)
             self.popMenu.add_command(label="New Row",
                                      command=self.addNewRow)
+            self.popMenu.bind("<FocusOut>", self.popUpMenuClose)
+
+    def popUpMenuClose(self, ev):
+        self.popMenu.unpost()
 
     def popMenuUp(self, key, jId, event):
         self.clickedJId = jId
@@ -123,6 +127,7 @@ class Table:
                     guiFld.bind("<ButtonRelease-1>",
                                 partial(self.rowcb, key, guiFld.id))
                     if self.isPopUp:
+                        # what if table is empty
                         guiFld.bind("<Button-3>",
                                     partial(self.popMenuUp, key, guiFld.id))
                     columnNo = columnNo+1
