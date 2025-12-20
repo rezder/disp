@@ -126,7 +126,7 @@ class GuiFld:
             pass
         self.fldVar.set(data)
 
-    def bindHead(self, seq: str, cb):  # TODO maybe we need the 3. argument "add""
+    def bindHead(self, seq: str, cb):  # TODO maybe we need the 3.argument add
         if not self.noCap:
             self.fldHead.bind(seq, cb)
 
@@ -329,7 +329,6 @@ class FldBool(GuiFld):
         # selectcolor on Arch on Raspberry fg is dark
         # Checkmark have no fg. The hack uses
         # bg on frame to guess fg
-
         txtcolor: str = self.parent.cget("bg")
         if int(txtcolor[1:3], 16) < 100:
             self.fldCheck.config(selectcolor="#1a1a1a")

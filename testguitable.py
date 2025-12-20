@@ -8,7 +8,7 @@ from flds import tabs as TabsFlds
 from config import Config
 
 
-def cb(path, head):
+def cb(path, head, event):
     print(path)
     print(head)
 
@@ -68,8 +68,8 @@ class TestTable:
         self.tabTable = gt.Table(self.window,
                                  self.window,
                                  PathsFlds.path,
-                                 self.cb,
                                  tabFlds)
+        self.tabTable.bindAllVisFields("<ButtonRelease-1>", self.cb)
         self.tabTable.mainFrame.pack()
         self.tabTable.show(tab)
         tabNew, _, _, _ = self.tabTable.get()
@@ -89,14 +89,14 @@ class TestTable:
             if tabFld.fld.isKey:
                 sortGuiFldDef = tabFld
             tabFlds.append(tabFld)
+        tab = gt.Table(self.window,
+                       self.window,
+                       sortGuiFldDef,
+                       tabFlds)
+        tab.bindAllVisFields("<ButtonRelease-1>", self.cb)
+        return tab
 
-        return gt.Table(self.window,
-                        self.window,
-                        sortGuiFldDef,
-                        self.cb,
-                        tabFlds)
-
-    def cb(self, path, head):
+    def cb(self, path, head, event):
         if head != "path":
             print(self.jsonObj[path][head])
         else:

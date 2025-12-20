@@ -13,16 +13,15 @@ class Table:
                  parentWin: tk.Toplevel,
                  parent: tk.Frame,
                  sortGuiFldDef: FldDef,
-                 rowClickCb,
                  tabFldDefs: list[FldDef],
                  tabFldsJson: dict[str, dict] | None = None,
-                 showCb=None,
+                 showCalcCb=None,
                  isPopUp=True):
         self.parentWin = parentWin
         self.isPopUp = isPopUp
         self.parent = parent
         self.mainFrame = tk.Frame(self.parent)
-        self.showCb = showCb
+        self.showCalcFldCb = showCalcCb
         self.createPopupMenu(self.parentWin)
         self.tabFldsJson = tabFldsJson
         if self.tabFldsJson is None:
@@ -49,16 +48,19 @@ class Table:
         self.newRowsNo = 0
         self.columnsNo = len(self.tabFldDefs)
 
-        self.rowClickCb = rowClickCb
-
+        self.allFldsBinds: list[tuple] = list()
         self.delKeys: list[str] = list()
         self.headFlds: list[gf.FldLabelHead] = list()
         self.rowsFlds: dict[str | int, dict[str, gf.GuiFld]] = dict()
         self.unUsedRows: list[dict[str, gf.GuiFld]] = list()
         self.keyId = None
         columNo = 0
-        self.clickedKey = None  # Right click for now
+        self.clickedKey = None  # Right click for now popMenu
         self.clickedJId = None
+
+        if self.isPopUp:
+            self.allFldsBinds.append(("<Button-3>", self.popMenuUp))
+
         for tabFldDef in self.tabFldDefs.values():
             headFld = gf.FldLabelHead(self.mainFrame,
                                       tabFldDef.fld)
@@ -118,40 +120,43 @@ class Table:
             for jId, itemsJson in tabFldsJson.items():
                 row[jId].setJsonObj(itemsJson)
 
-    def createRow(self, key) -> dict[str, gf.GuiFld]:
+    def bindAllVisFields(self, seq: str, cb):
+        """
+        Binds a callback function to a event to all visable fields
+        The rows must be zero. And the call back function take
+        3 arguments key,fld_id and event.
+        seq examples:
+        <ButtonRelease-1>
+        <Button-3>
+        """
+        if self.rowsNo == 0:
+            self.allFldsBinds.append([seq, cb])
+        else:
+            raise Exception("Rows not zero")
+
+    def createRow_Vis(self, key, guiFld, columnNo) -> int:
+        if guiFld.isVis:
+            guiFld.mainFrame.grid(row=self.rowsNo+1,
+                                  column=columnNo,
+                                  sticky=guiFld.fld.align)
+            for seq, cb in self.allFldsBinds:
+                guiFld.bind(seq, partial(cb, key, guiFld.id))
+            columnNo = columnNo+1
+        else:
+            guiFld.setVis(False)
+        return columnNo
+
+    def createRow(self, key) -> dict[str | int, gf.GuiFld]:
         row: dict[str, gf.GuiFld] = dict()
         columnNo = 0
         try:
             row = self.unUsedRows.pop(0)
             for guiFld in row.values():
-                if guiFld.isVis:
-                    guiFld.mainFrame.grid(row=self.rowsNo+1,
-                                          column=columnNo,
-                                          sticky=guiFld.fld.align)
-                    guiFld.bind("<ButtonRelease-1>",
-                                partial(self.rowcb, key, guiFld.id))
-                    if self.isPopUp:
-                        # what if table is empty
-                        guiFld.bind("<Button-3>",
-                                    partial(self.popMenuUp, key, guiFld.id))
-                    columnNo = columnNo+1
-                else:
-                    guiFld.setVis(False)
+                columnNo = self.createRow_Vis(key, guiFld, columnNo)
         except IndexError:
             for tabFldDef in self.tabFldDefs.values():
                 guiFld = tabFldDef.createFld(self.mainFrame, isTab=True)
-                if guiFld.isVis:
-                    guiFld.mainFrame.grid(row=self.rowsNo+1,
-                                          column=columnNo,
-                                          sticky=guiFld.fld.align)
-                    guiFld.bind("<ButtonRelease-1>",
-                                partial(self.rowcb, key, guiFld.id))
-                    if self.isPopUp:
-                        guiFld.bind("<Button-3>",
-                                    partial(self.popMenuUp, key, guiFld.id))
-                    columnNo = columnNo+1
-                else:
-                    guiFld.setVis(False)
+                columnNo = self.createRow_Vis(key, guiFld, columnNo)
                 row[guiFld.id] = guiFld
             for jId, itemsJson in self.tabFldsJson.items():
                 row[jId].setJsonObj(self.tabFldsJson[jId])
@@ -197,11 +202,11 @@ class Table:
         return res
 
     def show_AddCalc(self, jsonsObj):
-        if len(self.calcFlds) > 0 and self.showCb is not None:
+        if len(self.calcFlds) > 0 and self.showCalcFldCb is not None:
             for k, itemJson in jsonsObj.items():
                 for fldDef in self.calcFlds:
                     id = fldDef.fld.jId
-                    itemJson[id] = self.showCb(k, fldDef.fld, itemJson)
+                    itemJson[id] = self.showCalcFldCb(k, fldDef.fld, itemJson)
 
     def show(self, jsonObj: dict):
         jsonObj = self.show_AddPrimeCp(jsonObj)
@@ -236,10 +241,6 @@ class Table:
 
     def getFld(self, fld: Fld, key):
         return self.rowsFlds[key][fld.jId].get()
-
-    def rowcb(self, key, jId, event):
-        if self.rowClickCb is not None:
-            self.rowClickCb(key, jId)
 
     def get(self) -> tuple[dict, list[str], list[tuple[str, str]]]:
         """

@@ -149,9 +149,9 @@ class Paths:
         self.tabelGui = Table(self.parentWin,
                               self.tableFrame,
                               sortGuiFldDef,
-                              self.rowClick,
                               tabFlds,
                               isPopUp=False)
+        self.tabelGui.bindAllVisFields("<ButtonRelease-1>", self.rowClick)
         self.tabelGui.mainFrame.pack()
         self.alarmsGui, self.bigsGui = self.creatMenu(self.parentWin)
 
@@ -192,7 +192,6 @@ class Paths:
             win,
             alarmsFrame,
             pathFlds.path,
-            None,
             alarmsFlds)
         alarmsTableGui.mainFrame.pack()
         bigsFrame, _ = addWinMenuItem(win,
@@ -204,7 +203,6 @@ class Paths:
             win,
             bigsFrame,
             pathFlds.pathJs,
-            None,
             bigsFlds)
         bigsTableGui.mainFrame.pack()
         win.config(menu=menuBar)
@@ -224,7 +222,7 @@ class Paths:
         self.bigsGui.setTabFldsJson(fldsJson)
         self.bigsGui.show(bigs)
 
-    def rowClick(self, path: str, head: str):
+    def rowClick(self, path: str, head: str, event):
         self.pathGui.show(path, self.pathJsonOld[path])
 
     def save(self):
