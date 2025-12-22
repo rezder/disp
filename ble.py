@@ -57,7 +57,7 @@ class Display:
             buff = await self.client.read_gatt_char(self.pauseCharId)
             isPaused = bool(int.from_bytes(buff))
             if not isPaused:
-                pos = self.tab[path]
+                pos = self.tab[path]["pos"]
                 buff = dp.encode(pos)
                 print("Sending disp msg:{}".format(buff))  # TODO remove
                 await self.client.write_gatt_char(self.dataCharId,

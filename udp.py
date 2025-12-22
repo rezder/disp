@@ -74,7 +74,7 @@ class Display:
         self.checkConnTask()
         if self.on:
             if path in self.tab:
-                pos = self.tab[path]
+                pos = self.tab[path]["pos"]
                 buff = dp.encode(pos)
                 print("Sending disp msg:{}".format(buff))  # TODO remove
                 self.socket.sendto(buff, self.addr)

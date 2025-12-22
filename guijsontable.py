@@ -1,5 +1,6 @@
 import tkinter as tk
 from functools import partial
+import copy
 
 import guiflds as gf
 from guiflddefs import FldDef, Fld
@@ -27,11 +28,8 @@ class Table:
         if self.tabFldsJson is None:
             self.tabFldsJson = dict()
         self.tabFldDefs: dict[str, FldDef] = dict()
-        self.primeFldDef = None
         for v in tabFldDefs:
             self.tabFldDefs[v.fld.jId] = v
-            if v.fld.isPrime:
-                self.primeFldDef = v
 
         self.links: dict[str, list[FldDef]] = dict()
         self.calcFlds: list[FldDef] = list()
@@ -192,18 +190,6 @@ class Table:
                     guiFld.unbind("<Button-3>")
                 guiFld.mainFrame.grid_forget()
 
-    def show_AddPrimeCp(self, jsonsObj: dict) -> dict:
-        res = dict()
-        for k, v in jsonsObj.items():
-            newItemJson = None
-            if type(v) is dict:
-                newItemJson = dict(v)
-            else:
-                newItemJson = dict()
-                newItemJson[self.primeFldDef.fld.jId] = v
-            res[k] = newItemJson
-        return res
-
     def show_AddCalc(self, jsonsObj):
         if len(self.calcFlds) > 0 and self.showCalcFldCb is not None:
             for k, itemJson in jsonsObj.items():
@@ -211,8 +197,8 @@ class Table:
                     id = fldDef.fld.jId
                     itemJson[id] = self.showCalcFldCb(k, fldDef.fld, itemJson)
 
-    def show(self, jsonObj: dict):
-        jsonObj = self.show_AddPrimeCp(jsonObj)
+    def show(self, inJsonObj: dict):
+        jsonObj = copy.deepcopy(inJsonObj)
         self.show_AddCalc(jsonObj)
 
         #  sort
@@ -270,10 +256,7 @@ class Table:
                     if guiFld.isJson and guiFld.linkDef is None:
                         data = guiFld.get()
                         if data is not None:
-                            if guiFld.fld.isPrime:
-                                item = data
-                            else:
-                                item[fldId] = data
+                            item[fldId] = data
                 jsonObj[newk] = item
 
         return jsonObj, self.delKeys, chgKeys, newKeys

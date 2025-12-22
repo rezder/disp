@@ -91,21 +91,21 @@ class Config:
             },
             "tabs": {
                 "None": {},
-                "Default": {
-                    "environment.depth.belowTransducer": 0,
-                    "navigation.speedOverGround": 1,
-                    "navigation.courseOverGroundTrue": 2,
-                    "navigation.speedThroughWater": 3},
-                "Route1": {
-                    "environment.depth.belowTransducer": 0,
-                    "navigation.courseOverGroundTrue": 1,
-                    "navigation.courseRhumbline.crossTrackError": 2,
-                    "navigation.courseRhumbline.nextPoint.bearingTrue": 3},
-                "Route2": {
-                    "environment.depth.belowTransducer": 0,
-                    "navigation.courseRhumbline.crossTrackError": 1,
-                    "navigation.courseRhumbline.nextPoint.bearingTrue": 2,
-                    "navigation.courseRhumbline.nextPoint.distance": 3}
+                "Default": {"poss": {
+                    "environment.depth.belowTransducer": {"pos": 0},
+                    "navigation.speedOverGround": {"pos": 1},
+                    "navigation.courseOverGroundTrue": {"pos": 2},
+                    "navigation.speedThroughWater": {"pos": 3}}},
+                "Route1": {"poss": {
+                    "environment.depth.belowTransducer": {"pos": 0},
+                    "navigation.courseOverGroundTrue": {"pos": 1},
+                    "navigation.courseRhumbline.crossTrackError": {"pos": 2},
+                    "navigation.courseRhumbline.nextPoint.bearingTrue": {"pos": 3}}},
+                "Route2": {"poss": {
+                    "environment.depth.belowTransducer": {"pos": 0},
+                    "navigation.courseRhumbline.crossTrackError": {"pos": 1},
+                    "navigation.courseRhumbline.nextPoint.bearingTrue": {"pos": 2},
+                    "navigation.courseRhumbline.nextPoint.distance": {"pos": 3}}}
             },
             "displays": {},
             "macs": {},
@@ -169,7 +169,7 @@ class Config:
 
     def dispGetTab(self, dispId) -> tuple[str, dict]:
         tabId = self.conf["displays"][dispId]
-        tab = dict(self.conf["tabs"][tabId])
+        tab = dict(self.conf["tabs"][tabId]["poss"])
         return (tabId, tab)
 
     def dispGet(self):
@@ -184,7 +184,7 @@ class Config:
         return self.conf["tabs"]
 
     def tabsGetTab(self, tabId) -> dict:
-        return dict(self.conf["tabs"][tabId])
+        return dict(self.conf["tabs"][tabId]["poss"])
 
     def tabsGetIds(self) -> list:
         return list(self.conf["tabs"].keys())
@@ -203,7 +203,7 @@ class Config:
         inBigs = False
         inAlarms = False
         for id, tab in self.conf["tabs"].items():
-            for tabPath, pos in tab.items():
+            for tabPath in tab["poss"].keys():
                 if path == tabPath:
                     tabs.add(id)
         if path in self.conf["bigs"]:

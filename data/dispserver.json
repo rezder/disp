@@ -78,24 +78,56 @@
   },
   "tabs": {
     "Default": {
-      "environment.depth.belowTransducer": 0,
-      "navigation.speedOverGround": 1,
-      "navigation.courseOverGroundTrue": 2,
-      "navigation.speedThroughWater": 3
+      "poss": {
+        "environment.depth.belowTransducer": {
+          "pos": 0
+        },
+        "navigation.speedOverGround": {
+          "pos": 1
+        },
+        "navigation.courseOverGroundTrue": {
+          "pos": 2
+        },
+        "navigation.speedThroughWater": {
+          "pos": 3
+        }
+      }
     },
     "Route1": {
-      "environment.depth.belowTransducer": 0,
-      "navigation.courseOverGroundTrue": 1,
-      "navigation.courseRhumbline.crossTrackError": 2,
-      "navigation.courseRhumbline.nextPoint.bearingTrue": 3
+      "poss": {
+        "environment.depth.belowTransducer": {
+          "pos": 0
+        },
+        "navigation.courseOverGroundTrue": {
+          "pos": 1
+        },
+        "navigation.courseRhumbline.crossTrackError": {
+          "pos": 2
+        },
+        "navigation.courseRhumbline.nextPoint.bearingTrue": {
+          "pos": 3
+        }
+      }
     },
     "Route2": {
-      "environment.depth.belowTransducer": 0,
-      "navigation.courseRhumbline.crossTrackError": 1,
-      "navigation.courseRhumbline.nextPoint.bearingTrue": 2,
-      "navigation.courseRhumbline.nextPoint.distance": 3
+      "poss": {
+        "environment.depth.belowTransducer": {
+          "pos": 0
+        },
+        "navigation.courseRhumbline.crossTrackError": {
+          "pos": 1
+        },
+        "navigation.courseRhumbline.nextPoint.bearingTrue": {
+          "pos": 2
+        },
+        "navigation.courseRhumbline.nextPoint.distance": {
+          "pos": 3
+        }
+      }
     },
-    "None": {}
+    "None": {
+      "poss": {}
+    }
   },
   "displays": {
     "b1": "Default",

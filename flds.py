@@ -79,8 +79,7 @@ class flds:
               "Pos",
               str,
               int,
-              "e",
-              isPrime=True)
+              "e")
     dis = Fld("dis",
               "Disable",
               "Dis",
