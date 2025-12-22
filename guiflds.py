@@ -46,7 +46,6 @@ class Fld:
                  fromStr,
                  align: str,
                  isKey: bool = False,  # This should/could be def
-                 isPrime: bool = False  # This should/could  be def
                  ):
         self.align = align
         self.header = header
