@@ -54,7 +54,6 @@ class Fld:
         self.fromStr = fromStr
         self.jId = jId
         self.isKey = isKey
-        self.isPrime = isPrime  # Single value of a key not a dict
         #  The fld does not have a header like iskey.
 
     def __eq__(self, o):
