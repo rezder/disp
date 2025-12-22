@@ -84,8 +84,8 @@ class flds:
     dis = Fld("dis",
               "Disable",
               "Dis",
-              None,
-              None,
+              str,
+              bool,
               "e")
 
 

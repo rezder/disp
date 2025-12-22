@@ -72,6 +72,10 @@ async def guiMsg(ws: wsclient.ClientConnection,
         if req.tp == gr.chgTab:
             dispId = req.id
             newTabId, newTab = conf.dispGetTab(dispId)
+            # conf read is a problem as it could be change
+            # while wait on messages better to have all
+            # info in queue. if display not in mod conf or
+            # fail
             txt = "Changing tab on display: {} to tab: {}"
             status.setTxt(txt.format(dispId, newTabId))
             if displays.isIn(dispId):
@@ -109,6 +113,10 @@ async def guiMsg(ws: wsclient.ClientConnection,
                     subSet = sub.subscribers()
                     await skSub(subSet, skData, ws)
             if not isIn and not isDisable:
+                # This could go wrong if called
+                # early before server has added displays
+                # it is a race dis and enable before
+                # serve starts dont think it is possible
                 status.addOn(req.id)
                 txt = "Enabling display: {}".format(id)
                 ble = conf.dispGetBle(req.id)

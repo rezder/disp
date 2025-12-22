@@ -2,7 +2,6 @@ import asyncio as ass
 import bleak
 
 from status import Status
-from config import Config
 from dispdata import DispData
 
 
@@ -19,7 +18,7 @@ class Display:
         self.pauseCharId = bleak.uuids.normalize_uuid_32(102)
         self.dataCharId = bleak.uuids.normalize_uuid_32(101)
         self.cmdCharId = bleak.uuids.normalize_uuid_32(103)
-        self.tab = Config.default()["tabs"]["None"]
+        self.tab = {}
 
     def __str__(self) -> str:
         txt = "Ble client id: {}, mac: {}".format(self.id, self.macAddr)

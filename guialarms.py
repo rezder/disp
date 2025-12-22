@@ -60,7 +60,7 @@ class Alarms:
                                     onvalue=1,
                                     offvalue=0,
                                     command=fn,
-                                    #selectcolor="grey10",
+                                    # selectcolor="grey10",
                                     state=tk.DISABLED)
             txtcolor: str = self.tabFrame.cget("bg")
             if int(txtcolor[1:3], 16) < 100:

@@ -55,7 +55,7 @@ class List:
                  self.cbDisable)
         r.show(id,
                self.tabs,
-               self.defaultTab,
+               self.defaultTab,  # should be paremeter on newId
                macAddr,
                isDisable)
         r.mainFrame.pack(pady=(0, 5), anchor=tk.W)

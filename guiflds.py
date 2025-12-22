@@ -45,8 +45,8 @@ class Fld:
                  toStr,
                  fromStr,
                  align: str,
-                 isKey: bool = False,
-                 isPrime: bool = False
+                 isKey: bool = False,  # This should/could be def
+                 isPrime: bool = False  # This should/could  be def
                  ):
         self.align = align
         self.header = header
@@ -55,7 +55,8 @@ class Fld:
         self.fromStr = fromStr
         self.jId = jId
         self.isKey = isKey
-        self.isPrime = isPrime
+        self.isPrime = isPrime  # Single value of a key not a dict
+        #  The fld does not have a header like iskey.
 
     def __eq__(self, o):
         return o is self

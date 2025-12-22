@@ -56,7 +56,7 @@ class GuiDispServer:
                                         self.server.changeDisp,
                                         self.server.disableDisp)
 
-        self.dispListGui.show(self.server.conf.defaultTab,
+        self.dispListGui.show(self.server.conf.defaultTab,  # TODO should not be used here
                               self.server.conf.dispGet(),
                               self.server.conf.tabsGetIds(),
                               self.server.conf.dispGetBles())

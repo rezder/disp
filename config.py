@@ -137,7 +137,7 @@ class Config:
     def dispIs(self, id) -> bool:
         return id in self.conf["displays"]
 
-    def dispAdd(self, id) -> bool:
+    def dispAdd(self, id) -> bool:  # TODO return defaultTab
         upd = False
         if id not in self.conf["displays"]:
             self.conf["displays"][id] = self.defaultTab

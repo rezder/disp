@@ -2,7 +2,6 @@ import time
 from asyncudp import create_socket as udpSocket
 import asyncio as ass
 
-from config import Config
 from status import Status
 from dispdata import DispData
 
@@ -21,7 +20,7 @@ class Display:
         self.on = False
         self.id = id
         self.status = status
-        self.tab = Config.default()["tabs"]["None"]
+        self.tab = {}
         self.keepAliveTask = ass.create_task(self.keepAlive(),
                                              name="Keep Alive")
         self.keepAliveTime = 10.0

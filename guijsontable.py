@@ -128,6 +128,9 @@ class Table:
         seq examples:
         <ButtonRelease-1>
         <Button-3>
+        <FocusIn>
+        <FocusOut>
+        see https://manpages.debian.org/trixie/tk8.6-doc/bind.3tk.en.html
         """
         if self.rowsNo == 0:
             self.allFldsBinds.append([seq, cb])

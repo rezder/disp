@@ -87,7 +87,7 @@ class Udp:
 
     def updateCb(self):
         id = self.idVar.get()
-        if self.cb(id):  # Only adds if server not running
+        if self.cb(id):  # Only updates if server not running
             for f in self.subNewIdsList:
                 f(id)
         path = self.pathVar.get()
@@ -199,7 +199,7 @@ class Ble:
                     self.macVar.set(mac)
                     self.logger("Mac data recieved: {}".format(mac))
                     id = self.idVar.get()
-                    if self.cb(id, mac):  # Only adds if server not running
+                    if self.cb(id, mac):  # Only updates if server not running
                         self.executeNewIds(id, mac)
                 else:  # timeout
                     data = bts.decode("ascii")
