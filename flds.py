@@ -1,5 +1,6 @@
 
 import units
+import empty
 from guiflds import Fld, FldLink
 import guiflds as gf
 from guiflddefs import FldDef
@@ -37,13 +38,15 @@ class flds:
                  "Sk Unit",
                  units.shortTxt,
                  units.noShort,
-                 "w")
+                 "w",
+                 isDom=True)
     dpUnit = Fld("dispUnits",
                  "Display Unit",
                  "Dp Unit",
                  units.shortTxt,
                  units.noShort,
-                 "w")
+                 "w",
+                 isDom=True)
     bufSize = Fld("bufSize",
                   "Buffer Size",
                   "Buf Size",
@@ -99,12 +102,14 @@ class paths:
     path = FldDef(flds.path,
                   45,
                   45,
-                  gf.FldEntry)
+                  gf.FldEntry,
+                  empty=empty.noEmpty)
     minPer = FldDef(flds.minPer,
                     10,
                     5,
                     gf.FldEntry,
-                    defaultVal=1000)
+                    defaultVal=1000,
+                    empty=empty.noZero)
     dec = FldDef(flds.dec,
                  10,
                  3,
@@ -112,7 +117,8 @@ class paths:
     label = FldDef(flds.label,
                    10,
                    4,
-                   gf.FldEntry
+                   gf.FldEntry,
+                   empty=empty.noEmpty
                    )
     skUnit = FldDef(flds.skUnit,
                     4,
@@ -144,18 +150,18 @@ class paths:
                  10,
                  4,
                  gf.FldEntry,
-                 isMan=False
+                 empty=empty.okFldMis
                  )
     max = FldDef(flds.max,
                  10,
                  4,
                  gf.FldEntry,
-                 isMan=False)
+                 empty=empty.okFldMis)
     limit = FldDef(flds.limit,
                    10,
                    4,
                    gf.FldEntry,
-                   isMan=False)
+                   empty=empty.noZero)
 
     pathJs = FldDef(flds.path, 44, 44, gf.FldOpt,
                     linkDef=None,

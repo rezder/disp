@@ -2,6 +2,7 @@ import tkinter as tk
 
 import guiflds as gf
 import units
+import empty
 from config import Config
 from guiflddefs import FldDef
 from guiflds import Fld, FldLink
@@ -27,7 +28,7 @@ def createFldDefs() -> dict[str, FldDef]:
              "w"
              )
     flds[jf.jId] = FldDef(jf, 8, 5, gf.FldEntry)
-    flds["manda"] = FldDef(jf, 8, 5, gf.FldEntry, isMan=False)
+    flds["manda"] = FldDef(jf, 8, 5, gf.FldEntry, empty=empty.okFldMis)
 
     jf = Fld("options",
              "Long options",

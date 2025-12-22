@@ -1,6 +1,8 @@
 import tkinter as tk
+import math
 
 from gui import BORDER_COLOR_ERR as BCE
+import empty
 
 
 def strJson(txt: str) -> str:
@@ -46,6 +48,8 @@ class Fld:
                  fromStr,
                  align: str,
                  isKey: bool = False,  # This should/could be def
+                 isDict: bool = False,
+                 isDom: bool = False
                  ):
         self.align = align
         self.header = header
@@ -73,7 +77,7 @@ class GuiFld:
                  fld: Fld,
                  width: int,
                  noCap: bool,
-                 isMan: bool,
+                 empty: int,
                  default,
                  isJson: bool,
                  linkDef: FldLink
@@ -82,7 +86,7 @@ class GuiFld:
         self.fld = fld
         self.width = width
         self.noCap = noCap
-        self.isMan = isMan
+        self.empty = empty
         self.isJson = isJson
         self.linkDef = linkDef
         self.filter: list | None = None
@@ -171,15 +175,28 @@ class GuiFld:
         isOk = True
         self.setError(not isOk)
         v = self.get()
-        if v is None:
+        if v is None:  # Failed translation
             if self.isEmpty():
-                if self.isMan:
+                if self.empty != empty.okFldMis:
                     isOk = False
             else:
                 isOk = False
-        elif self.filter is not None:
-            if v not in self.filter:
+        else:
+            if type(v) is str:
+                if self.isEmpty() and self.empty == empty.noEmpty:
+                    isOk = False
+            if type(v) is float:
+                if math.isnan(v):
+                    if self.empty in [empty.noNaN, empty.noNaNZero]:
+                        isOk = False
+                elif v == 0 and self.empty == empty.noZero:
+                    isOk = False
+            if type(v) is int and self.empty == empty.noZero:
                 isOk = False
+
+            if self.filter is not None and isOk is True:
+                if v not in self.filter:
+                    isOk = False
         if not isOk:
             self.setError(True)
         return isOk
@@ -216,10 +233,10 @@ class GuiFld:
 
 class FldLabel(GuiFld):
     def __init__(self, parent: tk.Frame, fld: Fld, width: int,
-                 noCap=False, isMan=False, default=None,
+                 noCap=False, empty=empty.ok, default=None,
                  isJson=True):
         super().__init__(parent, fld, width, noCap,
-                         isMan, default, isJson, None)
+                         empty, default, isJson, None)
         align = self.getAlign()
         self.fldLabelOut = tk.Label(self.mainFrame,
                                     textvariable=self.fldVar,
@@ -246,7 +263,7 @@ class FldLabel(GuiFld):
 class FldLabelHead(FldLabel):
     def __init__(self, parent: tk.Frame, fld: Fld):
         super().__init__(parent, fld, None,
-                         noCap=True, isMan=False, default=None, isJson=False)
+                         noCap=True, empty=empty.ok, default=None, isJson=False)
         self.show(self.fld.shortHeader)
 
     def addWidget(self, widget):
@@ -265,10 +282,10 @@ class FldLabelHead(FldLabel):
 
 class FldEntry(GuiFld):
     def __init__(self, parent: tk.Frame, fld: Fld, width: int,
-                 noCap=False, isMan=True, default=None, isJson=True,
+                 noCap=False, empty=empty.ok, default=None, isJson=True,
                  isDisable=False):
         super().__init__(parent, fld, width, noCap,
-                         isMan, default, isJson, None)
+                         empty, default, isJson, None)
         align = "left"
         if self.fld.align == "e":
             align = "right"
@@ -309,7 +326,7 @@ class FldBool(GuiFld):
                  linkDef: FldLink | None = None,
                  isDisable: bool = False):
 
-        super().__init__(parent, fld, 1, noCap, isMan=True,
+        super().__init__(parent, fld, 1, noCap, empty=empty.ok,
                          default=default, isJson=isJson, linkDef=linkDef)
         state = tk.NORMAL
         if isDisable:
@@ -373,7 +390,7 @@ class FldOpt(GuiFld):
         if default is None:
             default = options[0]
 
-        super().__init__(parent, fld, width, noCap, isMan=True,
+        super().__init__(parent, fld, width, noCap, empty=empty.ok,
                          default=default, isJson=isJson, linkDef=linkDef)
 
         self.options: list[str] = list()

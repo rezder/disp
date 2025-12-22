@@ -1,5 +1,6 @@
 import tkinter as tk
 
+import empty
 import guiflds as gf
 from guiflds import Fld, FldLink
 
@@ -14,7 +15,7 @@ class FldDef:
                  options:  list | None = None,
                  linkDef: FldLink | None = None,
                  defaultVal=None,
-                 isMan: bool = True,
+                 empty: int = empty.ok,
                  isJson: bool = True,
                  isDisable: bool = False
                  ):
@@ -26,7 +27,7 @@ class FldDef:
         self.options = options
         self.linkDef = linkDef
         self.defaultVal = defaultVal
-        self.isMan = isMan
+        self.empty = empty
         self.isJson = isJson
         self.isDisable = isDisable
         self.delkeys: list[str] = list()
@@ -43,7 +44,7 @@ class FldDef:
                      options=self.options,
                      linkDef=self.linkDef,
                      defaultVal=self.defaultVal,
-                     isMan=self.isMan,
+                     empty=self.empty,
                      isJson=self.isJson,
                      isDisable=self.isDisable)
         return res
@@ -64,7 +65,7 @@ class FldDef:
                                  self.fld,
                                  width,
                                  noCap=noCap,
-                                 isMan=self.isMan,
+                                 empty=self.empty,
                                  isJson=self.isJson,
                                  default=self.defaultVal)
         elif self.fldClass == gf.FldEntry:
@@ -72,7 +73,7 @@ class FldDef:
                                  self.fld,
                                  width,
                                  noCap=noCap,
-                                 isMan=self.isMan,
+                                 empty=self.empty,
                                  isJson=self.isJson,
                                  default=self.defaultVal,
                                  isDisable=self.isDisable)
