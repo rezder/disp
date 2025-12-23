@@ -150,13 +150,15 @@ class paths:
                  10,
                  4,
                  gf.FldEntry,
-                 empty=empty.okFldMis
+                 empty=empty.noNaN,
+                 isMan=False
                  )
     max = FldDef(flds.max,
                  10,
                  4,
                  gf.FldEntry,
-                 empty=empty.okFldMis)
+                 empty=empty.noNaN,
+                 isMan=False)
     limit = FldDef(flds.limit,
                    10,
                    4,

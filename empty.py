@@ -6,23 +6,20 @@ ok = 0
 noZero = 1
 noEmpty = 2
 noNaN = 3
-okFldMis = 4
-noNaNZero = 5
+noNaNZero = 4
 
 txts = {0: "ok",  # Ok all legal values is allowed
         1: "noZero",  # Used for numbers to disallowe zero
         2: "noEmpty",  # used for str to disallowe empty strings
         3: "noNaN",  # used for float to disallowe Not a Number
-        4: "okFldMis",  # used for numbers allowe no number
-        5: "noNaNZero"  # used for float to dis NaN and zero
+        4: "noNaNZero"  # used for float to dis NaN and zero
         }
 
 invTxts = {"ok": 0,
            "noZero": 1,
            "noEmpty": 2,
            "noNaN": 3,
-           "okFldMis": 4,
-           "noNanZero": 5
+           "noNanZero": 4
            }
 
 

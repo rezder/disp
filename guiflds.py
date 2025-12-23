@@ -78,6 +78,7 @@ class GuiFld:
                  width: int,
                  noCap: bool,
                  empty: int,
+                 isMan: bool,
                  default,
                  isJson: bool,
                  linkDef: FldLink
@@ -87,6 +88,7 @@ class GuiFld:
         self.width = width
         self.noCap = noCap
         self.empty = empty
+        self.isMan = isMan
         self.isJson = isJson
         self.linkDef = linkDef
         self.filter: list | None = None
@@ -177,7 +179,7 @@ class GuiFld:
         v = self.get()
         if v is None:  # Failed translation
             if self.isEmpty():
-                if self.empty != empty.okFldMis:
+                if self.isMan:
                     isOk = False
             else:
                 isOk = False
@@ -233,10 +235,10 @@ class GuiFld:
 
 class FldLabel(GuiFld):
     def __init__(self, parent: tk.Frame, fld: Fld, width: int,
-                 noCap=False, empty=empty.ok, default=None,
+                 noCap=False, empty=empty.ok, isMan=True, default=None,
                  isJson=True):
         super().__init__(parent, fld, width, noCap,
-                         empty, default, isJson, None)
+                         empty, isMan, default, isJson, None)
         align = self.getAlign()
         self.fldLabelOut = tk.Label(self.mainFrame,
                                     textvariable=self.fldVar,
@@ -262,8 +264,7 @@ class FldLabel(GuiFld):
 
 class FldLabelHead(FldLabel):
     def __init__(self, parent: tk.Frame, fld: Fld):
-        super().__init__(parent, fld, None,
-                         noCap=True, empty=empty.ok, default=None, isJson=False)
+        super().__init__(parent, fld, None, noCap=True, isJson=False)
         self.show(self.fld.shortHeader)
 
     def addWidget(self, widget):
@@ -282,10 +283,11 @@ class FldLabelHead(FldLabel):
 
 class FldEntry(GuiFld):
     def __init__(self, parent: tk.Frame, fld: Fld, width: int,
-                 noCap=False, empty=empty.ok, default=None, isJson=True,
+                 noCap=False, empty=empty.ok, isMan=True,
+                 default=None, isJson=True,
                  isDisable=False):
         super().__init__(parent, fld, width, noCap,
-                         empty, default, isJson, None)
+                         empty, isMan, default, isJson, None)
         align = "left"
         if self.fld.align == "e":
             align = "right"
@@ -326,7 +328,7 @@ class FldBool(GuiFld):
                  linkDef: FldLink | None = None,
                  isDisable: bool = False):
 
-        super().__init__(parent, fld, 1, noCap, empty=empty.ok,
+        super().__init__(parent, fld, 1, noCap, empty=empty.ok, isMan=True,
                          default=default, isJson=isJson, linkDef=linkDef)
         state = tk.NORMAL
         if isDisable:
@@ -390,7 +392,7 @@ class FldOpt(GuiFld):
         if default is None:
             default = options[0]
 
-        super().__init__(parent, fld, width, noCap, empty=empty.ok,
+        super().__init__(parent, fld, width, noCap, empty=empty.ok, isMan=True,
                          default=default, isJson=isJson, linkDef=linkDef)
 
         self.options: list[str] = list()

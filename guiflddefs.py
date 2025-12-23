@@ -16,6 +16,7 @@ class FldDef:
                  linkDef: FldLink | None = None,
                  defaultVal=None,
                  empty: int = empty.ok,
+                 isMan: bool = True,
                  isJson: bool = True,
                  isDisable: bool = False
                  ):
@@ -28,6 +29,7 @@ class FldDef:
         self.linkDef = linkDef
         self.defaultVal = defaultVal
         self.empty = empty
+        self.isMan = isMan
         self.isJson = isJson
         self.isDisable = isDisable
         self.delkeys: list[str] = list()
@@ -45,6 +47,7 @@ class FldDef:
                      linkDef=self.linkDef,
                      defaultVal=self.defaultVal,
                      empty=self.empty,
+                     isMan=self.isMan,
                      isJson=self.isJson,
                      isDisable=self.isDisable)
         return res
@@ -66,6 +69,7 @@ class FldDef:
                                  width,
                                  noCap=noCap,
                                  empty=self.empty,
+                                 isMan=self.isMan,
                                  isJson=self.isJson,
                                  default=self.defaultVal)
         elif self.fldClass == gf.FldEntry:
@@ -74,6 +78,7 @@ class FldDef:
                                  width,
                                  noCap=noCap,
                                  empty=self.empty,
+                                 isMan=self.isMan,
                                  isJson=self.isJson,
                                  default=self.defaultVal,
                                  isDisable=self.isDisable)
