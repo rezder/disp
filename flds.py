@@ -4,16 +4,30 @@ import empty
 from guiflds import Fld, FldLink
 import guiflds as gf
 from guiflddefs import FldDef
+import json
 
 
 class flds:
-    path = Fld("path",
+    path = Fld("path",  # Maybe all should be id
                "Path",
                "Path",
                str,
                str,
                "w",
                isKey=True)
+    viewId = Fld("viewId", "View ID", "View ID",
+                 str, str, "w",
+                 isKey=True)
+
+    view = Fld("view", "View", "View",
+               str, str, "w"
+               )
+
+    dispId = Fld("dispId", "Display ID", "Dis. ID",
+                 str, str, "w",
+                 isKey=True
+                 )
+
     minPer = Fld("minPeriod",
                  "Min Period",
                  "Min Per",
@@ -88,7 +102,69 @@ class flds:
               "Dis",
               str,
               bool,
-              "e")
+              "w")
+    broadCP = Fld("broadcastPort",
+                  "Broadcast Port",
+                  "BC Port",
+                  str,
+                  int,
+                  "w")
+    intface = Fld("interface",
+                  "Wifi Interface",
+                  "Wifi",
+                  str,
+                  str,
+                  "w")
+    dissub = Fld("disableSubServer",
+                 "Disable Subscriber Server",
+                 "Dis Sub",
+                 str,
+                 bool,
+                 "w")
+
+
+class fldsDict:
+
+    conf = Fld("conf", "Server Configuration", "Conf",
+               json.dumps, json.loads,
+               "w",
+               isDict=True
+               )
+    paths = Fld("paths", "Paths", "Paths",
+                json.dumps, json.loads,
+                "w",
+                isDict=True
+                )
+    bigs = Fld("bigs", "Bigs", "Bigs",
+               json.dumps, json.loads,
+               "w",
+               isDict=True
+               )
+    alarms = Fld("alarms", "Alarms", "Alarms",
+                 json.dumps, json.loads,
+                 "w",
+                 isDict=True
+                 )
+    tabs = Fld("tabs", "Tabs", "Tabs",
+               json.dumps, json.loads,
+               "w",
+               isDict=True
+               )
+    poss = Fld("poss", "Positions", "Poss",
+               json.dumps, json.loads,
+               "w",
+               isDict=True
+               )
+    displays = Fld("displays", "Displays", "Displays",
+                   json.dumps, json.loads,
+                   "w",
+                   isDict=True
+                   )
+    macs = Fld("macs", "MAC Addresses", "MACs",
+               json.dumps, json.loads,
+               "w",
+               isDict=True
+               )
 
 
 class tabs:

@@ -1,6 +1,12 @@
 import json
 import os
 import netifaces
+from flds import flds as ff
+from flds import fldsDict as fd
+import jsonvalidate as val
+from jsonptr import Ptr, ErrPtr
+from flds import flds as ff
+from flds import fldsDict as fd
 
 
 class Config:
@@ -11,7 +17,7 @@ class Config:
     That a seperate file.
     """
     def default() -> dict:
-        conf = {
+        conf = {"conf": {
             "paths": {
                 "environment.depth.belowTransducer": {
                     "minPeriod": 1000,
@@ -112,7 +118,7 @@ class Config:
             "broadcastPort": 9090,
             "interface": "wlp2s0",
             "disableSubServer": False
-        }
+        }}
         return conf
 
     def load(fileName) -> dict:
@@ -127,9 +133,11 @@ class Config:
     def __init__(self, isDefault=False):
         self.fileName = "./data/dispserver.json"
         if isDefault:
-            self.conf = Config.default()
+            self.conff = Config.default()
+            self.conf = self.conff[fd.conf.jId]
         else:
-            self.conf = Config.load(self.fileName)
+            self.conff = Config.load(self.fileName)
+            self.conf = self.conff[fd.conf.jId]
         self.defaultTab = "None"
 
     #  ##### Displays #################
@@ -140,7 +148,7 @@ class Config:
     def dispAdd(self, id) -> bool:  # TODO return defaultTab
         upd = False
         if id not in self.conf["displays"]:
-            self.conf["displays"][id] = self.defaultTab
+            self.conf["displays"][id]["view"] = self.defaultTab
             upd = True
         return upd
 
@@ -165,15 +173,18 @@ class Config:
         return self.conf["macs"][dispId]
 
     def dispSetTabId(self, dispId, tabId):
-        self.conf["displays"][dispId] = tabId
+        self.conf["displays"][dispId]["view"] = tabId
 
     def dispGetTab(self, dispId) -> tuple[str, dict]:
-        tabId = self.conf["displays"][dispId]
+        tabId = self.conf["displays"][dispId]["view"]
         tab = dict(self.conf["tabs"][tabId]["poss"])
         return (tabId, tab)
 
     def dispGet(self):
-        return dict(self.conf["displays"])
+        viewids = dict()
+        for k, d in self.conf["displays"].items():
+            viewids[k] = d["view"]
+        return viewids
 
     def dispSetBleDisable(self, id: str, isDisable: bool):
         self.conf["macs"][id]["isDisable"] = isDisable
@@ -267,4 +278,64 @@ class Config:
 
     def save(self):
         with open(self.fileName, "w") as f:
-            f.write(json.dumps(self.conf, indent=2))
+            f.write(json.dumps(self.conff, indent=2))
+
+    def validate(self) -> str:
+        errList: list[ErrPtr] = list()
+        # =============  Conf =====================
+        flds = [fd.paths, fd.alarms, fd.bigs, fd.tabs,
+                fd.displays, fd.macs, ff.broadCP,
+                ff.intface, ff.dissub, ff.limit]
+        optFlds = []
+        confPtr = Ptr([fd.conf], [])
+        el = val.missExtFlds(self.conf, confPtr, flds, optFlds)
+        errList.extend(el)
+
+        # =============  Paths =====================
+        joPaths = self.conf[fd.paths.jId]
+        # keyFld = ff.path
+        # dictFld = fd.paths
+        flds = [ff.minPer, ff.dec, ff.skUnit, ff.dpUnit,
+                ff.label, ff.bufSize, ff.bufFreq, ff.limit]
+        optFlds = []
+        pathsPtr = Ptr([fd.paths, ff.path], [])
+        el = val.missExtFlds(joPaths, pathsPtr, flds, optFlds)
+        errList.extend(el)
+
+        # ============= Bigs =====================
+        joBigs = self.conf[fd.bigs.jId]
+        # keyFld = ff.path
+        # dictFld = fd.bigs
+        flds = [ff.limit, ff.dpUnit, ff.dec]
+        optFlds = []
+        bigsPtr = Ptr([fd.bigs, ff.path], [])
+        el = val.missExtFlds(joBigs, bigsPtr, flds, optFlds)
+        errList.extend(el)
+        pathsPtr = Ptr([fd.paths], [])  # no keyfld on dist ptr ??
+        el = val.refCheck(joBigs, bigsPtr, pathsPtr, joPaths)
+        errList.extend(el)
+
+        # ============= Alarms =====================
+        joAlarms = self.conf[fd.alarms.jId]
+        #  keyFld = ff.path
+        #  dictFld = fd.alarms
+        flds = []
+        optFlds = [ff.max, ff.min]
+
+        alarmsPtr = Ptr([fd.alarms, ff.path], [])
+        el = val.missExtFlds(joAlarms, alarmsPtr, flds, optFlds)
+        errList.extend(el)
+
+        pathsPtr = Ptr([fd.paths], [])  # no keyfld on dist ptr ??
+        el = val.refCheck(joAlarms, alarmsPtr, pathsPtr, joBigs)
+        errList.extend(el)  # should be joPaths just for error TODO
+
+        # =============  End  =====================
+        errTxt = ""
+        errNo = len(errList)
+        if errNo != 0:
+            errTxt = "{} contain {} errors!".format(fd.conf.header, errNo)
+            for e in errList:
+                errTxt = errTxt + "\n" + e.toStr()
+
+        return errTxt

@@ -40,6 +40,14 @@ def compJson(json1: dict, json2: dict) -> bool:
 
 
 class Fld:
+
+    def txtList(flds: list, size: int) -> str:
+        tl = ""
+        for f in flds:
+            tl = tl + f.getStr(size)+","
+        tl = tl[:-1]
+        return tl
+
     def __init__(self,
                  jId: str,
                  header: str,
@@ -47,9 +55,9 @@ class Fld:
                  toStr,
                  fromStr,
                  align: str,
-                 isKey: bool = False,  # This should/could be def
-                 isDict: bool = False,
-                 isDom: bool = False
+                 isKey: bool = False,
+                 isDict: bool = False,  # Maybe add keyfld and move isKey to def
+                 isDom: bool = False  # Not all dict is a table and have a key
                  ):
         self.align = align
         self.header = header
@@ -58,7 +66,18 @@ class Fld:
         self.fromStr = fromStr
         self.jId = jId
         self.isKey = isKey
-        #  The fld does not have a header like iskey.
+        self.isDom = isDom
+        self.isDict = isDict
+
+    def getStr(self, size) -> str:
+        match size:
+            case 0: return self.jId
+            case 1: return self.shortHeader
+            case 2: return self.header
+
+    def __repr__(self) -> str:
+        txt = "Fld: {}".format(self.jId)
+        return txt
 
     def __eq__(self, o):
         return o is self

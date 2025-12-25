@@ -191,7 +191,7 @@ class Paths:
         alarmsTableGui = Table(
             win,
             alarmsFrame,
-            pathFlds.path,
+            pathFlds.pathJs,
             alarmsFlds)
         alarmsTableGui.mainFrame.pack()
         bigsFrame, _ = addWinMenuItem(win,
