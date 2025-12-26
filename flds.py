@@ -12,165 +12,115 @@ class flds:
                "Path",
                "Path",
                str,
-               str,
-               "w",
                isKey=True)
     viewId = Fld("viewId", "View ID", "View ID",
-                 str, str, "w",
-                 isKey=True)
+                 str, isKey=True)
 
     view = Fld("view", "View", "View",
-               str, str, "w"
+               str
                )
 
     dispId = Fld("dispId", "Display ID", "Dis. ID",
-                 str, str, "w",
+                 str,
                  isKey=True
                  )
 
     minPer = Fld("minPeriod",
                  "Min Period",
                  "Min Per",
-                 str,
-                 int,
-                 "e"
+                 int
                  )
     dec = Fld("decimals",
               "Decimals",
               "Dec.",
-              str,
-              int,
-              "e")
+              int
+              )
     label = Fld("label",
                 "Label",
                 "Label",
-                str,
-                str,
-                "w")
+                str
+                )
     skUnit = Fld("units",
                  "Signal k Unit",
                  "Sk Unit",
-                 units.shortTxt,
-                 units.noShort,
-                 "w",
+                 int,
+                 toStr=units.shortTxt,
+                 fromStr=units.noShort,
                  isDom=True)
     dpUnit = Fld("dispUnits",
                  "Display Unit",
                  "Dp Unit",
-                 units.shortTxt,
-                 units.noShort,
-                 "w",
+                 int,
+                 toStr=units.shortTxt,
+                 fromStr=units.noShort,
                  isDom=True)
     bufSize = Fld("bufSize",
                   "Buffer Size",
                   "Buf Size",
-                  str,
-                  int,
-                  "e")
+                  int
+                  )
     bufFreq = Fld("bufFreq",
                   "Buffer Frequence",
                   "Buf Freq",
-                  str,
-                  int,
-                  "e")
+                  int
+                  )
     min = Fld("min",
               "Min Value",
               "Min",
-              str,
-              float,
-              "e")
+              float
+              )
     max = Fld("max",
               "Max Value",
               "Max",
-              str,
-              float,
-              "e")
+              float
+              )
     limit = Fld("limit",
                 "Limit",
                 "limit",
-                str,
-                int,
-                "e")
+                int
+                )
     pos = Fld("pos",
               "Position",
               "Pos",
-              str,
-              int,
-              "e")
+              int
+              )
     disable = Fld("isDisable",
                   "Disable",
                   "Disable",
-                  str,
-                  bool,
-                  "w")
+                  bool
+                  )
     addr = Fld("addr",
                "Address",
                "Addr",
-               str,
-               str,
-               "w")
+               str
+               )
     broadCP = Fld("broadcastPort",
                   "Broadcast Port",
                   "BC Port",
-                  str,
-                  int,
-                  "w")
+                  int
+                  )
     intface = Fld("interface",
                   "Wifi Interface",
                   "Wifi",
-                  str,
-                  str,
-                  "w")
+                  str)
     dissub = Fld("disableSubServer",
                  "Disable Subscriber Server",
                  "Dis Sub",
-                 str,
-                 bool,
-                 "w")
+                 bool
+                 )
 
 
 class fldsDict:
 
-    conf = Fld("conf", "Server Configuration", "Conf",
-               json.dumps, json.loads,
-               "w",
-               isDict=True
-               )
-    paths = Fld("paths", "Paths", "Paths",
-                json.dumps, json.loads,
-                "w",
-                isDict=True
-                )
-    bigs = Fld("bigs", "Bigs", "Bigs",
-               json.dumps, json.loads,
-               "w",
-               isDict=True
-               )
-    alarms = Fld("alarms", "Alarms", "Alarms",
-                 json.dumps, json.loads,
-                 "w",
-                 isDict=True
-                 )
-    tabs = Fld("tabs", "Tabs", "Tabs",
-               json.dumps, json.loads,
-               "w",
-               isDict=True
-               )
-    poss = Fld("poss", "Positions", "Poss",
-               json.dumps, json.loads,
-               "w",
-               isDict=True
-               )
-    displays = Fld("displays", "Displays", "Displays",
-                   json.dumps, json.loads,
-                   "w",
-                   isDict=True
-                   )
-    macs = Fld("macs", "MAC Addresses", "MACs",
-               json.dumps, json.loads,
-               "w",
-               isDict=True
-               )
+    conf = Fld("conf", "Server Configuration", "Conf", dict)
+
+    paths = Fld("paths", "Paths", "Paths", dict)
+    bigs = Fld("bigs", "Bigs", "Bigs", dict)
+    alarms = Fld("alarms", "Alarms", "Alarms", dict)
+    tabs = Fld("tabs", "Tabs", "Tabs", dict)
+    poss = Fld("poss", "Positions", "Poss", dict)
+    displays = Fld("displays", "Displays", "Displays", dict)
+    macs = Fld("macs", "MAC Addresses", "MACs", dict)
 
 
 class tabs:

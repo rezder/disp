@@ -318,6 +318,7 @@ class Config:
         #  That is properly why keyflds should be on distFld
         # could also change the path str function to ignore
         # key flds without key data.
+        # isKey should be on tab fld
         el = val.refCheck(bigsObj, bigsPtr, pathsPtr, pathsObj)
         errList.extend(el)
 

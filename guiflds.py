@@ -1,6 +1,6 @@
 import tkinter as tk
 import math
-
+import json
 from gui import BORDER_COLOR_ERR as BCE
 import empty
 
@@ -52,22 +52,31 @@ class Fld:
                  jId: str,
                  header: str,
                  shortHeader: str,
-                 toStr,
-                 fromStr,
-                 align: str,
+                 fType: type,
+                 toStr=None,
+                 fromStr=None,
                  isKey: bool = False,
-                 isDict: bool = False,  # Maybe add keyfld and move isKey to def
                  isDom: bool = False  # Not all dict is a table and have a key
                  ):
-        self.align = align
         self.header = header
         self.shortHeader = shortHeader
+        self.fType = fType
         self.toStr = toStr
         self.fromStr = fromStr
+        if toStr is None:
+            self.toStr = str
+            self.fromStr = fType
+        if fType == dict:
+            self.isDict = True
+            if self.toStr is None:
+                self.toStr = json.dumps
+                self.fromStr = json.loads
+        self.align = "w"
+        if fType in [float, int] and not isDom:
+            self.align = "e"
         self.jId = jId
         self.isKey = isKey
         self.isDom = isDom
-        self.isDict = isDict
 
     def getStr(self, size) -> str:
         match size:
