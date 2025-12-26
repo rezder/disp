@@ -55,8 +55,8 @@ class Fld:
                  fType: type,
                  toStr=None,
                  fromStr=None,
-                 isKey: bool = False,
-                 isDom: bool = False  # Not all dict is a table and have a key
+                 isKey: bool = False,  # used on key and dict flds
+                 isDom: bool = False
                  ):
         self.header = header
         self.shortHeader = shortHeader
@@ -66,6 +66,7 @@ class Fld:
         if toStr is None:
             self.toStr = str
             self.fromStr = fType
+        self.isDict = False
         if fType == dict:
             self.isDict = True
             if self.toStr is None:

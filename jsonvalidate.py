@@ -15,13 +15,13 @@ def refCheck(obj: dict,
         txt = "{}:{} is missing from {}"
         for key, row in obj.items():
             rv = None
-            if refPtr.lastFld.isKey:
+            if refPtr.lastFld.isDict:
                 rv = key
             else:
                 rv = row[refPtr.lastFld.jId]
             if rv is not None:  # Need value check first
                 if rv not in tabObj.keys():
-                    if refPtr.lastFld.isKey:
+                    if refPtr.lastFld.isDict:
                         errPtr = ErrPtr(refPtr + key, None, kTxt,
                                         isVal=False, ref=tabPtr)
                     else:

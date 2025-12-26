@@ -27,24 +27,21 @@ class Ptr:
     def isTab(self) -> bool:
         res = False
         for ix in reversed(range(len(self.flds))):
-            if self.flds[ix].isKey:
-                res = True
-                break
-            elif self.flds[ix].isDict:
-                res = False
+            if self.flds[ix].isDict:
+                if self.flds[ix].isKey:
+                    res = True
                 break
         return res
 
     def getValue(self, jsonObj: dict):
-        if self.lastFld.isKey or self.lastFld.isDict:
+        if self.lastFld.isDict:
             raise Exception("No field pointer: {}".format(self.lastFld.jId))
         keyIx = 0
         for f in self.flds:
-            if f.isKey:
+            jsonObj = jsonObj[f.jId]
+            if f.isDict and f.isKey:
                 jsonObj = jsonObj[self.keys[keyIx]]
                 keyIx = keyIx + 1
-            else:
-                jsonObj = jsonObj[f.jId]
 
         return jsonObj
 
@@ -53,23 +50,20 @@ class Ptr:
             raise Exception("No row pointer {}".format(self.lastFld.jId))
         keyIx = 0
         for f in self.flds:
-            if f.isKey:
+            jsonObj = jsonObj[f.jId]
+            if f.isDict and f.isKey:
                 jsonObj = jsonObj[self.keys[keyIx]]
-            else:
-                jsonObj = jsonObj[f.jId]
 
         return jsonObj
 
     def getJsonObj(self, jsonObj: dict) -> dict:
-        if not self.lastFld.isDict:
+        if not self.lastFld.isDict and self.lastFld.isKey:
             raise Exception("No object pointer")
         keyIx = 0
         for f in self.flds:
-            if f.isKey:
+            jsonObj = jsonObj[f.jId]
+            if f.isDict and f.isKey:
                 jsonObj = jsonObj[self.keys[keyIx]]
-            else:
-                jsonObj = jsonObj[f.jId]
-
         return jsonObj
 
     def path(self) -> str:
@@ -77,7 +71,9 @@ class Ptr:
         keyIx = 0
         for f in self.flds:
             res = res + f.shortHeader
-            if f.isKey and keyIx < len(self.keys):
+            if f.isDict and f.isKey and keyIx < len(self.keys):
+                res = res + "->"
+                res = res + f.shortHeader[:-1]
                 res = res + ":"
                 res = res + self.keys[keyIx]
                 keyIx = keyIx+1

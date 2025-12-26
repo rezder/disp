@@ -114,13 +114,14 @@ class fldsDict:
 
     conf = Fld("conf", "Server Configuration", "Conf", dict)
 
-    paths = Fld("paths", "Paths", "Paths", dict)
-    bigs = Fld("bigs", "Bigs", "Bigs", dict)
-    alarms = Fld("alarms", "Alarms", "Alarms", dict)
-    tabs = Fld("tabs", "Tabs", "Tabs", dict)
-    poss = Fld("poss", "Positions", "Poss", dict)
-    displays = Fld("displays", "Displays", "Displays", dict)
-    macs = Fld("macs", "MAC Addresses", "MACs", dict)
+    paths = Fld("paths", "Paths", "Paths", dict, isKey=True)
+    # isKey could be replaced with keyFld
+    bigs = Fld("bigs", "Bigs", "Bigs", dict, isKey=True)
+    alarms = Fld("alarms", "Alarms", "Alarms", dict, isKey=True)
+    tabs = Fld("tabs", "Tabs", "Tabs", dict, isKey=True)
+    poss = Fld("poss", "Positions", "Poss", dict, isKey=True)
+    displays = Fld("displays", "Displays", "Displays", dict, isKey=True)
+    macs = Fld("macs", "MAC Addresses", "MACs", dict, isKey=True)
 
 
 class tabs:

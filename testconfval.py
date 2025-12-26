@@ -17,7 +17,8 @@ def test(conf):
 
 
 def main():
-    conf = Config(isDefault=True)
+    conf = Config(isDefault=False)  # TODO change to TRUE for stable results
+    #  TODO make test conf with errrors filename is hardcoded in init
     test(conf)
 
 
