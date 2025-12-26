@@ -96,7 +96,7 @@ class Config:
                 }
             },
             "tabs": {
-                "None": {},
+                "None": {"poss": {}},
                 "Default": {"poss": {
                     "environment.depth.belowTransducer": {"pos": 0},
                     "navigation.speedOverGround": {"pos": 1},
@@ -283,52 +283,100 @@ class Config:
     def validate(self) -> str:
         errList: list[ErrPtr] = list()
         # =============  Conf =====================
-        flds = [fd.paths, fd.alarms, fd.bigs, fd.tabs,
-                fd.displays, fd.macs, ff.broadCP,
-                ff.intface, ff.dissub, ff.limit]
-        optFlds = []
-        confPtr = Ptr([fd.conf], [])
-        el = val.missExtFlds(self.conf, confPtr, flds, optFlds)
+        conFlds = [fd.paths, fd.alarms, fd.bigs, fd.tabs,
+                   fd.displays, fd.macs, ff.broadCP,
+                   ff.intface, ff.dissub, ff.limit]
+        conOptFlds = []
+        confPtr = Ptr([fd.conf])
+        confObj = self.conff[fd.conf.jId]
+
+        el = val.missExtFlds(confObj, confPtr, conFlds, conOptFlds)
         errList.extend(el)
 
         # =============  Paths =====================
-        joPaths = self.conf[fd.paths.jId]
-        # keyFld = ff.path
-        # dictFld = fd.paths
-        flds = [ff.minPer, ff.dec, ff.skUnit, ff.dpUnit,
-                ff.label, ff.bufSize, ff.bufFreq, ff.limit]
-        optFlds = []
-        pathsPtr = Ptr([fd.paths, ff.path], [])
-        el = val.missExtFlds(joPaths, pathsPtr, flds, optFlds)
+        pathsObj = self.conf[fd.paths.jId]
+        pathsPtr = Ptr([fd.paths, ff.path])
+
+        pathsFlds = [ff.minPer, ff.dec, ff.skUnit, ff.dpUnit,
+                     ff.label, ff.bufSize, ff.bufFreq, ff.limit]
+        pathsOptFlds = []
+
+        el = val.missExtFlds(pathsObj, pathsPtr, pathsFlds, pathsOptFlds)
         errList.extend(el)
 
         # ============= Bigs =====================
-        joBigs = self.conf[fd.bigs.jId]
-        # keyFld = ff.path
-        # dictFld = fd.bigs
-        flds = [ff.limit, ff.dpUnit, ff.dec]
-        optFlds = []
-        bigsPtr = Ptr([fd.bigs, ff.path], [])
-        el = val.missExtFlds(joBigs, bigsPtr, flds, optFlds)
+        bigsPtr = Ptr([fd.bigs, ff.path])
+        bigsObj = self.conf[fd.bigs.jId]
+        bigsFlds = [ff.limit, ff.dpUnit, ff.dec]
+        bigsOptFlds = []
+
+        el = val.missExtFlds(bigsObj, bigsPtr, bigsFlds, bigsOptFlds)
         errList.extend(el)
-        pathsPtr = Ptr([fd.paths], [])  # no keyfld on dist ptr ??
-        el = val.refCheck(joBigs, bigsPtr, pathsPtr, joPaths)
+
+        pathsPtr = Ptr([fd.paths])
+        # no keyfld on dist ptr ??
+        #  That is properly why keyflds should be on distFld
+        # could also change the path str function to ignore
+        # key flds without key data.
+        el = val.refCheck(bigsObj, bigsPtr, pathsPtr, pathsObj)
         errList.extend(el)
 
         # ============= Alarms =====================
-        joAlarms = self.conf[fd.alarms.jId]
-        #  keyFld = ff.path
-        #  dictFld = fd.alarms
-        flds = []
-        optFlds = [ff.max, ff.min]
+        alarmsPtr = Ptr([fd.alarms, ff.path])
+        alarmsObj = self.conf[fd.alarms.jId]
+        alarmsflds = []
+        alarmsOptFlds = [ff.max, ff.min]
 
-        alarmsPtr = Ptr([fd.alarms, ff.path], [])
-        el = val.missExtFlds(joAlarms, alarmsPtr, flds, optFlds)
+        el = val.missExtFlds(alarmsObj, alarmsPtr, alarmsflds, alarmsOptFlds)
         errList.extend(el)
 
-        pathsPtr = Ptr([fd.paths], [])  # no keyfld on dist ptr ??
-        el = val.refCheck(joAlarms, alarmsPtr, pathsPtr, joBigs)
-        errList.extend(el)  # should be joPaths just for error TODO
+        pathsPtr = Ptr([fd.paths])  # no keyfld on dist ptr ??
+
+        el = val.refCheck(alarmsObj, alarmsPtr, pathsPtr, bigsObj)
+        errList.extend(el)  # should be pathsObj just for error TODO
+
+        # =============  Views  =====================
+        viewsPtr = Ptr([fd.tabs, ff.viewId])
+        viewsObj: dict = self.conf[fd.tabs.jId]
+        viewsflds = [fd.poss]
+        viewsOptFlds = []
+        el = val.missExtFlds(viewsObj, viewsPtr, viewsflds, viewsOptFlds)
+        errList.extend(el)
+        possPtr = viewsPtr+fd.poss+ff.path
+        possFlds = [ff.pos]
+        possOptFlds = []
+        pathsPtr = Ptr([fd.paths])  # no keyfld on dist ptr ??
+
+        for key, row in viewsObj.items():
+            possObj = row[fd.poss.jId]
+            pp = possPtr+key
+            el = val.missExtFlds(possObj, pp, possFlds, possOptFlds)
+            errList.extend(el)
+            el = val.refCheck(possObj, pp, pathsPtr, pathsObj)
+            errList.extend(el)
+        # =============  displays  =====================
+        dispsPtr = Ptr([fd.displays, ff.dispId])
+        dispsObj: dict = self.conf[fd.displays.jId]
+        dispsflds = [ff.view]
+        dispsOptFlds = []
+        el = val.missExtFlds(dispsObj, dispsPtr, dispsflds, dispsOptFlds)
+        errList.extend(el)
+        viewsPtr = Ptr([fd.tabs])  # no keyfld on dist ptr ??
+
+        el = val.refCheck(dispsObj, dispsPtr, viewsPtr, viewsObj)
+        errList.extend(el)
+
+        # =============  macs  =====================
+        macsPtr = Ptr([fd.macs, ff.dispId])
+        macsObj: dict = self.conf[fd.macs.jId]
+        macsflds = [ff.addr, ff.disable]
+        macsOptFlds = []
+        el = val.missExtFlds(macsObj, macsPtr, macsflds, macsOptFlds)
+        errList.extend(el)
+        pathsPtr = Ptr([fd.paths])  # no keyfld on dist ptr ??
+
+        el = val.refCheck(macsObj, macsPtr, pathsPtr, pathsObj)
+        errList.extend(el)
 
         # =============  End  =====================
         errTxt = ""

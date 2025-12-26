@@ -41,7 +41,6 @@ def missExtFlds(obj: dict,
                 flds: list[Fld],
                 optFlds: list[Fld]) -> list[ErrPtr]:
     errPtrs: list[ErrPtr] = list()
-
     allFlds = list()
     for f in flds:
         allFlds.append(f.jId)
@@ -49,7 +48,6 @@ def missExtFlds(obj: dict,
         allFlds.append(f.jId)
     mTxt = "Field {} is missing"
     uTxt = "{} has a unkown field: {}"
-    print(objPtr)
     if objPtr.lastFld.isKey:
         for k, d in obj.items():
             for f in flds:

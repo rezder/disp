@@ -3,7 +3,7 @@ from typing import Self
 
 
 class Ptr:
-    def __init__(self, flds: list[Fld], keys: list[str]):
+    def __init__(self, flds: list[Fld], keys: list[str] = []):
         self.flds = flds
         self.keys = keys
         self.lastFld = flds[-1]
@@ -27,9 +27,6 @@ class Ptr:
     def isTab(self) -> bool:
         res = False
         for ix in reversed(range(len(self.flds))):
-            print(ix)
-            print(self.flds[ix])
-            print(self.flds[ix].isKey)
             if self.flds[ix].isKey:
                 res = True
                 break

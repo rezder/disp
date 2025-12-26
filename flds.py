@@ -97,12 +97,18 @@ class flds:
               str,
               int,
               "e")
-    dis = Fld("dis",
-              "Disable",
-              "Dis",
-              str,
-              bool,
-              "w")
+    disable = Fld("isDisable",
+                  "Disable",
+                  "Disable",
+                  str,
+                  bool,
+                  "w")
+    addr = Fld("addr",
+               "Address",
+               "Addr",
+               str,
+               str,
+               "w")
     broadCP = Fld("broadcastPort",
                   "Broadcast Port",
                   "BC Port",
@@ -255,5 +261,5 @@ class paths:
                       linkDef=FldLink(flds.dpUnit, flds.path),
                       options=None,
                       defaultVal=units.m)
-    dis = FldDef(flds.dis, 1, 1, gf.FldBool,
+    dis = FldDef(flds.disable, 1, 1, gf.FldBool,
                  defaultVal=False)
