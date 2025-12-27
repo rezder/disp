@@ -68,3 +68,60 @@ def missExtFlds(obj: dict,
                     errPtr = ErrPtr(objPtr, fid, uTxt)
                     errPtrs.append(errPtr)
     return errPtrs
+
+
+def validateFlds(obj: dict,
+                 objPtr: Ptr,
+                 flds: list[Fld],
+                 optFlds: list[Fld]) -> list[ErrPtr]:
+    errPtrs: list[ErrPtr] = list()
+    allFlds = list(flds)
+    allFlds.extend(optFlds)
+    mTxt = "Field: {} contain illegal value: {}"
+    if objPtr.lastFld.isKey:
+        for key, row in obj.items():
+            if not keyCheck(key):
+                errPtr = ErrPtr(objPtr + key, key, mTxt, isVal=True)
+                errPtrs.append(errPtr)
+
+            for f in flds:
+                if f.jId in row.keys():
+                    value = row[f.jId]
+                    txtValue = "{}".format(value)
+                    if not valueCheck(value, f):
+                        errPtr = ErrPtr(objPtr + key + f,
+                                        txtValue, mTxt, isVal=False)
+                        errPtrs.append(errPtr)
+
+    else:
+        for f in flds:
+            if f.jId in obj.keys():
+                value = obj[f.jId]
+                txtValue = "{}".format(value)
+                if not valueCheck(value, f):
+                    errPtr = ErrPtr(objPtr + f,
+                                    txtValue, mTxt, isVal=False)
+                    errPtrs.append(errPtr)
+
+    return errPtrs
+
+
+def valueCheck(val, fld: Fld) -> bool:
+    isOk = True
+    if type(val) is not fld.fType:
+        isOk = False
+    elif fld.isDom:
+        try:
+            fld.toStr(val)
+        except KeyError:
+            isOk = False
+    return isOk
+
+
+def keyCheck(key) -> bool:
+    isOk = True
+    if type(key) is not str:
+        isOk = False
+    elif len(key) == 0:
+        isOk = False
+    return isOk

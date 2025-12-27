@@ -42,6 +42,13 @@ def compJson(json1: dict, json2: dict) -> bool:
 class Fld:
 
     def txtList(flds: list, size: int) -> str:
+        """
+        Returns a nice list flds as a string.
+        :param flds: The fld list
+        :param size: The size of headers used
+        0 1 2 2 biggest
+        :return: udpDisplay/bleDisplay/None
+        """
         tl = ""
         for f in flds:
             tl = tl + f.getStr(size)+","

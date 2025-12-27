@@ -285,23 +285,26 @@ class Config:
         # =============  Conf =====================
         conFlds = [fd.paths, fd.alarms, fd.bigs, fd.tabs,
                    fd.displays, fd.macs, ff.broadCP,
-                   ff.intface, ff.dissub, ff.limit]
-        conOptFlds = []
+                   ff.intface, ff.dissub]
+        confOptFlds = []
         confPtr = Ptr([fd.conf])
         confObj = self.conff[fd.conf.jId]
 
-        el = val.missExtFlds(confObj, confPtr, conFlds, conOptFlds)
+        el = val.missExtFlds(confObj, confPtr, conFlds, confOptFlds)
         errList.extend(el)
-
+        el = val.validateFlds(confObj, confPtr, conFlds, confOptFlds)
+        errList.extend(el)
         # =============  Paths =====================
         pathsObj = self.conf[fd.paths.jId]
         pathsPtr = Ptr([fd.paths])
 
         pathsFlds = [ff.minPer, ff.dec, ff.skUnit, ff.dpUnit,
-                     ff.label, ff.bufSize, ff.bufFreq, ff.limit]
+                     ff.label, ff.bufSize, ff.bufFreq]
         pathsOptFlds = []
 
         el = val.missExtFlds(pathsObj, pathsPtr, pathsFlds, pathsOptFlds)
+        errList.extend(el)
+        el = val.validateFlds(pathsObj, pathsPtr, pathsFlds, pathsOptFlds)
         errList.extend(el)
 
         # ============= Bigs =====================
@@ -312,8 +315,9 @@ class Config:
 
         el = val.missExtFlds(bigsObj, bigsPtr, bigsFlds, bigsOptFlds)
         errList.extend(el)
+        el = val.validateFlds(bigsObj, bigsPtr, bigsFlds, bigsOptFlds)
+        errList.extend(el)
 
-        pathsPtr = Ptr([fd.paths])
         el = val.refCheck(bigsObj, bigsPtr, pathsPtr, pathsObj)
         errList.extend(el)
 
@@ -325,11 +329,11 @@ class Config:
 
         el = val.missExtFlds(alarmsObj, alarmsPtr, alarmsflds, alarmsOptFlds)
         errList.extend(el)
+        el = val.validateFlds(alarmsObj, alarmsPtr, alarmsflds, alarmsOptFlds)
+        errList.extend(el)
 
-        pathsPtr = Ptr([fd.paths])
-
-        el = val.refCheck(alarmsObj, alarmsPtr, pathsPtr, bigsObj)
-        errList.extend(el)  # should be pathsObj just for error TODO
+        el = val.refCheck(alarmsObj, alarmsPtr, pathsPtr, pathsObj)
+        errList.extend(el)
 
         # =============  Views  =====================
         viewsPtr = Ptr([fd.tabs])
@@ -338,16 +342,21 @@ class Config:
         viewsOptFlds = []
         el = val.missExtFlds(viewsObj, viewsPtr, viewsflds, viewsOptFlds)
         errList.extend(el)
+        el = val.validateFlds(viewsObj, viewsPtr, viewsflds, viewsOptFlds)
+        errList.extend(el)
+
         possPtr = viewsPtr+fd.poss
         possFlds = [ff.pos]
         possOptFlds = []
-        pathsPtr = Ptr([fd.paths])
 
         for key, row in viewsObj.items():
             possObj = row[fd.poss.jId]
             pp = possPtr+key
             el = val.missExtFlds(possObj, pp, possFlds, possOptFlds)
             errList.extend(el)
+            el = val.validateFlds(possObj, pp, possFlds, possOptFlds)
+            errList.extend(el)
+
             el = val.refCheck(possObj, pp, pathsPtr, pathsObj)
             errList.extend(el)
         # =============  displays  =====================
@@ -357,6 +366,9 @@ class Config:
         dispsOptFlds = []
         el = val.missExtFlds(dispsObj, dispsPtr, dispsflds, dispsOptFlds)
         errList.extend(el)
+        el = val.validateFlds(dispsObj, dispsPtr, dispsflds, dispsOptFlds)
+        errList.extend(el)
+
         viewsPtr = Ptr([fd.tabs])
         el = val.refCheck(dispsObj, dispsPtr+ff.view, viewsPtr, viewsObj)
         errList.extend(el)
@@ -368,7 +380,8 @@ class Config:
         macsOptFlds = []
         el = val.missExtFlds(macsObj, macsPtr, macsflds, macsOptFlds)
         errList.extend(el)
-        pathsPtr = Ptr([fd.paths])
+        el = val.validateFlds(macsObj, macsPtr, macsflds, macsOptFlds)
+        errList.extend(el)
 
         el = val.refCheck(macsObj, macsPtr, dispsPtr, dispsObj)
         errList.extend(el)
