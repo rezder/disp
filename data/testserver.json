@@ -74,7 +74,6 @@
     },
     "alarms": {
       "environment.depth.belowTransducer": {
-        "min": 5.0
       }
     },
     "tabs": {

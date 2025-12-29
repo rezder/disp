@@ -296,6 +296,26 @@ class Config:
         return errTxt
 
 
+def valPaths(path, ptr, paths) -> list[ErrPtr]:
+    errs = list()
+    if path[ff.bufFreq.jId] > path[ff.bufSize.jId]:
+        v = path[ff.bufFreq.jId]
+        txt = "{}: {} should not be bigger than {}"
+        err = ErrPtr(ptr+ff.bufFreq, v, txt,
+                     ref=ptr+ff.bufSize)
+        errs.append(err)
+    return errs
+
+
+def valAlarms(alarm, ptr, alarms) -> list[ErrPtr]:
+    errs = list()
+    if len(alarm) == 0:
+        txt = "{} has no alarms"
+        err = ErrPtr(ptr, None, txt, isVal=False)
+        errs.append(err)
+    return errs
+
+
 def createJsonDef() -> dict[str, JsoDef]:
     defs: dict[str, JsoDef] = dict()
     cf = JsoDef(fd.conf)
@@ -310,7 +330,7 @@ def createJsonDef() -> dict[str, JsoDef]:
     cf.addFld(ff.dissub, empty.ok)
     defs[cf.idFld.jId] = cf
 
-    pf = JsoDef(fd.paths)
+    pf = JsoDef(fd.paths, valPaths)
     pf.addFld(ff.path, empty.noEmpty, isKey=True)
     pf.addFld(ff.minPer, empty.noZero)
     pf.addFld(ff.dec, empty.ok)
@@ -329,7 +349,7 @@ def createJsonDef() -> dict[str, JsoDef]:
     bf.addFld(ff.dec, empty.ok)
     defs[bf.idFld.jId] = bf
 
-    af = JsoDef(fd.alarms)
+    af = JsoDef(fd.alarms, valAlarms)
     af.addFld(ff.path, empty.noEmpty, isKey=True, refPtr=pathsPtr)
     af.addFld(ff.min, empty.noNaN, isMan=False)
     af.addFld(ff.max, empty.noNaN, isMan=False)

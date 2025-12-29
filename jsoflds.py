@@ -27,7 +27,7 @@ class ObjFld():
 
 class JsoDef:
 
-    def __init__(self, idFld: Fld):
+    def __init__(self, idFld: Fld, valCb=None):
         self.idFld = idFld
         self.isTab = idFld.isKey
         self.allFlds: list[ObjFld] = list()
@@ -35,6 +35,7 @@ class JsoDef:
         self.flds: list[ObjFld] = list()
         self.keyFld = None
         self.refs: list[ObjFld] = list()
+        self.cb = valCb
 
     def addFld(self, fld: Fld,
                empty: int = empty.ok,
@@ -110,6 +111,14 @@ class JsoDef:
                         errPtr = ErrPtr(curPtr+rf.fld,
                                         rv, mTxt, ref=rf.refPtr)
                         errPtrs.append(errPtr)
+
+        if len(errPtrs) == 0 and self.cb is not None:
+            if self.isTab:
+                errs = self.cb(curObj, curPtr, curPtr.getRows(obj))
+                errPtrs.extend(errs)
+            else:
+                errs = self.cb(curObj, curPtr)
+                errPtrs.extend(errs)
 
         return errPtrs
 
