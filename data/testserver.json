@@ -1,0 +1,165 @@
+{
+  "conf": {
+    "paths": {
+      "environment.depth.belowTransducer": {
+        "minPeriod": 1000,
+        "decimals": 1,
+        "units": 0,
+        "dispUnits": 0,
+        "label": "DBT",
+        "bufSize": 0,
+        "bufFreq": 0
+      },
+      "navigation.speedOverGround": {
+        "minPeriod": 500,
+        "decimals": 1,
+        "units": 10,
+        "dispUnits": 11,
+        "label": "SOG",
+        "bufSize": 4,
+        "bufFreq": 4
+      },
+      "navigation.courseOverGroundTrue": {
+        "minPeriod": 500,
+        "decimals": 0,
+        "units": 20,
+        "dispUnits": 21,
+        "label": "COG",
+        "bufSize": 4,
+        "bufFreq": 4
+      },
+      "navigation.speedThroughWater": {
+        "minPeriod": 2000,
+        "decimals": 1,
+        "units": 10,
+        "dispUnits": 11,
+        "label": "STW",
+        "bufSize": 0,
+        "bufFreq": 0
+      },
+      "navigation.courseRhumbline.crossTrackError": {
+        "minPeriod": 4000,
+        "decimals": 0,
+        "units": 0,
+        "dispUnits": 0,
+        "label": "XTE",
+        "bufSize": 0,
+        "bufFreq": 0
+      },
+      "navigation.courseRhumbline.nextPoint.bearingTrue": {
+        "minPeriod": 500,
+        "decimals": 0,
+        "units": 20,
+        "dispUnits": 21,
+        "label": "BEA",
+        "bufSize": 4,
+        "bufFreq": 4
+      },
+      "navigation.courseRhumbline.nextPoint.distance": {
+        "minPeriod": 4000,
+        "decimals": 0,
+        "units": 0,
+        "dispUnits": 0,
+        "label": "",
+        "bufSize": 0,
+        "bufFreq": 0
+      }
+    },
+    "bigs": {
+      "navigation.courseRhumbline.nextPoint.distance": {
+        "limit": 999,
+        "dispUnits": 1,
+        "decimals": 1
+      }
+    },
+    "alarms": {
+      "environment.depth.belowTransducer": {
+        "min": 5.0
+      }
+    },
+    "tabs": {
+      "Default": {
+        "poss": {
+          "environment.depth.belowTransducer": {
+            "pos": 0
+          },
+          "navigation.speedOverGround": {
+            "pos": 1
+          },
+          "navigation.courseOverGroundTrue": {
+            "pos": 2
+          },
+          "navigation.speedThroughWaterXXX": {
+            "pos": 3
+          }
+        }
+      },
+      "Route1": {
+        "poss": {
+          "environment.depth.belowTransducer": {
+            "pos": 0
+          },
+          "navigation.courseOverGroundTrue": {
+            "pos": 1
+          },
+          "navigation.courseRhumbline.crossTrackError": {
+            "pos": 2
+          },
+          "navigation.courseRhumbline.nextPoint.bearingTrue": {
+            "pos": 3
+          }
+        }
+      },
+      "Route2": {
+        "poss": {
+          "environment.depth.belowTransducer": {
+            "pos": 0
+          },
+          "navigation.courseRhumbline.crossTrackError": {
+            "pos": 1
+          },
+          "navigation.courseRhumbline.nextPoint.bearingTrue": {
+            "pos": 2
+          },
+          "navigation.courseRhumbline.nextPoint.distance": {
+            "pos": 3
+          }
+        }
+      },
+      "None": {
+        "poss": {}
+      }
+    },
+    "displays": {
+      "b1": {
+        "view": "Default"
+      },
+      "1": {
+        "view": "Default"
+      },
+      "b2": {
+        "view": "Default"
+      },
+      "b3": {
+        "view": "Default"
+      }
+    },
+    "macs": {
+      "b1": {
+        "addr": "f0:f5:bd:76:91:9d",
+        "isDisable": true
+      },
+      "b2": {
+        "addr": "f0:f5:bd:76:96:c1",
+        "isDisable": true
+      },
+      "b3": {
+        "addr": "24:ec:4a:2c:50:09",
+        "isDisable": false
+      }
+    },
+    "broadcastPort": "9090",
+    "interface": "wlp2s0",
+    "disableSubServer": true
+  }
+}

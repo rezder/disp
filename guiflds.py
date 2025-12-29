@@ -63,6 +63,10 @@ class Fld:
                  toStr=None,
                  fromStr=None,
                  isKey: bool = False,  # used on key and dict flds
+                 # TODO isKey on keyFld should be moved to def
+                 # isKey on dict renamed to is Tab
+                 # will be a problem jsoDef just run keyfld with
+                 # ref on its own
                  isDom: bool = False
                  ):
         self.header = header

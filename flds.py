@@ -4,7 +4,6 @@ import empty
 from guiflds import Fld, FldLink
 import guiflds as gf
 from guiflddefs import FldDef
-import json
 
 
 class flds:
@@ -115,7 +114,6 @@ class fldsDict:
     conf = Fld("conf", "Server Configuration", "Conf", dict)
 
     paths = Fld("paths", "Paths", "Paths", dict, isKey=True)
-    # isKey could be replaced with keyFld
     bigs = Fld("bigs", "Bigs", "Bigs", dict, isKey=True)
     alarms = Fld("alarms", "Alarms", "Alarms", dict, isKey=True)
     tabs = Fld("tabs", "Tabs", "Tabs", dict, isKey=True)

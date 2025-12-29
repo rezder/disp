@@ -3,10 +3,9 @@ import os
 import netifaces
 from flds import flds as ff
 from flds import fldsDict as fd
-import jsonvalidate as val
 from jsonptr import Ptr, ErrPtr
-from flds import flds as ff
-from flds import fldsDict as fd
+from jsoflds import JsoDef, walkObj
+import empty
 
 
 class Config:
@@ -139,6 +138,7 @@ class Config:
             self.conff = Config.load(self.fileName)
             self.conf = self.conff[fd.conf.jId]
         self.defaultTab = "None"
+        self.jsoDefs = createJsonDef()
 
     #  ##### Displays #################
 
@@ -282,111 +282,10 @@ class Config:
 
     def validate(self) -> str:
         errList: list[ErrPtr] = list()
-        # =============  Conf =====================
-        conFlds = [fd.paths, fd.alarms, fd.bigs, fd.tabs,
-                   fd.displays, fd.macs, ff.broadCP,
-                   ff.intface, ff.dissub]
-        confOptFlds = []
-        confPtr = Ptr([fd.conf])
-        confObj = self.conff[fd.conf.jId]
-
-        el = val.missExtFlds(confObj, confPtr, conFlds, confOptFlds)
-        errList.extend(el)
-        el = val.validateFlds(confObj, confPtr, conFlds, confOptFlds)
-        errList.extend(el)
-        # =============  Paths =====================
-        pathsObj = self.conf[fd.paths.jId]
-        pathsPtr = Ptr([fd.paths])
-
-        pathsFlds = [ff.minPer, ff.dec, ff.skUnit, ff.dpUnit,
-                     ff.label, ff.bufSize, ff.bufFreq]
-        pathsOptFlds = []
-
-        el = val.missExtFlds(pathsObj, pathsPtr, pathsFlds, pathsOptFlds)
-        errList.extend(el)
-        el = val.validateFlds(pathsObj, pathsPtr, pathsFlds, pathsOptFlds)
-        errList.extend(el)
-
-        # ============= Bigs =====================
-        bigsPtr = Ptr([fd.bigs])
-        bigsObj = self.conf[fd.bigs.jId]
-        bigsFlds = [ff.limit, ff.dpUnit, ff.dec]
-        bigsOptFlds = []
-
-        el = val.missExtFlds(bigsObj, bigsPtr, bigsFlds, bigsOptFlds)
-        errList.extend(el)
-        el = val.validateFlds(bigsObj, bigsPtr, bigsFlds, bigsOptFlds)
-        errList.extend(el)
-
-        el = val.refCheck(bigsObj, bigsPtr, pathsPtr, pathsObj)
-        errList.extend(el)
-
-        # ============= Alarms =====================
-        alarmsPtr = Ptr([fd.alarms])
-        alarmsObj = self.conf[fd.alarms.jId]
-        alarmsflds = []
-        alarmsOptFlds = [ff.max, ff.min]
-
-        el = val.missExtFlds(alarmsObj, alarmsPtr, alarmsflds, alarmsOptFlds)
-        errList.extend(el)
-        el = val.validateFlds(alarmsObj, alarmsPtr, alarmsflds, alarmsOptFlds)
-        errList.extend(el)
-
-        el = val.refCheck(alarmsObj, alarmsPtr, pathsPtr, pathsObj)
-        errList.extend(el)
-
-        # =============  Views  =====================
-        viewsPtr = Ptr([fd.tabs])
-        viewsObj: dict = self.conf[fd.tabs.jId]
-        viewsflds = [fd.poss]
-        viewsOptFlds = []
-        el = val.missExtFlds(viewsObj, viewsPtr, viewsflds, viewsOptFlds)
-        errList.extend(el)
-        el = val.validateFlds(viewsObj, viewsPtr, viewsflds, viewsOptFlds)
-        errList.extend(el)
-
-        possPtr = viewsPtr+fd.poss
-        possFlds = [ff.pos]
-        possOptFlds = []
-
-        for key, row in viewsObj.items():
-            possObj = row[fd.poss.jId]
-            pp = possPtr+key
-            el = val.missExtFlds(possObj, pp, possFlds, possOptFlds)
-            errList.extend(el)
-            el = val.validateFlds(possObj, pp, possFlds, possOptFlds)
-            errList.extend(el)
-
-            el = val.refCheck(possObj, pp, pathsPtr, pathsObj)
-            errList.extend(el)
-        # =============  displays  =====================
-        dispsPtr = Ptr([fd.displays])
-        dispsObj: dict = self.conf[fd.displays.jId]
-        dispsflds = [ff.view]
-        dispsOptFlds = []
-        el = val.missExtFlds(dispsObj, dispsPtr, dispsflds, dispsOptFlds)
-        errList.extend(el)
-        el = val.validateFlds(dispsObj, dispsPtr, dispsflds, dispsOptFlds)
-        errList.extend(el)
-
-        viewsPtr = Ptr([fd.tabs])
-        el = val.refCheck(dispsObj, dispsPtr+ff.view, viewsPtr, viewsObj)
-        errList.extend(el)
-
-        # =============  macs  =====================
-        macsPtr = Ptr([fd.macs])
-        macsObj: dict = self.conf[fd.macs.jId]
-        macsflds = [ff.addr, ff.disable]
-        macsOptFlds = []
-        el = val.missExtFlds(macsObj, macsPtr, macsflds, macsOptFlds)
-        errList.extend(el)
-        el = val.validateFlds(macsObj, macsPtr, macsflds, macsOptFlds)
-        errList.extend(el)
-
-        el = val.refCheck(macsObj, macsPtr, dispsPtr, dispsObj)
-        errList.extend(el)
-
-        # =============  End  =====================
+        ptrs = walkObj(self.conff, self.jsoDefs)
+        for ptr in ptrs:
+            errs = self.jsoDefs[ptr.lastFld.jId].validate(self.conff, ptr)
+            errList.extend(errs)
         errTxt = ""
         errNo = len(errList)
         if errNo != 0:
@@ -395,3 +294,67 @@ class Config:
                 errTxt = errTxt + "\n" + e.toStr()
 
         return errTxt
+
+
+def createJsonDef() -> dict[str, JsoDef]:
+    defs: dict[str, JsoDef] = dict()
+    cf = JsoDef(fd.conf)
+    cf.addFld(fd.paths, empty.noEmpty)
+    cf.addFld(fd.alarms, empty.noEmpty)
+    cf.addFld(fd.bigs, empty.noEmpty)
+    cf.addFld(fd.tabs, empty.noEmpty)
+    cf.addFld(fd.displays, empty.noEmpty)
+    cf.addFld(fd.macs, empty.noEmpty)
+    cf.addFld(ff.broadCP, empty.noZero)
+    cf.addFld(ff.intface, empty.noEmpty)
+    cf.addFld(ff.dissub, empty.ok)
+    defs[cf.idFld.jId] = cf
+
+    pf = JsoDef(fd.paths)
+    pf.addFld(ff.path, empty.noEmpty, isKey=True)
+    pf.addFld(ff.minPer, empty.noZero)
+    pf.addFld(ff.dec, empty.ok)
+    pf.addFld(ff.skUnit, empty.ok)
+    pf.addFld(ff.dpUnit, empty.ok)
+    pf.addFld(ff.label, empty.noEmpty)
+    pf.addFld(ff.bufSize, empty.ok)
+    pf.addFld(ff.bufFreq, empty.ok)
+    defs[pf.idFld.jId] = pf
+    pathsPtr = Ptr([fd.conf, fd.paths])
+
+    bf = JsoDef(fd.bigs)
+    bf.addFld(ff.path, empty.noEmpty, isKey=True, refPtr=pathsPtr)
+    bf.addFld(ff.limit, empty.noZero)
+    bf.addFld(ff.dpUnit, empty.ok)
+    bf.addFld(ff.dec, empty.ok)
+    defs[bf.idFld.jId] = bf
+
+    af = JsoDef(fd.alarms)
+    af.addFld(ff.path, empty.noEmpty, isKey=True, refPtr=pathsPtr)
+    af.addFld(ff.min, empty.noNaN, isMan=False)
+    af.addFld(ff.max, empty.noNaN, isMan=False)
+    defs[af.idFld.jId] = af
+
+    vf = JsoDef(fd.tabs)
+    vf.addFld(ff.viewId, empty.noEmpty, isKey=True)
+    vf.addFld(fd.poss, empty.ok)
+    defs[vf.idFld.jId] = vf
+    viewsPtr = Ptr([fd.conf, fd.tabs])
+
+    pf = JsoDef(fd.poss)
+    pf.addFld(ff.path, empty.noEmpty, isKey=True, refPtr=pathsPtr)
+    pf.addFld(ff.pos, empty.ok)
+    defs[pf.idFld.jId] = pf
+
+    disf = JsoDef(fd.displays)
+    disf.addFld(ff.dispId, empty.noEmpty, isKey=True)
+    disf.addFld(ff.view, empty.noEmpty, refPtr=viewsPtr)
+    defs[disf.idFld.jId] = disf
+    dispPtr = Ptr([fd.conf, fd.displays])
+
+    mf = JsoDef(fd.macs)
+    mf.addFld(ff.dispId, empty.noEmpty, isKey=True, refPtr=dispPtr)
+    mf.addFld(ff.addr, empty.noEmpty)
+    mf.addFld(ff.disable, empty.ok)
+    defs[mf.idFld.jId] = mf
+    return defs
