@@ -10,18 +10,17 @@ class flds:
     path = Fld("path",  # Maybe all should be id
                "Path",
                "Path",
-               str,
-               isKey=True)
+               str
+               )
     viewId = Fld("viewId", "View ID", "View ID",
-                 str, isKey=True)
+                 str)
 
     view = Fld("view", "View", "View",
                str
                )
 
     dispId = Fld("dispId", "Display ID", "Dis. ID",
-                 str,
-                 isKey=True
+                 str
                  )
 
     minPer = Fld("minPeriod",
@@ -113,13 +112,13 @@ class fldsDict:
 
     conf = Fld("conf", "Server Configuration", "Conf", dict)
 
-    paths = Fld("paths", "Paths", "Paths", dict, isKey=True)
-    bigs = Fld("bigs", "Bigs", "Bigs", dict, isKey=True)
-    alarms = Fld("alarms", "Alarms", "Alarms", dict, isKey=True)
-    tabs = Fld("tabs", "Tabs", "Tabs", dict, isKey=True)
-    poss = Fld("poss", "Positions", "Poss", dict, isKey=True)
-    displays = Fld("displays", "Displays", "Displays", dict, isKey=True)
-    macs = Fld("macs", "MAC Addresses", "MACs", dict, isKey=True)
+    paths = Fld("paths", "Paths", "Paths", dict, isTab=True)
+    bigs = Fld("bigs", "Bigs", "Bigs", dict, isTab=True)
+    alarms = Fld("alarms", "Alarms", "Alarms", dict, isTab=True)
+    tabs = Fld("tabs", "Tabs", "Tabs", dict, isTab=True)
+    poss = Fld("poss", "Positions", "Poss", dict, isTab=True)
+    displays = Fld("displays", "Displays", "Displays", dict, isTab=True)
+    macs = Fld("macs", "MAC Addresses", "MACs", dict, isTab=True)
 
 
 class tabs:
@@ -134,7 +133,9 @@ class paths:
                   45,
                   45,
                   gf.FldEntry,
-                  empty=empty.noEmpty)
+                  empty=empty.noEmpty,
+                  isKey=True
+                  )
     minPer = FldDef(flds.minPer,
                     10,
                     5,
@@ -199,7 +200,8 @@ class paths:
     pathJs = FldDef(flds.path, 44, 44, gf.FldOpt,
                     linkDef=None,
                     options=None,
-                    defaultVal="navigation.courseRhumbline.nextPoint.distance"
+                    defaultVal="navigation.courseRhumbline.nextPoint.distance",
+                    isKey=True
                     )
 
     labelJs = FldDef(flds.label, 4, 4, gf.FldOpt,

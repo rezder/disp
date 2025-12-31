@@ -35,7 +35,6 @@ class TestTable:
         path2, jsonObj2 = self.row.get()
         if path2 != path:
             print("failed there should be no change")
-
         if not gf.compJson(jsonObj2, self.jsonObj[path]):
             print("failed there should be no change")
 
@@ -86,7 +85,7 @@ class TestTable:
         for guiFldDef in self.row.getGuiFldDefs():
             tabFld = guiFldDef.cp()
             tabFld.fldClass = classFld
-            if tabFld.fld.isKey:
+            if tabFld.isKey:
                 sortGuiFldDef = tabFld
             tabFlds.append(tabFld)
         tab = gt.Table(self.window,

@@ -65,7 +65,7 @@ class Path:
     def show(self, path: str, pathJson: dict):
         self.clear()
         for guiFld in self.flds.values():
-            if guiFld.fld.isKey:
+            if guiFld.isKey:
                 guiFld.show(path)
             else:
                 if guiFld.id in pathJson.keys():
@@ -75,7 +75,7 @@ class Path:
         path = None
         pathJson = dict()
         for guiFld in self.flds.values():
-            if guiFld.fld.isKey:
+            if guiFld.isKey:
                 path = guiFld.get()
             else:
                 try:
@@ -142,7 +142,7 @@ class Paths:
         for guiFldDef in self.pathGui.getGuiFldDefs():
             tabFld = guiFldDef.cp()
             tabFld.fldClass = gf.FldLabel
-            if tabFld.fld.isKey:
+            if tabFld.isKey:
                 sortGuiFldDef = tabFld
             tabFlds.append(tabFld)
 

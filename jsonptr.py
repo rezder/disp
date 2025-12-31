@@ -40,7 +40,7 @@ class Ptr:
         res = False
         for ix in reversed(range(len(self.flds))):
             if self.flds[ix].isDict:
-                if self.flds[ix].isKey:
+                if self.flds[ix].isTab:
                     res = True
                 break
         return res
@@ -51,19 +51,19 @@ class Ptr:
         keyIx = 0
         for f in self.flds:
             jsonObj = jsonObj[f.jId]
-            if f.isDict and f.isKey:
+            if f.isDict and f.isTab:
                 jsonObj = jsonObj[self.keys[keyIx]]
                 keyIx = keyIx + 1
 
         return jsonObj
 
     def getRow(self, jsonObj: dict) -> dict:
-        if not self.lastFld.isKey:
+        if not self.lastFld.isTab:
             raise Exception("No row pointer {}".format(self.lastFld.jId))
         keyIx = 0
         for f in self.flds:
             jsonObj = jsonObj[f.jId]
-            if f.isDict and f.isKey:
+            if f.isDict and f.isTab:
                 jsonObj = jsonObj[self.keys[keyIx]]
                 keyIx = keyIx + 1
 
@@ -73,12 +73,12 @@ class Ptr:
         """
         return rows even if points to a row
         """
-        if not self.lastFld.isKey:
+        if not self.lastFld.isTab:
             raise Exception("No row pointer {}".format(self.lastFld.jId))
         keys = list(self.keys)
         no = 0
         for f in self.flds:
-            if f.isDict and f.isKey:
+            if f.isDict and f.isTab:
                 no = no + 1
         if len(keys) == no and no != 0:
             keys = keys[:-1]
@@ -86,17 +86,17 @@ class Ptr:
             for f in self.flds:
                 keyIx = 0
                 jsonObj = jsonObj[f.jId]
-                if f.isDict and f.isKey and keyIx < len(keys):
+                if f.isDict and f.isTab and keyIx < len(keys):
                     jsonObj = jsonObj[self.keys[keyIx]]
         return jsonObj
 
     def getJsonObj(self, jsonObj: dict) -> dict:
-        if not self.lastFld.isDict and self.lastFld.isKey:
+        if not self.lastFld.isDict and self.lastFld.isTab:
             raise Exception("No object pointer")
         keyIx = 0
         for f in self.flds:
             jsonObj = jsonObj[f.jId]
-            if f.isDict and f.isKey:
+            if f.isDict and f.isTab:
                 jsonObj = jsonObj[self.keys[keyIx]]
         return jsonObj
 
@@ -105,7 +105,7 @@ class Ptr:
         keyIx = 0
         for f in self.flds:
             res = res + f.shortHeader
-            if f.isDict and f.isKey and keyIx < len(self.keys):
+            if f.isDict and f.isTab and keyIx < len(self.keys):
                 res = res + "->"
                 res = res + f.shortHeader[:-1]
                 res = res + ":"

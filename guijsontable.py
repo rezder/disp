@@ -41,7 +41,7 @@ class Table:
             if not fldDef.isJson:
                 self.calcFlds.append(fldDef)
 
-        self.sortFld = sortGuiFldDef.fld
+        self.sortGuiDefFld = sortGuiFldDef
         self.rowsNo = 0
         self.newRowsNo = 0
         self.columnsNo = len(self.tabFldDefs)
@@ -71,7 +71,7 @@ class Table:
 
             else:
                 headFld.setVis(False)
-            if tabFldDef.fld.isKey:
+            if tabFldDef.isKey:
                 self.keyId = tabFldDef.fld.jId
             self.headFlds.append(headFld)
 
@@ -83,6 +83,7 @@ class Table:
             self.popMenu.add_command(label="New Row",
                                      command=self.addNewRow)
             self.popMenu.bind("<FocusOut>", self.popUpMenuClose)
+            #  TODO add reset menu
 
     def popUpMenuClose(self, ev):
         self.popMenu.unpost()
@@ -205,9 +206,8 @@ class Table:
         self.newRowsNo = 0
         self.delKeys.clear()
         sjsonObj = None
-        k = self.sortFld.jId
-        if not self.sortFld.isKey:
-            k = self.sortFld.jId
+        if not self.sortGuiDefFld.isKey:
+            k = self.sortGuiDefFld.fld.jId
             sjsonObj = dict(sorted(jsonObj.items(),
                                    key=lambda item: item[1][k]))
         else:
@@ -220,7 +220,7 @@ class Table:
                 if guiFld.id in v.keys():
                     guiFld.show(v[guiFld.id])
                 else:
-                    if guiFld.fld.isKey:
+                    if guiFld.isKey:
                         guiFld.show(k)
                     else:
                         guiFld.clear()

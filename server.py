@@ -61,7 +61,7 @@ class DispServer:
         """
         ok = False
         if not self.exist():
-            ok = self.status.setStartServer()
+            ok = self.status.setStartServer()  # Properly need Run Conf here
             if ok:
                 self.serverThread = threading.Thread(
                     target=self._startAsync)

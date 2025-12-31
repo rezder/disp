@@ -18,7 +18,8 @@ class FldDef:
                  empty: int = empty.ok,
                  isMan: bool = True,
                  isJson: bool = True,
-                 isDisable: bool = False
+                 isDisable: bool = False,
+                 isKey: bool = False
                  ):
         self.fld = fld
         self.width = width
@@ -32,6 +33,7 @@ class FldDef:
         self.isMan = isMan
         self.isJson = isJson
         self.isDisable = isDisable
+        self.isKey = isKey
         self.delkeys: list[str] = list()
 
     def __eq__(self, o):
@@ -49,7 +51,8 @@ class FldDef:
                      empty=self.empty,
                      isMan=self.isMan,
                      isJson=self.isJson,
-                     isDisable=self.isDisable)
+                     isDisable=self.isDisable,
+                     isKey=self.isKey)
         return res
 
     def createFld(self, parent: tk.Frame, isTab=False) -> gf.GuiFld:
@@ -71,7 +74,8 @@ class FldDef:
                                  empty=self.empty,
                                  isMan=self.isMan,
                                  isJson=self.isJson,
-                                 default=self.defaultVal)
+                                 default=self.defaultVal,
+                                 isKey=self.isKey)
         elif self.fldClass == gf.FldEntry:
             guiFld = gf.FldEntry(parent,
                                  self.fld,
@@ -81,7 +85,8 @@ class FldDef:
                                  isMan=self.isMan,
                                  isJson=self.isJson,
                                  default=self.defaultVal,
-                                 isDisable=self.isDisable)
+                                 isDisable=self.isDisable,
+                                 isKey=self.isKey)
         elif self.fldClass == gf.FldOpt:
             guiFld = gf.FldOpt(parent,
                                self.fld,
@@ -90,7 +95,8 @@ class FldDef:
                                self.defaultVal,
                                noCap=noCap,
                                isJson=self.isJson,
-                               linkDef=self.linkDef
+                               linkDef=self.linkDef,
+                               isKey=self.isKey
                                )
         elif self.fldClass == gf.FldBool:
             guiFld = gf.FldBool(parent,

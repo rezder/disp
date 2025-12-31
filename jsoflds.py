@@ -29,7 +29,7 @@ class JsoDef:
 
     def __init__(self, idFld: Fld, valCb=None):
         self.idFld = idFld
-        self.isTab = idFld.isKey
+        self.isTab = idFld.isTab
         self.allFlds: list[ObjFld] = list()
         self.allFldIds: list[str] = list()
         self.flds: list[ObjFld] = list()
@@ -98,12 +98,12 @@ class JsoDef:
             mTxt = "{Field: {}:{} is missing from{}"
             for rf in self.refs:
                 rv = None
-                if rf.fld.isKey:
+                if rf is self.keyFld:
                     rv = curPtr.getLastKey()
                 else:
                     rv = curObj[rf.jId]
                 if rv not in rf.refPtr.getRows(obj).keys():
-                    if rf.isKey:
+                    if rf is self.keyFld:
                         errPtr = ErrPtr(curPtr, None, kTxt,
                                         ref=rf.refPtr, isVal=False)
                         errPtrs.append(errPtr)
@@ -179,15 +179,16 @@ def walkObj_recursiv(obj: dict,
     for fid, v in obj.items():
         if type(v) is dict:
             if fid in jsoDefs.keys():
-                objFld = jsoDefs[fid].idFld
-                if objFld.isKey:
+                dictFld = jsoDefs[fid].idFld
+                if dictFld.isTab:
                     #  TODO what about empty tables I can catch them here
                     for key in obj[fid].keys():
-                        curKeyPtr = curPtr + objFld + key
+                        curKeyPtr = curPtr + dictFld + key
                         ptrList.append(curKeyPtr)
-                        walkObj_recursiv(obj[fid][key], jsoDefs, curKeyPtr, ptrList)
+                        walkObj_recursiv(obj[fid][key],
+                                         jsoDefs, curKeyPtr, ptrList)
                 else:
-                    curPtr = curPtr + objFld
+                    curPtr = curPtr + dictFld
                     ptrList.append(curPtr)
                     walkObj_recursiv(obj[fid], jsoDefs, curPtr, ptrList)
             else:
