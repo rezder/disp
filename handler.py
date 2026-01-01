@@ -9,6 +9,7 @@ from config import Config
 from skdata import SkData
 from status import Status
 import guirequest as gr
+from flds import flds as ff
 
 
 class Subscription:
@@ -100,7 +101,7 @@ async def guiMsg(ws: wsclient.ClientConnection,
             status.setDoneCmd()
 
         if req.tp == gr.disDisp:
-            isDisable = conf.dispGetBle(req.id)["isDisable"]
+            isDisable = conf.dispGetBle(req.id)[ff.disable.jId]
             isIn = displays.isIn(req.id)
             txt = "Display: {} was not disabled/enabled".format(id)
             if isIn and isDisable:

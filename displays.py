@@ -3,6 +3,7 @@ import udp
 import ble
 from status import Status
 from dispdata import DispData
+from flds import flds as ff
 
 
 class Displays:
@@ -68,7 +69,7 @@ class Displays:
         # does not happens. Add a delay to the connect
         # task it seems to work
         for (id, macObj) in disps.items():
-            if not macObj["isDisable"]:
+            if not macObj[ff.disable.jId]:
                 self.addBleDisp(id, macObj)
                 ids.add(id)
         return ids
@@ -77,7 +78,7 @@ class Displays:
         """
         Construct and add a ble displays.
         """
-        d = ble.Display(id, macObj["addr"], self.status)
+        d = ble.Display(id, macObj[ff.addr.jId], self.status)
         self.bleDisps[id] = d
 
     async def removeBleDisp(self, id):

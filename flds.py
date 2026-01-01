@@ -7,11 +7,11 @@ from guiflddefs import FldDef
 
 
 class flds:
-    path = Fld("path",  # Maybe all should be id
-               "Path",
-               "Path",
-               str
-               )
+    pathId = Fld("pathId",  # Maybe all should be id
+                 "Path ID",
+                 "Path ID",
+                 str
+                 )
     viewId = Fld("viewId", "View ID", "View ID",
                  str)
 
@@ -74,7 +74,7 @@ class flds:
               )
     limit = Fld("limit",
                 "Limit",
-                "limit",
+                "Limit",
                 int
                 )
     pos = Fld("pos",
@@ -97,10 +97,10 @@ class flds:
                   "BC Port",
                   int
                   )
-    intface = Fld("interface",
-                  "Wifi Interface",
-                  "Wifi",
-                  str)
+    interface = Fld("interface",
+                    "Wifi Interface",
+                    "Wifi",
+                    str)
     dissub = Fld("disableSubServer",
                  "Disable Subscriber Server",
                  "Dis Sub",
@@ -129,7 +129,7 @@ class tabs:
 
 
 class paths:
-    path = FldDef(flds.path,
+    path = FldDef(flds.pathId,
                   45,
                   45,
                   gf.FldEntry,
@@ -197,7 +197,7 @@ class paths:
                    gf.FldEntry,
                    empty=empty.noZero)
 
-    pathJs = FldDef(flds.path, 44, 44, gf.FldOpt,
+    pathJs = FldDef(flds.pathId, 44, 44, gf.FldOpt,
                     linkDef=None,
                     options=None,
                     defaultVal="navigation.courseRhumbline.nextPoint.distance",
@@ -205,11 +205,11 @@ class paths:
                     )
 
     labelJs = FldDef(flds.label, 4, 4, gf.FldOpt,
-                     linkDef=FldLink(flds.label, flds.path, True),
+                     linkDef=FldLink(flds.label, flds.pathId, True),
                      options=None,
                      defaultVal="COG")
     dpUnitJs = FldDef(flds.dpUnit, 4, 4, gf.FldOpt,
-                      linkDef=FldLink(flds.dpUnit, flds.path),
+                      linkDef=FldLink(flds.dpUnit, flds.pathId),
                       options=None,
                       defaultVal=units.m)
     dis = FldDef(flds.disable, 1, 1, gf.FldBool,

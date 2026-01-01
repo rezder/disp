@@ -143,62 +143,62 @@ class Config:
     #  ##### Displays #################
 
     def dispIs(self, id) -> bool:
-        return id in self.conf["displays"]
+        return id in self.conf[fd.displays.jId]
 
     def dispAdd(self, id) -> bool:  # TODO return defaultTab
         upd = False
-        if id not in self.conf["displays"]:
-            self.conf["displays"][id]["view"] = self.defaultTab
+        if id not in self.conf[fd.displays.jId]:
+            self.conf[fd.displays.jId][id][ff.view.jId] = self.defaultTab
             upd = True
         return upd
 
     def dispUpdMac(self, id, mac) -> bool:
         upd = False
         mo = dict()
-        mo["addr"] = mac
-        mo["isDisable"] = False
-        if id not in self.conf["macs"]:
-            self.conf["macs"][id] = mo
+        mo[ff.addr.jId] = mac
+        mo[ff.disable.jId] = False
+        if id not in self.conf[fd.macs.jId]:
+            self.conf[fd.macs.jId][id] = mo
             upd = True
         else:
-            if self.conf["macs"][id]["addr"] != mac:
-                self.conf["macs"][id] = mo
+            if self.conf[fd.macs.jId][id][ff.addr.jId] != mac:
+                self.conf[fd.macs.jId][id] = mo
                 upd = True
         return upd
 
     def dispGetBles(self) -> dict:
-        return dict(self.conf["macs"])
+        return dict(self.conf[fd.macs.jId])
 
     def dispGetBle(self, dispId) -> dict:
-        return self.conf["macs"][dispId]
+        return self.conf[fd.macs.jId][dispId]
 
     def dispSetTabId(self, dispId, tabId):
-        self.conf["displays"][dispId]["view"] = tabId
+        self.conf[fd.displays.jId][dispId][ff.view.jId] = tabId
 
     def dispGetTab(self, dispId) -> tuple[str, dict]:
-        tabId = self.conf["displays"][dispId]["view"]
-        tab = dict(self.conf["tabs"][tabId]["poss"])
+        tabId = self.conf[fd.displays.jId][dispId][ff.view.jId]
+        tab = dict(self.conf[fd.tabs.jId][tabId][fd.poss.jId])
         return (tabId, tab)
 
     def dispGet(self):
         viewids = dict()
-        for k, d in self.conf["displays"].items():
-            viewids[k] = d["view"]
+        for k, d in self.conf[fd.displays.jId].items():
+            viewids[k] = d[ff.view.jId]
         return viewids
 
     def dispSetBleDisable(self, id: str, isDisable: bool):
-        self.conf["macs"][id]["isDisable"] = isDisable
+        self.conf[fd.macs.jId][id][ff.disable.jId] = isDisable
 
     #  ################ Tabs ###########
 
     def tabsGet(self) -> dict:
-        return self.conf["tabs"]
+        return self.conf[fd.tabs.jId]
 
     def tabsGetTab(self, tabId) -> dict:
-        return dict(self.conf["tabs"][tabId]["poss"])
+        return dict(self.conf[fd.tabs.jId][tabId][fd.poss.jId])
 
     def tabsGetIds(self) -> list:
-        return list(self.conf["tabs"].keys())
+        return list(self.conf[fd.tabs.jId].keys())
 
     #  ############## Paths #################
 
@@ -213,14 +213,14 @@ class Config:
         tabs = set()
         inBigs = False
         inAlarms = False
-        for id, tab in self.conf["tabs"].items():
-            for tabPath in tab["poss"].keys():
+        for id, tab in self.conf[fd.tabs.jId].items():
+            for tabPath in tab[fd.poss.jId].keys():
                 if path == tabPath:
                     tabs.add(id)
-        if path in self.conf["bigs"]:
+        if path in self.conf[fd.bigs.jId]:
             inBigs = True
 
-        if path in self.conf["alarms"]:
+        if path in self.conf[fd.alarms.jId]:
             inAlarms = True
         return tabs, inBigs, inAlarms
 
@@ -231,50 +231,50 @@ class Config:
         - alarms
         - bigs
         """
-        return self.conf["paths"], self.conf["alarms"], self.conf["bigs"]
+        return self.conf[fd.paths.jId], self.conf[fd.alarms.jId], self.conf[fd.bigs.jId]
 
     def pathsSetPath(self, pathId: str, pathJson: dict):
-        self.conf["paths"][pathId] = pathJson
+        self.conf[fd.paths.jId][pathId] = pathJson
 
     def pathsDeletePath(self, pathId: str):
-        del self.conf["paths"][pathId]
+        del self.conf[fd.paths.jId][pathId]
 
     def pathsGetAlarm(self, pathId) -> dict | None:
         res = None
-        if pathId in self.conf["alarms"].keys():
-            res = self.conf["alarms"][pathId]
+        if pathId in self.conf[fd.alarms.jId].keys():
+            res = self.conf[fd.alarms.jId][pathId]
         return res
 
     def pathsGetAlarms(self) -> dict:
-        return self.conf["alarms"]
+        return self.conf[fd.alarms.jId]
 
     def pathsGetBigUnit(self, pathId) -> dict | None:
         res = None
-        if pathId in self.conf["bigs"].keys():
-            res = self.conf["bigs"][pathId]
+        if pathId in self.conf[fd.bigs.jId].keys():
+            res = self.conf[fd.bigs.jId][pathId]
         return res
 
     def pathsGetBigUnits(self) -> dict:
-        return self.conf["bigs"]
+        return self.conf[fd.bigs.jId]
 
     # ############### Misc ##################
 
     def getBroadcastIp(self) -> str:
         b = None
         try:
-            jsonObj = netifaces.ifaddresses(self.conf["interface"])
+            jsonObj = netifaces.ifaddresses(self.conf[ff.interface.jId])
             b = jsonObj[netifaces.AF_INET][0]["broadcast"]
         except (KeyError, ValueError) as ex:
             txt = "Fail to find broadcast ip for interface: {} error: {}"
-            print(txt.format(self.conf["interface"], ex))
+            print(txt.format(self.conf[ff.interface.jId], ex))
 
         return b
 
     def getSubPort(self) -> int:
-        return self.conf["broadcastPort"]
+        return self.conf[ff.broadCP.jId]
 
     def getSubUdpServerIsEnable(self) -> bool:
-        return not self.conf["disableSubServer"]
+        return not self.conf[ff.dissub.jId]
 
     def save(self):
         with open(self.fileName, "w") as f:
@@ -326,12 +326,12 @@ def createJsonDef() -> dict[str, JsoDef]:
     cf.addFld(fd.displays, empty.noEmpty)
     cf.addFld(fd.macs, empty.noEmpty)
     cf.addFld(ff.broadCP, empty.noZero)
-    cf.addFld(ff.intface, empty.noEmpty)
+    cf.addFld(ff.interface, empty.noEmpty)
     cf.addFld(ff.dissub, empty.ok)
     defs[cf.idFld.jId] = cf
 
     pf = JsoDef(fd.paths, valPaths)
-    pf.addFld(ff.path, empty.noEmpty, isKey=True)
+    pf.addFld(ff.pathId, empty.noEmpty, isKey=True)
     pf.addFld(ff.minPer, empty.noZero)
     pf.addFld(ff.dec, empty.ok)
     pf.addFld(ff.skUnit, empty.ok)
@@ -343,14 +343,14 @@ def createJsonDef() -> dict[str, JsoDef]:
     pathsPtr = Ptr([fd.conf, fd.paths])
 
     bf = JsoDef(fd.bigs)
-    bf.addFld(ff.path, empty.noEmpty, isKey=True, refPtr=pathsPtr)
+    bf.addFld(ff.pathId, empty.noEmpty, isKey=True, refPtr=pathsPtr)
     bf.addFld(ff.limit, empty.noZero)
     bf.addFld(ff.dpUnit, empty.ok)
     bf.addFld(ff.dec, empty.ok)
     defs[bf.idFld.jId] = bf
 
     af = JsoDef(fd.alarms, valAlarms)
-    af.addFld(ff.path, empty.noEmpty, isKey=True, refPtr=pathsPtr)
+    af.addFld(ff.pathId, empty.noEmpty, isKey=True, refPtr=pathsPtr)
     af.addFld(ff.min, empty.noNaN, isMan=False)
     af.addFld(ff.max, empty.noNaN, isMan=False)
     defs[af.idFld.jId] = af
@@ -362,7 +362,7 @@ def createJsonDef() -> dict[str, JsoDef]:
     viewsPtr = Ptr([fd.conf, fd.tabs])
 
     pf = JsoDef(fd.poss)
-    pf.addFld(ff.path, empty.noEmpty, isKey=True, refPtr=pathsPtr)
+    pf.addFld(ff.pathId, empty.noEmpty, isKey=True, refPtr=pathsPtr)
     pf.addFld(ff.pos, empty.ok)
     defs[pf.idFld.jId] = pf
 

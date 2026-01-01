@@ -7,6 +7,7 @@ from status import Status
 from status import AlarmMsg
 from dispdata import DispData
 from config import Config
+from flds import flds as ff
 
 
 class Alarm:
@@ -78,7 +79,7 @@ class Alarm:
                 except ass.CancelledError:
                     pass
             else:
-                try: 
+                try:
                     ex = self.alarmTask.exception()
                     if ex is not None:
                         print(ex)
@@ -233,26 +234,26 @@ class PathBig:
 
 
 class Path(PathBig):
-    def __init__(self, path, pathJson, bigJson):
-        self.id = path
-        self.minPeriod = pathJson["minPeriod"]
-        super().__init__(pathJson["label"],
-                         pathJson["decimals"],
-                         pathJson["units"],
-                         pathJson["dispUnits"],
-                         pathJson["bufSize"],
-                         pathJson["bufFreq"])
+    def __init__(self, pathId, pathJson, bigJson):
+        self.id = pathId
+        self.minPeriod = pathJson[ff.minPer.jId]
+        super().__init__(pathJson[ff.label.jId],
+                         pathJson[ff.dec.jId],
+                         pathJson[ff.skUnit.jId],
+                         pathJson[ff.dpUnit.jId],
+                         pathJson[ff.bufSize.jId],
+                         pathJson[ff.bufFreq.jId])
 
         self.pathBig = None
         self.bigValue = None
         if bigJson is not None:
-            self.bigValue = bigJson["limit"]
-            self.pathBig = PathBig(pathJson["label"],
-                                   bigJson["decimals"],
-                                   pathJson["units"],
-                                   bigJson["dispUnits"],
-                                   pathJson["bufSize"],
-                                   pathJson["bufFreq"])
+            self.bigValue = bigJson[ff.limit.jId]
+            self.pathBig = PathBig(pathJson[ff.label.jId],
+                                   bigJson[ff.dec.jId],
+                                   pathJson[ff.skUnit.jId],
+                                   bigJson[ff.dpUnit.jId],
+                                   pathJson[ff.bufSize.jId],
+                                   pathJson[ff.bufFreq.jId])
         self.alarm = None
 
     def createDispData(self, value) -> DispData | None:
@@ -279,12 +280,12 @@ class Path(PathBig):
     def setAlarm(self, alarmJson: dict, status):
         max = None
         min = None
-        isMax = "max" in alarmJson
-        isMin = "min" in alarmJson
+        isMax = ff.max.jId in alarmJson
+        isMin = ff.min.jId in alarmJson
         if isMax:
-            max = alarmJson["max"]
+            max = alarmJson[ff.max.jId]
         if isMin:
-            min = alarmJson["min"]
+            min = alarmJson[ff.min.jId]
 
         alarm = Alarm(self.id, self.label, max, min, 5, status)
         self.alarm = alarm

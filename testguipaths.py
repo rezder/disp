@@ -2,6 +2,7 @@ import tkinter as tk
 
 from guipaths import Paths
 from config import Config
+from flds import flds as ff
 
 
 class TestPaths:
@@ -26,7 +27,7 @@ class TestPaths:
 
     def save(self, path, itemJson):
         isOk = False
-        errFlds = ["minPeriod", "path"]
+        errFlds = [ff.minPer.jId, ff.pathId.jId]
         errTxt = "Bad blod"
         pathJson = None
         return isOk, errFlds, errTxt, pathJson

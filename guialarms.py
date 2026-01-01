@@ -3,6 +3,8 @@ from functools import partial
 
 from status import AlarmMsg
 from gui import BORDER_COLOR, BORDER_WIDTH
+from flds import flds as ff
+from flds import fldsDict as fd
 
 
 class Alarms:
@@ -11,7 +13,7 @@ class Alarms:
         self.pathsGui = dict()
         self.parent = parent
         self.mainFrame = tk.Frame(self.parent)
-        title = tk.Label(self.mainFrame, text="Alarms")
+        title = tk.Label(self.mainFrame, text=fd.alarms.jId)
         title.pack()
         self.tabFrame = tk.Frame(self.mainFrame,
                                  highlightthickness=BORDER_WIDTH,
@@ -23,13 +25,13 @@ class Alarms:
         self.pathsGui.clear()
         for c in self.tabFrame.winfo_children():
             c.destroy()
-        la = tk.Label(self.tabFrame, text="Label")  # labelJson fld
+        la = tk.Label(self.tabFrame, text=ff.label.shortHeader)
         la.grid(row=0, column=0)
-        la = tk.Label(self.tabFrame, text="Min", width=6)
+        la = tk.Label(self.tabFrame, text=ff.min.shortHeader, width=6)
         la.grid(row=0, column=1)
         la = tk.Label(self.tabFrame, text="Value")  # not a json fld
         la.grid(row=0, column=2)
-        la = tk.Label(self.tabFrame, text="Max", width=6)
+        la = tk.Label(self.tabFrame, text=ff.max.shortHeader, width=6)
         la.grid(row=0, column=3)
         la = tk.Label(self.tabFrame, text="Disable")  # not a json fld maybe
         #  it should be.
@@ -38,23 +40,23 @@ class Alarms:
         i = 1
         for (path, alarmJson) in alarmsJson.items():
             pathJson = pathsJson[path]
-            label = tk.Label(self.tabFrame, text=pathJson["label"])
+            label = tk.Label(self.tabFrame, text=pathJson[ff.label.jId])
             label.grid(row=i, column=0)
             txt = ""
-            if "min" in alarmJson:
-                txt = alarmJson["min"]
+            if ff.min.jId in alarmJson:
+                txt = alarmJson[ff.min.jId]
             minl = tk.Label(self.tabFrame, text=txt)
             minl.grid(row=i, column=1)
             valueVar = tk.StringVar(value="")
             vl = tk.Label(self.tabFrame, textvariable=valueVar)
             vl.grid(row=i, column=2)
             txt = ""
-            if "max" in alarmJson:
-                txt = alarmJson["max"]
+            if ff.max.jId in alarmJson:
+                txt = alarmJson[ff.max.jId]
             maxl = tk.Label(self.tabFrame, text=txt)
             maxl.grid(row=i, column=3)
             checkVar = tk.IntVar(value=0)
-            fn = partial(self.checkFn, path, pathJson["label"], checkVar)
+            fn = partial(self.checkFn, path, pathJson[ff.label.jId], checkVar)
             checkB = tk.Checkbutton(self.tabFrame,
                                     variable=checkVar,
                                     onvalue=1,

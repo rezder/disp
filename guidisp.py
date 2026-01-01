@@ -1,7 +1,8 @@
 import tkinter as tk
 
 from gui import BORDER_COLOR, BORDER_WIDTH
-
+from flds import flds as ff
+from flds import fldsDict as fd
 
 class List:
 
@@ -27,15 +28,15 @@ class List:
             c.destroy()
         self.items.clear()
 
-        title = tk.Label(self.mainFrame, text="Displays")
+        title = tk.Label(self.mainFrame, text=fd.displays.header)
         title.pack()
         for id, tabId in ids.items():
             macAddr = None
             isDisable = False
             if id in macs:
                 macObj = macs[id]
-                macAddr = macObj["addr"]
-                isDisable = macObj["isDisable"]
+                macAddr = macObj[ff.addr.jId]
+                isDisable = macObj[ff.disable.jId]
 
             r = Item(self.mainFrame,
                      self.cbTabChg,

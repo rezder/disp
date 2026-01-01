@@ -96,7 +96,7 @@ class TestTable:
         return tab
 
     def cb(self, path, head, event):
-        if head != "path":
+        if head != "pathId":
             print(self.jsonObj[path][head])
         else:
             print(path)

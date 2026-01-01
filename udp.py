@@ -4,6 +4,7 @@ import asyncio as ass
 
 from status import Status
 from dispdata import DispData
+from flds import flds as ff
 
 
 class Display:
@@ -74,7 +75,7 @@ class Display:
         self.checkConnTask()
         if self.on:
             if path in self.tab:
-                pos = self.tab[path]["pos"]
+                pos = self.tab[path][ff.pos.jId]
                 buff = dp.encode(pos)
                 print("Sending disp msg:{}".format(buff))  # TODO remove
                 self.socket.sendto(buff, self.addr)

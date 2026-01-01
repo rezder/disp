@@ -11,6 +11,7 @@ from skdata import SkData
 from status import Status
 import handler
 import guirequest as gr
+from flds import flds as ff
 
 signalkUrl = "ws://localhost:3000/signalk/v1/stream?subscribe=none"
 #  signalkUrl = "ws://localhost:3000/signalk/v1/stream"
@@ -229,10 +230,10 @@ class DispServer:
         # Make a function that translate marked text like
         # @path@ to Path. It just needs a dict of flds
         if not self.exist():
-            fld = "bufFreq"
-            if pathJson[fld] > pathJson["bufSize"]:
+            fldId = ff.bufFreq.jId
+            if pathJson[fldId] > pathJson[ff.bufSize.jId]:
                 isOk = False
-                errFlds.add(fld)
+                errFlds.add(fldId)
                 txt = "\nError! Buffer frequenze must"\
                     " not be bigger than buffer size"
                 errTxt = errTxt + txt
