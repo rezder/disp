@@ -57,10 +57,9 @@ class Display:
                 self.connTask = ass.create_task(self.delayConnect())
 
     async def display(self, dp: DispData, path: str):
-        if not self.turnedOff:
+        if not self.turnedOff and path in self.tab:
             self.checkConnTask()
-            # Maybe check path before connections
-            if self.connTask is None and path in self.tab:
+            if self.connTask is None:
                 try:
                     buff = await self.client.read_gatt_char(self.pauseCharId)
                     isPaused = bool(int.from_bytes(buff))
