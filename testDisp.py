@@ -5,6 +5,7 @@ from config import Config
 from skdata import Buffer
 from dispdata import DispData
 from handler import parseSkUpdates
+import units
 
 
 def px(v, exp, isRaise=True):
@@ -114,7 +115,7 @@ def testPathCreateMsg(skData: SkData, status: Status, conf: Config):
 
 
 def testBuffer():
-    b = Buffer(4, 4)
+    b = Buffer(4, 4, units.m)
     isUpdate, value = b.add(1.5, 1)
     if isUpdate:
         print("expexted false")

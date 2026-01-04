@@ -12,14 +12,14 @@ class Display:
         self.id = id
         self.macAddr = mac
         self.status = status
-        self.client = bleak.BleakClient(self.macAddr)
+        self.client = bleak.BleakClient(self.macAddr)  # Tries for 10 seconds
         self.connTask = ass.create_task(self.client.connect(),
                                         name="Ble client conn")
-        self.on = False
         self.pauseCharId = bleak.uuids.normalize_uuid_32(102)
         self.dataCharId = bleak.uuids.normalize_uuid_32(101)
         self.cmdCharId = bleak.uuids.normalize_uuid_32(103)
         self.tab = {}
+        self.turnedOff = False
 
     def __str__(self) -> str:
         txt = "Ble client id: {}, mac: {}".format(self.id, self.macAddr)
@@ -36,50 +36,59 @@ class Display:
         await self.client.connect()
 
     def checkConnTask(self):
-        if not self.on and self.connTask.done():
-            if self.client.is_connected:
-                self.on = True
-                self.connTask = None
-                self.status.setTxt("Display id {} connected".format(self.id))
-            else:
-                ex = self.connTask.exception()
-                if ex is not None:
-                    txt = "Display id: {} ble connecting faild\nWith: {}"
-                    self.status.setTxt(txt.format(self.id, ex))
+        if self.connTask is not None:
+            if self.connTask.done():
+                if self.client.is_connected:
+                    self.connTask = None
+                    txt = "Display id {} connected"
+                    self.status.setTxt(txt.format(self.id))
                 else:
-                    txt = "Connecting task done without succes and no error?"
-                    self.status.setTxt(txt)
+                    ex = self.connTask.exception()
+                    if ex is not None:
+                        txt = "Display id: {} ble connecting faild\nWith: {}"
+                        self.status.setTxt(txt.format(self.id, ex))
+                    else:
+                        txt = "Connect task done without succes and no error?"
+                        self.status.setTxt(txt)
 
+                    self.connTask = ass.create_task(self.delayConnect())
+        else:
+            if not self.client.is_connected:
                 self.connTask = ass.create_task(self.delayConnect())
 
     async def display(self, dp: DispData, path: str):
-        self.checkConnTask()
-        if self.on and path in self.tab:
-            buff = await self.client.read_gatt_char(self.pauseCharId)
-            isPaused = bool(int.from_bytes(buff))
-            if not isPaused:
-                pos = self.tab[path][ff.pos.jId]
-                buff = dp.encode(pos)
-                print("Sending disp msg:{}".format(buff))  # TODO remove
-                await self.client.write_gatt_char(self.dataCharId,
-                                                  buff,
-                                                  response=False)
+        if not self.turnedOff:
+            self.checkConnTask()
+            # Maybe check path before connections
+            if self.connTask is None and path in self.tab:
+                try:
+                    buff = await self.client.read_gatt_char(self.pauseCharId)
+                    isPaused = bool(int.from_bytes(buff))
+                    if not isPaused:
+                        pos = self.tab[path][ff.pos.jId]
+                        buff = dp.encode(pos)
+                        print("Sending disp msg:{}".format(buff))  # TODO remov
+                        await self.client.write_gatt_char(self.dataCharId,
+                                                          buff,
+                                                          response=False)
+                except bleak.BleakCharacteristicNotFoundError as ex:
+                    txt = "Lost bluetooth connection: {}".format(ex)
+                    self.status.setTxt(txt)
 
     async def turnOff(self):
         """
         **Async** Turns the display off
         """
-        self.checkConnTask()
-        if self.on:
-            if self.client.is_connected:
-                cmdOff = bytearray('E', "ascii")
-                await self.client.write_gatt_char(self.cmdCharId,
-                                                  cmdOff,
-                                                  response=True)
-                await self.client.disconnect()
-            self.on = False
-        else:
-            if self.connTask is not None:
+        if not self.turnedOff:
+            self.checkConnTask()
+            if self.connTask is None:
+                if self.client.is_connected:
+                    cmdOff = bytearray('E', "ascii")
+                    await self.client.write_gatt_char(self.cmdCharId,
+                                                      cmdOff,
+                                                      response=True)
+                    await self.client.disconnect()
+            else:
                 if not self.connTask.done():
                     self.connTask.cancel()
                     try:
@@ -88,3 +97,6 @@ class Display:
                         pass
 
                 self.connTask = None
+            self.turnedOff = True
+        else:
+            raise Exception("Turn of  called twice!")
