@@ -72,20 +72,24 @@ async def guiMsg(ws: wsclient.ClientConnection,
         req = await queue.get()
         if req.tp == gr.chgTab:
             dispId = req.id
-            newTabId, newTab = conf.dispGetTab(dispId)
+            if req.data is None:  # New
+                newTabId, newTab = conf.dispGetTab(dispId)
+            else:  # Change
+                newTabId = req.data
+                newTab = conf.tabsGetTab(newTabId)
+
             # conf read is a problem as it could be change
             # while wait on messages better to have all
             # info in queue. if display not in mod conf or
             # fail
             txt = "Changing tab on display: {} to tab: {}"
             status.setTxt(txt.format(dispId, newTabId))
-            if displays.isIn(dispId):
-                oldTab = displays.setTab(dispId, newTab)
-                newSubSet = sub.add(set(newTab.keys()))
-                unsubSet = sub.remove(set(oldTab.keys()))
-                if len(newSubSet) > 0 or len(unsubSet) > 0:
-                    subSet = sub.subscribers()
-                    await skSub(subSet, skData, ws)
+            oldTab = displays.setTab(dispId, newTab)
+            newSubSet = sub.add(set(newTab.keys()))
+            unsubSet = sub.remove(set(oldTab.keys()))
+            if len(newSubSet) > 0 or len(unsubSet) > 0:
+                subSet = sub.subscribers()
+                await skSub(subSet, skData, ws)
 
             status.setDoneCmd()
         if req.tp == gr.alarmDis:

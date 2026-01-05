@@ -184,8 +184,8 @@ class DispServer:
         else:
             ok = self.status.setChgTab(id, tabId)
             if ok:
-                self.conf.dispSetTabId(id, tabId)
                 req = gr.GuiReq(gr.chgTab, id)
+                req.setData(tabId)
                 _ = self.loop.call_soon_threadsafe(queueAdd,
                                                    self.queue,
                                                    req,
