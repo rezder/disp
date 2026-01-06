@@ -120,6 +120,14 @@ class Table:
             for jId, itemsJson in tabFldsJson.items():
                 row[jId].setJsonObj(itemsJson)
 
+    # TODO need a posChg bind use a special seq and add and
+    # remove with postChgAdd and remove.
+    # only input have postchang and only bool and option need it
+    # Entry used FocusOut. Its is a mess. Also fldvar can
+    # be monitored but that would include feth and remove
+    # And for Entry is the whole autocompletion when is usr
+    # done entering data.
+
     def bindAllVisFields(self, seq: str, cb):
         """
         Binds a callback function to a event to all visable fields
@@ -188,9 +196,8 @@ class Table:
         for guiFld in row.values():
             guiFld.clear()
             if guiFld.isVis:
-                guiFld.unbind("<ButtonRelease-1>")
-                if self.isPopUp:
-                    guiFld.unbind("<Button-3>")
+                for seq, _ in self.allFldsBinds:
+                    guiFld.unbind(seq)
                 guiFld.mainFrame.grid_forget()
 
     def show_AddCalc(self, jsonsObj):
@@ -225,8 +232,10 @@ class Table:
                     if guiFld.isKey:
                         guiFld.show(k)
                     else:
+                        # guiFld.clear() bad with linked field
+                        # And dont ehink it is needed flds are
+                        # cleared
                         pass
-                        ##guiFld.clear()
 
     def setFld(self, fld: Fld, key: str, value):
         self.rowsFlds[key][fld.jId].show(value)

@@ -183,6 +183,12 @@ class GuiFld:
         if not self.noCap:
             self.fldHead.unbind(seq)
 
+    def bind(self, seq: str, cb):
+        pass
+
+    def unbind(self, seq: str):
+        pass
+
     def setVis(self, isVis: bool):
         self.isVis = isVis
 
