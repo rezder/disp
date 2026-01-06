@@ -71,7 +71,6 @@ class Table:
                                  partial(self.popMenuUp, -1, headFld.id))
 
             else:
-                print("head:{}".format(headFld.fld.jId))
                 headFld.setVis(False)
             if tabFldDef.isKey:
                 self.keyId = tabFldDef.fld.jId
@@ -139,7 +138,6 @@ class Table:
             raise Exception("Rows not zero")
 
     def createRow_Vis(self, key, guiFld, columnNo) -> int:
-        print("field:{} vis:{}".format(guiFld.fld.jId,guiFld.isVis))
         if guiFld.isVis:
             guiFld.mainFrame.grid(row=self.rowsNo+1,
                                   column=columnNo,
@@ -148,8 +146,6 @@ class Table:
                 guiFld.bind(seq, partial(cb, key, guiFld.id))
             columnNo = columnNo+1
         else:
-            print("should be key fl")
-            print(guiFld.fld.jId)
             guiFld.setVis(False)
         return columnNo
 
