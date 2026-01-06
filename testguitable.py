@@ -5,6 +5,7 @@ import guiflds as gf
 import guijsontable as gt
 from flds import paths as PathsFlds
 from flds import tabs as TabsFlds
+from flds import alarms_server as alarms
 from config import Config
 
 
@@ -78,6 +79,18 @@ class TestTable:
             print("Error prime table does not match")
         print(gf.jsonInerJoin(self.alarmsJson, self.pathsJson))
         print(gf.jsonInerJoin(self.bigsJson, self.pathsJson))
+
+        tabFlds = [alarms.pathId, alarms.label, alarms.min,
+                   alarms.val, alarms.max, alarms.dis]
+        self.tabTable = gt.Table(self.window,
+                                 self.window,
+                                 alarms.pathId,
+                                 tabFlds)
+        self.tabTable.mainFrame.pack()
+
+        fldsJson = {alarms.pathId.fld.jId: self.pathsJson}
+        self.tabTable.setTabFldsJson(fldsJson)
+        self.tabTable.show(self.alarmsJson)
 
     def createTable(self, classFld):
         sortGuiFldDef = None

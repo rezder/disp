@@ -38,6 +38,7 @@ class Table:
                 linkJId = fldDef.linkDef.linkFld.jId
                 cl = self.links.get(linkJId, list())
                 cl.append(fldDef)
+                self.links[linkJId] = cl
             if not fldDef.isJson:
                 self.calcFlds.append(fldDef)
 
@@ -70,6 +71,7 @@ class Table:
                                  partial(self.popMenuUp, -1, headFld.id))
 
             else:
+                print("head:{}".format(headFld.fld.jId))
                 headFld.setVis(False)
             if tabFldDef.isKey:
                 self.keyId = tabFldDef.fld.jId
@@ -137,6 +139,7 @@ class Table:
             raise Exception("Rows not zero")
 
     def createRow_Vis(self, key, guiFld, columnNo) -> int:
+        print("field:{} vis:{}".format(guiFld.fld.jId,guiFld.isVis))
         if guiFld.isVis:
             guiFld.mainFrame.grid(row=self.rowsNo+1,
                                   column=columnNo,
@@ -145,6 +148,8 @@ class Table:
                 guiFld.bind(seq, partial(cb, key, guiFld.id))
             columnNo = columnNo+1
         else:
+            print("should be key fl")
+            print(guiFld.fld.jId)
             guiFld.setVis(False)
         return columnNo
 
@@ -165,8 +170,9 @@ class Table:
 
             for k, v in self.links.items():
                 masterFld = row[k]
-                for slaveFld in v:
-                    masterFld.jsonFilter.setSlave(slaveFld)
+                for slaveFldDef in v:
+                    gfld = row[slaveFldDef.fld.jId]
+                    masterFld.jsonFilter.setSlave(gfld)
         self.rowsNo = self.rowsNo + 1
         self.rowsFlds[key] = row
 
@@ -223,7 +229,8 @@ class Table:
                     if guiFld.isKey:
                         guiFld.show(k)
                     else:
-                        guiFld.clear()
+                        pass
+                        ##guiFld.clear()
 
     def setFld(self, fld: Fld, key: str, value):
         self.rowsFlds[key][fld.jId].show(value)

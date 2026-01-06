@@ -72,6 +72,8 @@ class flds:
               "Max",
               float
               )
+    val = Fld("val", "Value", "Value",
+              float)
     limit = Fld("limit",
                 "Limit",
                 "Limit",
@@ -214,3 +216,41 @@ class paths:
                       defaultVal=units.m)
     dis = FldDef(flds.disable, 1, 1, gf.FldBool,
                  defaultVal=False)
+
+
+class alarms_server:
+    pathId = FldDef(flds.pathId, 44, 44, gf.FldLabel,
+                    linkDef=None,
+                    options=None,
+                    isKey=True,
+                    isVis=False
+                    )
+
+    label = FldDef(flds.label, 4, 4, gf.FldLabel,
+                   linkDef=FldLink(flds.label, flds.pathId, False),
+                   options=None
+                   )
+
+    min = FldDef(flds.min,
+                 10,
+                 4,
+                 gf.FldLabel,
+                 empty=empty.noNaN,
+                 isMan=False
+                 )
+    val = FldDef(flds.val,
+                 10,
+                 4,
+                 gf.FldLabel,
+                 empty=empty.noNaN,
+                 isJson=False
+                 )
+    max = FldDef(flds.max,
+                 10,
+                 4,
+                 gf.FldLabel,
+                 empty=empty.noNaN,
+                 isMan=False)
+
+    dis = FldDef(flds.disable, 1, 1, gf.FldBool,
+                 defaultVal=False, isJson=False)

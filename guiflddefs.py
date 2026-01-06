@@ -75,6 +75,7 @@ class FldDef:
                                  isMan=self.isMan,
                                  isJson=self.isJson,
                                  default=self.defaultVal,
+                                 linkDef=self.linkDef,
                                  isKey=self.isKey)
         elif self.fldClass == gf.FldEntry:
             guiFld = gf.FldEntry(parent,
@@ -86,6 +87,7 @@ class FldDef:
                                  isJson=self.isJson,
                                  default=self.defaultVal,
                                  isDisable=self.isDisable,
+                                 linkDef=self.linkDef,
                                  isKey=self.isKey)
         elif self.fldClass == gf.FldOpt:
             guiFld = gf.FldOpt(parent,
@@ -106,4 +108,7 @@ class FldDef:
                                 isJson=self.isJson,
                                 linkDef=self.linkDef,
                                 isDisable=self.isDisable)
+        if not self.isVis:
+            guiFld.setVis(False)
+
         return guiFld

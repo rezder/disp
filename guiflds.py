@@ -106,6 +106,12 @@ class FldLink:
         self.linkFld = linkFld
         self.isFilter = isFilter
 
+    def __repr__(self) -> str:
+        txt = "FldLink: {}->{},Filter: {}".format(self.linkFld,
+                                                  self.dpFld,
+                                                  self.isFilter)
+        return txt
+
 
 class GuiFld:
     def __init__(self,
@@ -274,9 +280,9 @@ class GuiFld:
 class FldLabel(GuiFld):
     def __init__(self, parent: tk.Frame, fld: Fld, width: int,
                  noCap=False, empty=empty.ok, isMan=True, default=None,
-                 isJson=True, isKey=False):
+                 isJson=True, linkDef=None, isKey=False):
         super().__init__(parent, fld, width, noCap,
-                         empty, isMan, default, isJson, None, isKey)
+                         empty, isMan, default, isJson, linkDef, isKey)
         align = self.getAlign()
         self.fldLabelOut = tk.Label(self.mainFrame,
                                     textvariable=self.fldVar,
@@ -325,9 +331,9 @@ class FldEntry(GuiFld):
     def __init__(self, parent: tk.Frame, fld: Fld, width: int,
                  noCap=False, empty=empty.ok, isMan=True,
                  default=None, isJson=True,
-                 isDisable=False, isKey=False):
+                 isDisable=False, linkDef=None, isKey=False):
         super().__init__(parent, fld, width, noCap,
-                         empty, isMan, default, isJson, None, isKey)
+                         empty, isMan, default, isJson, linkDef, isKey)
         align = "left"
         if self.fld.align == "e":
             align = "right"
@@ -560,7 +566,7 @@ class JsonFilter:
             removes = removes.union(negSet)
         no = len(self.items)
         if no - len(removes) == 1:
-            removes.clear()
+            #removes.clear()
             all = set(self.items.keys())
             v = all.difference(removes).pop()
             if v != self.guiFld.get():
@@ -572,7 +578,7 @@ class JsonFilter:
             self.negfilter = removes
             options = self.creaSortedOptions()
             self.guiFld.setFilter(options)
-            curVal = self.guiFld.get
+            curVal = self.guiFld.get()
             if curVal is not None:
                 if curVal not in options:
                     self.guiFld.show(None)

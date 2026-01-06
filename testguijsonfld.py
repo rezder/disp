@@ -13,9 +13,7 @@ def createFldDefs() -> dict[str, FldDef]:
     jf = Fld("entryInt",
              "Long Int",
              "Sh Int",
-             str,
              int,
-             "e"
              )
     flds[jf.jId] = FldDef(jf, 10, 5, gf.FldEntry)
 
@@ -23,8 +21,8 @@ def createFldDefs() -> dict[str, FldDef]:
              "Long Str",
              "Sh Str",
              str,
-             gf.strJson,
-             "w"
+             toStr=str,
+             fromStr=gf.strJson,
              )
     flds[jf.jId] = FldDef(jf, 8, 5, gf.FldEntry)
     flds["manda"] = FldDef(jf, 8, 5, gf.FldEntry, isMan=False)
@@ -32,9 +30,10 @@ def createFldDefs() -> dict[str, FldDef]:
     jf = Fld("options",
              "Long options",
              "Opts",
-             units.shortTxt,
-             units.noShort,
-             "w"
+             int,
+             toStr=units.shortTxt,
+             fromStr=units.noShort,
+             isDom=True
              )
     flds[jf.jId] = FldDef(jf, 4, 5, gf.FldOpt,
                           options=units.all(),
@@ -43,17 +42,14 @@ def createFldDefs() -> dict[str, FldDef]:
     jf = Fld("label",
              "test4Label",
              "label",
-             str,
-             str,
-             "w")
+             str
+             )
     flds[jf.jId] = FldDef(jf, 15, 5, gf.FldLabel)
 
     jf = Fld("jsonTabs",
              "Json Tabs",
              "Tabs",
-             str,
-             str,
-             "e"
+             str
              )
     flds[jf.jId] = FldDef(jf, 10, 5, gf.FldOpt,
                           options=None,
@@ -64,8 +60,6 @@ def createFldDefs() -> dict[str, FldDef]:
              "Json Paths",
              "Paths",
              str,
-             str,
-             "e"
              )
     flds[jf.jId] = FldDef(jf, 10, 5, gf.FldOpt,
                           options=None,
@@ -129,6 +123,7 @@ class TestFlds:
 
         fld.show(4)
         fld.setError(True)
+        fld.get()
 
         key = "entryStr"
         fld = self.fldDefs[key].createFld(self.window)
@@ -186,9 +181,9 @@ class TestFlds:
         fld.setJsonObj(tabsJson)
         fld.mainFrame.pack(fill="x")
         self.flds[key] = fld
-
         fld.show("Default")
         fld.validate()
+
         key = "jsonPaths"
         df = self.fldDefs[key]
         fld: gf.FldOpt = self.fldDefs[key].createFld(self.window)
