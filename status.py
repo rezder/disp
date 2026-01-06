@@ -34,7 +34,7 @@ class Status:
         self.lock = threading.Lock()
         self.state = state.none
         self.cmd = cmd.none
-        self.dispOnSet = set()
+        self.dispOns = dict()
         self.alarms: list[AlarmMsg] = list()
 
     def setStartServer(self) -> bool:
@@ -102,7 +102,7 @@ class Status:
             self.cmd = cmd.none
             self.state = state.none
             self.txt = self.txt + "\n" + "Server is stopped"
-            self.dispOnSet.clear()
+            self.dispOns.clear()
             self.lock.release()
 
     def setDoneCmd(self):
@@ -122,19 +122,19 @@ class Status:
             self.txt = self.txt + "\n" + txt
             self.lock.release()
 
-    def addOn(self, id: str):
+    def addDispOn(self, id: str, viewId: str):
         isMine = self.lock.acquire()  # blocks
         if isMine:
-            self.dispOnSet.add(id)
+            self.dispOns[id] = viewId
             self.lock.release()
 
-    def removeOn(self, id: str):
+    def removeDispOn(self, id: str):  # Not currently used
         isMine = self.lock.acquire()  # blocks
         if isMine:
-            self.dispOnSet.remove(id)
+            _ = self.dispOns.pop(id)
             self.lock.release()
 
-    def getStatus(self) -> (bool, str, int, int, set, list):
+    def getStatus(self) -> (bool, str, int, int, dict, list):
         """
         :returns:
         - Ok    - If lock was acquired
@@ -156,7 +156,8 @@ class Status:
                 self.txt = ""
             c = self.cmd
             st = self.state
-            s = set(self.dispOnSet)
+            s = self.dispOns
+            self.dispOns = dict()
             a = list(self.alarms)
             self.alarms.clear()
             self.lock.release()

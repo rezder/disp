@@ -70,23 +70,24 @@ async def guiMsg(ws: wsclient.ClientConnection,
     while True:
 
         req = await queue.get()
-        if req.tp == gr.chgTab:
+        if req.tp == gr.chgView:
             dispId = req.id
             if req.data is None:  # New
-                newTabId, newTab = conf.dispGetTab(dispId)
+                newViewId, newView = conf.dispGetTab(dispId)
             else:  # Change
-                newTabId = req.data
-                newTab = conf.tabsGetTab(newTabId)
+                newViewId = req.data
+                newView = conf.tabsGetTab(newViewId)
 
             # conf read is a problem as it could be change
             # while wait on messages better to have all
             # info in queue. if display not in mod conf or
             # fail
-            txt = "Changing tab on display: {} to tab: {}"
-            status.setTxt(txt.format(dispId, newTabId))
-            oldTab = displays.setTab(dispId, newTab)
-            newSubSet = sub.add(set(newTab.keys()))
-            unsubSet = sub.remove(set(oldTab.keys()))
+            status.addDispOn(dispId, newViewId)
+            txt = "Changing view on display: {} to view: {}"
+            status.setTxt(txt.format(dispId, newViewId))
+            oldView = displays.setTab(dispId, newView)
+            newSubSet = sub.add(set(newView.keys()))
+            unsubSet = sub.remove(set(oldView.keys()))
             if len(newSubSet) > 0 or len(unsubSet) > 0:
                 subSet = sub.subscribers()
                 await skSub(subSet, skData, ws)
@@ -102,37 +103,6 @@ async def guiMsg(ws: wsclient.ClientConnection,
                 atxt = "enable"
             txt = "Alarm on {} {}"
             status.setTxt(txt.format(path.label, atxt))
-            status.setDoneCmd()
-
-        if req.tp == gr.disDisp:
-            isDisable = conf.dispGetBle(req.id)[ff.disable.jId]
-            isIn = displays.isIn(req.id)
-            txt = "Display: {} was not disabled/enabled".format(id)
-            if isIn and isDisable:
-                status.removeOn(req.id)
-                txt = "Disabling display: {}".format(id)
-                tab = displays.getDispTab(req.id)
-                await displays.removeBleDisp(req.id)
-                unsubSet = sub.remove(set(tab.keys()))
-                if len(unsubSet) > 0:
-                    subSet = sub.subscribers()
-                    await skSub(subSet, skData, ws)
-            if not isIn and not isDisable:
-                # This could go wrong if called
-                # early before server has added displays
-                # it is a race dis and enable before
-                # serve starts dont think it is possible
-                status.addOn(req.id)
-                txt = "Enabling display: {}".format(id)
-                ble = conf.dispGetBle(req.id)
-                displays.addBleDisp(req.id, ble)
-                _, tab = conf.dispGetTab(req.id)
-                _ = displays.setTab(req.id, tab)
-                newSubSet = sub.add(set(tab.keys()))
-                if len(newSubSet) > 0:
-                    subSet = sub.subscribers()
-                    await skSub(subSet, skData, ws)
-            status.setTxt(txt)
             status.setDoneCmd()
 
 
@@ -218,9 +188,8 @@ async def udpSubscribe(displays: Displays,
                 isNew = displays.add(id, addr[0], addr[1])
                 status.setTxt("New display added id: {}".format(id))
                 if isNew:
-                    req = gr.GuiReq(gr.chgTab, id)
+                    req = gr.GuiReq(gr.chgView, id)
                     await queue.put(req)
-                    status.addOn(id)
             else:
                 status.setTxt("Display: {} refused".format(id))
         except ass.CancelledError as ex:

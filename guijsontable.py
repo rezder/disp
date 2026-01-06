@@ -122,7 +122,7 @@ class Table:
     def bindAllVisFields(self, seq: str, cb):
         """
         Binds a callback function to a event to all visable fields
-        The rows must be zero. And the call back function take
+        The table must be empty. And the call back function take
         3 arguments key,fld_id and event.
         seq examples:
         <ButtonRelease-1>

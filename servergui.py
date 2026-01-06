@@ -53,20 +53,15 @@ class GuiDispServer:
 
         # Left Frame
         self.dispListGui = guidisp.List(self.leftFrame,
-                                        self.server.changeDisp,
-                                        self.server.disableDisp)
+                                        self.server.changeDisp)
 
-        self.dispListGui.show(self.server.conf.defaultTab,  # TODO should not be used here
-                              self.server.conf.dispGet(),
-                              self.server.conf.tabsGetIds(),
-                              self.server.conf.dispGetBles())
+        self.dispListGui.show()
         self.dispListGui.mainFrame.pack()
 
         # Centre Frame
         self.alarmsGui = guialarms.Alarms(self.centreFrame,
                                           self.server.alarmDisable)
-        pathsJson, alarmsJson, _ = self.server.conf.pathsGet()
-        self.alarmsGui.show(pathsJson, alarmsJson)
+        self.alarmsGui.show()
         self.alarmsGui.mainFrame.pack()
 
         # Menu bar
@@ -121,15 +116,11 @@ class GuiDispServer:
         self.stButton.subscribeOnOff(self.bleGui.serverOn)
         self.stButton.subscribeOnOff(self.udpGui.serverOn)
         self.stButton.subscribeOnOff(self.pathsGui.serverOn)
-        self.stButton.subscribeOnOff(self.alarmsGui.setOnOff)
+        self.stButton.subscribeOnOff(self.alarmsGui.serverOnOff)
+        self.stButton.subscribeOnOff(self.dispListGui.serverOnOff)
 
-        self.statusGui.subscribeOns(self.dispListGui.serverOns)
+        self.statusGui.subscribeOns(self.dispListGui.displayOns)
         self.statusGui.subscribeAlarms(self.alarmsGui.alarmMsg)
-
-        self.udpGui.subScribeNewIds(self.dispListGui.newId)
-        self.bleGui.subScribeNewIds(self.dispListGui.newId)
-
-        self.pathsGui.subScribePathUpd(self.alarmsGui.updDatePaths)
 
         # window callbacks
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)

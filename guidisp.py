@@ -3,86 +3,68 @@ import tkinter as tk
 from gui import BORDER_COLOR, BORDER_WIDTH
 from flds import flds as ff
 from flds import fldsDict as fd
+from config import Config
 
 
 class List:
 
     def __init__(self,
                  parent: tk.Frame,
-                 cbTabChg,
-                 cbDisable):
+                 cbTabChg):
         self.parent = parent
         self.mainFrame = tk.Frame(self.parent)
         self.items: list[Item] = list()
-        self.ons = set()
         self.cbTabChg = cbTabChg
-        self.cbDisable = cbDisable
+        self.viewIds = None
+        self.macs = None
 
-    def show(self,
-             defaultTab: str,
-             ids: dict,
-             tabs: list,
-             macs: dict):
-        self.tabs = tabs
-        self.defaultTab = defaultTab
+    def show(self):
         for c in self.mainFrame.winfo_children():
             c.destroy()
         self.items.clear()
 
         title = tk.Label(self.mainFrame, text=fd.displays.header)
         title.pack()
-        for id, tabId in ids.items():
-            macAddr = None
-            isDisable = False
-            if id in macs:
-                macObj = macs[id]
-                macAddr = macObj[ff.addr.jId]
-                isDisable = macObj[ff.disable.jId]
 
-            r = Item(self.mainFrame,
-                     self.cbTabChg,
-                     self.cbDisable)
-            r.show(id,
-                   self.tabs,
-                   tabId,
-                   macAddr,
-                   isDisable)
-            r.mainFrame.pack(pady=(0, 5), anchor=tk.W)
-            self.items.append(r)
-
-    def newId(self, id: str, macAddr=None):
-        isDisable = False
+    def newId(self, dispId: str, viewId: str):
         r = Item(self.mainFrame,
-                 self.cbTabChg,
-                 self.cbDisable)
-        r.show(id,
-               self.tabs,
-               self.defaultTab,  # should be paremeter on newId
-               macAddr,
-               isDisable)
+                 self.cbTabChg)
+        macAddr = None
+        if dispId in self.macs:
+            macAddr = self.macs[dispId][ff.addr.jId]
+        r.show(dispId,
+               self.viewIds,
+               viewId,
+               macAddr)
         r.mainFrame.pack(pady=(0, 5), anchor=tk.W)
         self.items.append(r)
 
-    def serverOns(self, ons: set):
-        if self.ons != ons:
+    def serverOnOff(self, isOn: bool, rconf: Config):
+        if isOn:
+            self.viewIds = rconf.tabsGetIds()
+            self.macs = rconf.dispGetBles()
+        else:
+            self.viewIds = None
+            self.macs = None
+            self.show()
+
+    def displayOns(self, dispView: dict[str, str]):
+        for dispId, viewId in dispView.items():
+            found = False
             for r in self.items:
-                found = False
-                for o in ons:
-                    if r.getId() == o:
-                        r.setOnOff(True)
-                        found = True
-                        break
-                if not found:
-                    r.setOnOff(False)
-            self.ons = ons
+                if r.getId() == dispId:
+                    found = True
+                    r.setSelectedView(viewId)
+                    break
+            if not found:
+                self.newId(dispId, viewId)
 
 
 class Item:
 
     def __init__(self,
                  parent: tk.Frame,
-                 cbTabChg,
-                 cbDisable):
+                 cbTabChg):
 
         self.parent = parent
         self.cbTabChg = cbTabChg
@@ -111,17 +93,13 @@ class Item:
         self.selTabVar = tk.StringVar()
 
         self.bgColor = self.mainFrame.cget("bg")
-        self.selectColor = "blue"
-        self.cbDisable = cbDisable
 
     def show(self,
              id: str,
              tabs: list,
              selectedTab: str,
-             macAddr: str,
-             isDisable):
+             macAddr: str):
         self.idVar.set(id)
-        self.isDisableOld = isDisable
         self.oldSelTab = selectedTab
         self.selTabVar.set(self.oldSelTab)
 
@@ -135,18 +113,6 @@ class Item:
             macVar = tk.StringVar(value=macAddrTxt)
             macLabel = tk.Label(self.bleFrame, textvariable=macVar)
             macLabel.pack(anchor=tk.CENTER)
-            v = 0
-            if self.isDisableOld:
-                v = 1
-            self.disableVar = tk.IntVar(value=v)
-            self.disableB = tk.Checkbutton(self.bleFrame,
-                                           variable=self.disableVar,
-                                           onvalue=1,
-                                           offvalue=0,
-                                           text="Disable",
-                                           command=self.checkBoxDisable,
-                                           selectcolor="grey10")
-            self.disableB.pack(anchor=tk.W)
 
         for header in tabs:
             r = tk.Radiobutton(
@@ -158,34 +124,16 @@ class Item:
                 command=self.radioCb)
             r.pack(anchor=tk.W)
 
+    def setSelectedView(self, viewId: str):
+        self.selTabVar.set(viewId)
+        self.oldSelTab = viewId
+
     def radioCb(self):
         newValue = self.selTabVar.get()
         if not self.cbTabChg(self.idVar.get(), newValue):
             self.selTabVar.set(self.oldSelTab)
         else:
             self.oldSelTab = newValue
-
-    def setOnOff(self, on: bool):
-        if on is True:
-            self.mainFrame.config(highlightbackground=self.selectColor)
-            self.mainFrame.config(highlightthickness=4)
-
-        else:
-            self.mainFrame.config(highlightbackground=BORDER_COLOR)
-            self.mainFrame.config(highlightthickness=BORDER_WIDTH)
-
-    def checkBoxDisable(self):
-        newValue = False
-        if self.disableVar.get() == 1:
-            newValue = True
-
-        if self.cbDisable(self.idVar.get(), newValue):
-            self.isDisableOld = newValue
-        else:  # reset
-            v = 1
-            if newValue:
-                v = 0
-            self.disableVar.set(v)
 
     def getId(self) -> str:
         return self.idVar.get()

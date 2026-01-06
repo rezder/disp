@@ -293,6 +293,8 @@ class FldLabel(GuiFld):
             align = tk.W
         return align
 
+    #  May add post change with trace_add on stringVar
+
     def bind(self, seq: str, cb):
         self.fldLabelOut.bind(seq, cb)
 
@@ -344,7 +346,7 @@ class FldEntry(GuiFld):
         return True
 
     def postChgAdd(self, cb):
-        self.fldEntry.bind("<FocusOut>", cb)
+        self.fldEntry.bind("<FocusOut>", cb)  # maybe use fldvar.trace.add()
 
     def postChgRemov(self):
         self.fldEntry.ubind("<FocusOut>")
@@ -394,6 +396,9 @@ class FldBool(GuiFld):
 
     def postChgAdd(self, cb):
         self.fldCheck.config(command=cb)
+
+    def postChgRemov(self):
+        self.fldCheck.config(command=None)
 
     def isInput(self):
         return True
@@ -450,6 +455,9 @@ class FldOpt(GuiFld):
 
     def postChgAdd(self, cb):
         self.fldOpt.config(command=cb)
+
+    def postChgRemov(self):
+        self.fldCheck.config(command=None)
 
     def bind(self, seq: str, cb):
         self.fldOpt.bind(seq, cb)

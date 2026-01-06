@@ -180,7 +180,10 @@ class Config:
         tab = dict(self.conf[fd.tabs.jId][tabId][fd.poss.jId])
         return (tabId, tab)
 
-    def dispGet(self):
+    def dispGet(self) -> dict[str, str]:
+        """
+        returns a map of display id and view id
+        """
         viewids = dict()
         for k, d in self.conf[fd.displays.jId].items():
             viewids[k] = d[ff.view.jId]

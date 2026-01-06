@@ -1,6 +1,9 @@
-chgTab = 1
+"""
+Queue request domain chgView(1): change the view on display
+ alarmDis(2): disable or enable the alarm
+"""
+chgView = 1
 alarmDis = 2
-disDisp = 3
 
 
 class GuiReq:

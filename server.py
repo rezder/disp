@@ -28,23 +28,23 @@ class DispServer:
     def __init__(self):
         self.status = Status()
         self.conf = Config()
-        self.skData = SkData(self.conf, self.status)
         self.loop = None
         self.queue = None
         self.queueShutDownEvent = None
 
-    async def _serve(self):
+    async def _serve(self, rconf: Config):
         """
         The primary async function.
         Listens for signalk data and gui signals.
         """
+        skData = SkData(rconf, self.status)
         await serve(self.status,
                     self.queueShutDownEvent,
                     self.queue,
-                    self.skData,
-                    self.conf)
+                    skData,
+                    rconf)
 
-    def _startAsync(self):
+    def _startAsync(self, rconf: Config):
         """
         Setup the async loop
         """
@@ -52,22 +52,24 @@ class DispServer:
         ass.set_event_loop(self.loop)
         self.queue = ass.Queue(10)
         self.queueShutDownEvent = ass.Event()
-        self.loop.run_until_complete(self._serve())
+        self.loop.run_until_complete(self._serve(rconf))
 
-    def start(self) -> bool:
+    def start(self) -> tuple[bool, Config]:
 
         """
         Starts the async thread with the signalk display
         server.
         """
         ok = False
+        rconf = None
         if not self.exist():
-            ok = self.status.setStartServer()  # Properly need Run Conf here
+            ok = self.status.setStartServer()
             if ok:
+                rconf = Config()
                 self.serverThread = threading.Thread(
-                    target=self._startAsync)
+                    target=self._startAsync, args=(rconf,))
                 self.serverThread.start()
-        return ok
+        return ok, rconf
 
     def exist(self) -> bool:
         """
@@ -100,7 +102,6 @@ class DispServer:
         done = False
         if not self.exist():
             done = True
-            self.conf.save()
         else:
             if not self.serverThread.is_alive():
                 self.status.setServerDone()
@@ -108,9 +109,7 @@ class DispServer:
                 self.queue = None
                 self.queueShutDownEvent = None
                 self.serverThread = None
-                self.skData.clearBuffers()
                 done = True
-                self.conf.save()
         return done
 
     def pause(self):
@@ -148,30 +147,9 @@ class DispServer:
 
         return upd
 
-    def disableDisp(self, id: str, isDisable: bool) -> bool:
+    def changeDisp(self, id, viewId) -> bool:
         """
-        Disable a display. Not posible for udp displays.
-        If server is busy with something else return
-        false
-        """
-        ok = False
-        if not self.exist():
-            self.conf.dispSetBleDisable(id, isDisable)
-            ok = True
-        else:
-            ok = self.status.setDisableDisp(id, isDisable)
-            if ok:
-                self.conf.dispSetBleDisable(id, isDisable)
-                req = gr.GuiReq(gr.disDisp, id)
-                _ = self.loop.call_soon_threadsafe(queueAdd,
-                                                   self.queue,
-                                                   req,
-                                                   self.status)
-        return ok
-
-    def changeDisp(self, id, tabId) -> bool:
-        """
-        Change current tab used by display
+        Change current view used by display
         and inform the server that display have been
         change. If the server is running
         it may not be ready to recieve the msg
@@ -179,13 +157,13 @@ class DispServer:
         """
         ok = False
         if not self.exist():
-            self.conf.dispSetTabId(id, tabId)
+            self.conf.dispSetTabId(id, viewId)
             ok = True
         else:
-            ok = self.status.setChgTab(id, tabId)
+            ok = self.status.setChgTab(id, viewId)
             if ok:
-                req = gr.GuiReq(gr.chgTab, id)
-                req.setData(tabId)
+                req = gr.GuiReq(gr.chgView, id)
+                req.setData(viewId)
                 _ = self.loop.call_soon_threadsafe(queueAdd,
                                                    self.queue,
                                                    req,
@@ -244,7 +222,6 @@ class DispServer:
         if isOk:
             self.conf.pathsSetPath(pathId, pathJson)
             self.conf.save()
-            self.skData = SkData(self.conf, self.status)
             pjjj = self.conf.pathsGet(),
         return isOk, errFlds, errTxt, pjjj
 
@@ -287,7 +264,6 @@ class DispServer:
         if isOk:
             self.conf.pathsDeletePath(pathId)
             self.conf.save()
-            self.skData = SkData(self.conf, self.status)
             pjjj = self.conf.pathsGet()
 
         return isOk, errTxt, pjjj
@@ -313,9 +289,8 @@ async def serve(status: Status,
     displays = Displays(status)
     ids = displays.addBleDisps(conf.dispGetBles())
     for dpId in ids:
-        req = gr.GuiReq(gr.chgTab, dpId)
+        req = gr.GuiReq(gr.chgView, dpId)
         queue.put_nowait(req)
-        status.addOn(dpId)
     exCb = partial(wsExceptionCb, done, status)  # Exception callback
     try:
         status.setTxt("Connecting to websocet")

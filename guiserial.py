@@ -4,6 +4,7 @@ import time
 import tkinter as tk
 
 from gui import BORDER_COLOR, BORDER_WIDTH
+from config import Config
 
 
 DEFAULT_BAUDRATE = 115200
@@ -79,7 +80,7 @@ class Udp:
         for f in self.subNewIdsList:
             f(newId)
 
-    def serverOn(self, isOn: bool):
+    def serverOn(self, isOn: bool, rconf: Config):
         if isOn:
             self.updBut.config(state=tk.DISABLED)
         else:
@@ -170,7 +171,7 @@ class Ble:
         for f in self.subNewIdsList:
             f(newId, macAddr)
 
-    def serverOn(self, isOn: bool):
+    def serverOn(self, isOn: bool, rconf: Config):
         if isOn:
             self.updBut.config(state=tk.DISABLED)
         else:

@@ -5,6 +5,7 @@ from guijsontable import Table
 from flds import paths as pathFlds
 from guiflddefs import FldDef
 from guimenu import addWinMenuItem
+from config import Config
 
 
 class Path:
@@ -276,7 +277,7 @@ class Paths:
         for f in self.subPathUpdList:
             f(tPathJson)
 
-    def serverOn(self, isOn: bool):
+    def serverOn(self, isOn: bool, rconf: Config):
         if isOn:
             self.saveButt.config(state=tk.DISABLED)
             self.delButt.config(state=tk.DISABLED)

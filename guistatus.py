@@ -3,6 +3,7 @@ import tkinter.scrolledtext as scrolledtext
 
 import cmd
 import state
+from config import Config
 
 
 class State:
@@ -49,9 +50,10 @@ class Button:
 
     def butCb(self):
         if self.butVar.get() == "start":
-            if self.startCb():
+            isOk, rconf = self.startCb()
+            if isOk:
                 self.butVar.set("stop")
-                self.executeOnOff(True)
+                self.executeOnOff(True, rconf)
         else:
             if self.stopCb():
                 self.button.config(state=tk.DISABLED)
@@ -62,16 +64,16 @@ class Button:
         if self.stoppedCb():
             self.butVar.set("start")
             self.button.config(state=tk.NORMAL)
-            self.executeOnOff(False)
+            self.executeOnOff(False, None)
         else:
             self.window.after(2000, self.butCbStopCheck)
 
     def subscribeOnOff(self, fn):
         self.subOnOffList.append(fn)
 
-    def executeOnOff(self, isOn: bool):
+    def executeOnOff(self, isOn: bool, rconf: Config):
         for f in self.subOnOffList:
-            f(isOn)
+            f(isOn, rconf)
 
 
 class Status:
@@ -106,7 +108,7 @@ class Status:
     def subscribeAlarms(self, fn):
         self.subAlarmsList.append(fn)
 
-    def executeOns(self, ons: set):
+    def executeOns(self, ons: dict):
         for f in self.subOnsList:
             f(ons)
 
