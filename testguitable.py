@@ -74,11 +74,17 @@ class TestTable:
         self.tabTable.show(tab)
         tabNew, _, _, _ = self.tabTable.get()
         if not gf.compJson(tab, tabNew):
+            print("tab old:")
             print(tab)
+            print("tab new:")
             print(tabNew)
             print("Error prime table does not match")
         print(gf.jsonInerJoin(self.alarmsJson, self.pathsJson))
         print(gf.jsonInerJoin(self.bigsJson, self.pathsJson))
+        df = {PathsFlds.limit.fld.jId: 0,
+              PathsFlds.dpUnit.fld.jId: 1,
+              PathsFlds.dec.fld.jId: 0}
+        print(gf.jsonOuterJoin(self.pathsJson, bigsJson, df))
 
         tabFlds = [alarms.pathId, alarms.label, alarms.min,
                    alarms.val, alarms.max, alarms.dis]

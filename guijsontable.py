@@ -279,7 +279,10 @@ class Table:
                     else:
                         chgKeys.append((k, newk))
                 for fldId, guiFld in row.items():
-                    if guiFld.isJson and guiFld.linkDef is None:
+                    if guiFld.isJson\
+                       and guiFld.linkDef is None\
+                       and not guiFld.isKey:
+
                         data = guiFld.get()
                         if data is not None:
                             item[fldId] = data

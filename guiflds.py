@@ -20,8 +20,28 @@ def jsonInerJoin(json1: dict, json2: dict) -> dict:
             for h, v in item2.items():
                 if h not in resItem.keys():
                     resItem[h] = v
-        res[k1] = resItem
+            res[k1] = resItem
 
+    return res
+
+
+def jsonOuterJoin(json1: dict, json2: dict, default: dict) -> dict:
+    res = dict()
+    for k1, item1 in json1.items():
+        resItem = dict(item1.items())
+        if k1 in json2.keys():
+            item2 = json2[k1]
+            for h, v in item2.items():
+                if h not in resItem.keys():
+                    resItem[h] = v
+                else:
+                    newHead = "t2|"+h
+                    resItem[newHead] = v
+        else:
+            for h, v in default.items():
+                if h not in resItem.keys():
+                    resItem[h] = v
+        res[k1] = resItem
     return res
 
 
@@ -250,7 +270,8 @@ class GuiFld:
                 elif v == 0 and self.empty == empty.noZero:
                     isOk = False
             if type(v) is int and self.empty == empty.noZero:
-                isOk = False
+                if v == 0:
+                    isOk = False
 
             if self.filter is not None and isOk is True:
                 if v not in self.filter:
