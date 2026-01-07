@@ -9,9 +9,9 @@ from flds import alarms_server as alarms
 from config import Config
 
 
-def cb(path, head, event):
+def cb(path, fld, event):
     print(path)
-    print(head)
+    print(fld)
 
 
 class TestTable:
@@ -108,9 +108,9 @@ class TestTable:
         tab.bindAllVisFields("<ButtonRelease-1>", self.cb)
         return tab
 
-    def cb(self, path, head, event):
-        if head != "pathId":
-            print(self.jsonObj[path][head])
+    def cb(self, path, fld, event):
+        if fld.jId != "pathId":
+            print(self.jsonObj[path][fld.jId])
         else:
             print(path)
 

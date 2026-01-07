@@ -6,6 +6,7 @@ from flds import paths as pathFlds
 from guiflddefs import FldDef
 from guimenu import addWinMenuItem
 from config import Config
+from guiflds import Fld
 
 
 class Path:
@@ -223,7 +224,7 @@ class Paths:
         self.bigsGui.setTabFldsJson(fldsJson)
         self.bigsGui.show(bigs)
 
-    def rowClick(self, path: str, head: str, event):
+    def rowClick(self, path: str, fld: Fld, event):
         self.pathGui.show(path, self.pathJsonOld[path])
 
     def save(self):

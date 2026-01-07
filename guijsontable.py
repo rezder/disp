@@ -17,12 +17,14 @@ class Table:
                  tabFldDefs: list[FldDef],
                  tabFldsJson: dict[str, dict] | None = None,
                  showCalcCb=None,
-                 isPopUp=True):
+                 isPopUp=True,
+                 postChgCb=None):
         self.parentWin = parentWin
         self.isPopUp = isPopUp
         self.parent = parent
         self.mainFrame = tk.Frame(self.parent)
         self.showCalcFldCb = showCalcCb
+        self.postChgCb = postChgCb
         self.createPopupMenu(self.parentWin)
         self.tabFldsJson = tabFldsJson
         if self.tabFldsJson is None:
@@ -55,10 +57,12 @@ class Table:
         self.keyId = None
         columNo = 0
         self.clickedKey = None  # Right click for now popMenu
-        self.clickedJId = None
+        self.clickedFld = None
 
         if self.isPopUp:
             self.allFldsBinds.append(("<Button-3>", self.popMenuUp))
+        if postChgCb is not None:
+            self.allFldsBinds.append(("rho", self.postChgCb))
 
         for tabFldDef in self.tabFldDefs.values():
             headFld = gf.FldLabelHead(self.mainFrame,
@@ -68,7 +72,7 @@ class Table:
                 columNo = columNo+1
                 if self.isPopUp:
                     headFld.bind("<Button-3>",
-                                 partial(self.popMenuUp, -1, headFld.id))
+                                 partial(self.popMenuUp, -1, headFld.fld))
 
             else:
                 headFld.setVis(False)
@@ -89,8 +93,8 @@ class Table:
     def popUpMenuClose(self, ev):
         self.popMenu.unpost()
 
-    def popMenuUp(self, key, jId, event):
-        self.clickedJId = jId
+    def popMenuUp(self, key, fld, event):
+        self.clickedFld = fld
         self.clickedKey = key
         try:
             self.popMenu.tk_popup(event.x_root,
@@ -132,7 +136,7 @@ class Table:
         """
         Binds a callback function to a event to all visable fields
         The table must be empty. And the call back function take
-        3 arguments key,fld_id and event.
+        3 arguments key,fld and event.
         seq examples:
         <ButtonRelease-1>
         <Button-3>
@@ -151,7 +155,10 @@ class Table:
                                   column=columnNo,
                                   sticky=guiFld.fld.align)
             for seq, cb in self.allFldsBinds:
-                guiFld.bind(seq, partial(cb, key, guiFld.id))
+                if seq == "rho":
+                    guiFld.postChgAdd(partial(self.postChgCb, key, guiFld.fld))
+                else:
+                    guiFld.bind(seq, partial(cb, key, guiFld.fld))
             columnNo = columnNo+1
         else:
             guiFld.setVis(False)
@@ -183,6 +190,7 @@ class Table:
         return row
 
     def removeRows(self):
+        """Clear all rows"""
         delkeys = list()
         for k, row in self.rowsFlds.items():
             delkeys.append(k)
@@ -197,7 +205,10 @@ class Table:
             guiFld.clear()
             if guiFld.isVis:
                 for seq, _ in self.allFldsBinds:
-                    guiFld.unbind(seq)
+                    if seq == "rho":
+                        guiFld.postChgRemov()
+                    else:
+                        guiFld.unbind(seq)
                 guiFld.mainFrame.grid_forget()
 
     def show_AddCalc(self, jsonsObj):
@@ -237,11 +248,14 @@ class Table:
                         # cleared
                         pass
 
-    def setFld(self, fld: Fld, key: str, value):
+    def setFldVal(self, fld: Fld, key: str, value):
         self.rowsFlds[key][fld.jId].show(value)
 
-    def getFld(self, fld: Fld, key):
+    def getFldVal(self, fld: Fld, key):
         return self.rowsFlds[key][fld.jId].get()
+
+    def getFld(self, fld: Fld, key) -> gf.GuiFld:
+        return self.rowsFlds[key][fld.jId]
 
     def get(self) -> tuple[dict, list[str], list[tuple[str, str]]]:
         """

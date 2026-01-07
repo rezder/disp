@@ -189,6 +189,12 @@ class GuiFld:
     def unbind(self, seq: str):
         pass
 
+    def postChgAdd(self, cb):
+        pass
+
+    def postChgRemov(self):
+        pass
+
     def setVis(self, isVis: bool):
         self.isVis = isVis
 
@@ -358,10 +364,18 @@ class FldEntry(GuiFld):
         return True
 
     def postChgAdd(self, cb):
-        self.fldEntry.bind("<FocusOut>", cb)  # maybe use fldvar.trace.add()
+        self.postChg = cb
+        self.fldEntry.bind("<FocusOut>", self.postChgCb)
+        # maybe use fldvar.trace.add()
+        # this is always a problem 
 
     def postChgRemov(self):
+        self.postChg = None
         self.fldEntry.ubind("<FocusOut>")
+
+    def postChgCb(self, event):
+        if self.postChg is not None:
+            self.postChg()
 
     def bind(self, seq: str, cb):
         self.fldEntry.bind(seq, cb)

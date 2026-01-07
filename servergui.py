@@ -59,9 +59,10 @@ class GuiDispServer:
         self.dispListGui.mainFrame.pack()
 
         # Centre Frame
-        self.alarmsGui = guialarms.Alarms(self.centreFrame,
+        self.alarmsGui = guialarms.Alarms(self.window,
+                                          self.centreFrame,
                                           self.server.alarmDisable)
-        self.alarmsGui.show()
+
         self.alarmsGui.mainFrame.pack()
 
         # Menu bar
