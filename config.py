@@ -137,8 +137,11 @@ class Config:
         else:
             self.conff = Config.load(self.fileName)
             self.conf = self.conff[fd.conf.jId]
-        self.defaultTab = "None"
         self.jsoDefs = createJsonDef()
+        errTxt, errList = self.validate()
+        if len(errList) != 0:
+            raise Exception("Config load error: {}".format(errTxt))
+        self.defaultTab = "None"
 
     #  ##### Displays #################
 
@@ -280,10 +283,13 @@ class Config:
         return not self.conf[ff.dissub.jId]
 
     def save(self):
+        errTxt, errList = self.validate()
+        if len(errList) != 0:
+            raise Exception("Config save error: {}".format(errTxt))
         with open(self.fileName, "w") as f:
             f.write(json.dumps(self.conff, indent=2))
 
-    def validate(self) -> str:
+    def validate(self) -> tuple[str, list[ErrPtr]]:
         errList: list[ErrPtr] = list()
         ptrs = walkObj(self.conff, self.jsoDefs)
         for ptr in ptrs:
@@ -296,7 +302,7 @@ class Config:
             for e in errList:
                 errTxt = errTxt + "\n" + e.toStr()
 
-        return errTxt
+        return errTxt, errList
 
 
 def valPaths(path, ptr, paths) -> list[ErrPtr]:

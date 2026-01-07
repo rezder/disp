@@ -1,14 +1,13 @@
 import config
 from flds import flds as ff
 from flds import fldsDict as fd
-from jsonptr import Ptr
 from jsoflds import walkObj
 
 from guiflds import Fld
 
 
 def test(conf):
-    txt = conf.validate()
+    txt, errList = conf.validate()
     print("Errors")
     print(txt)
 
