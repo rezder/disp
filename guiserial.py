@@ -87,6 +87,12 @@ class Udp:
             self.updBut.config(state=tk.NORMAL)
 
     def updateCb(self):
+        """ TODO
+        There is many problems no validation
+        empty id change from mac to udp
+        and if succes the serial may fail and leaving the conf
+        data
+        """
         id = self.idVar.get()
         if self.cb(id):  # Only updates if server not running
             for f in self.subNewIdsList:
@@ -178,6 +184,10 @@ class Ble:
             self.updBut.config(state=tk.NORMAL)
 
     def updateCb(self):
+        """ TODO
+        No validation empty id and double mac address is possible
+        change udp to macs
+        """
         path = self.pathVar.get()
         if path != "":
             try:

@@ -125,7 +125,7 @@ class DispServer:
         not running.
         """
         upd = False
-        if not self.exist():
+        if not self.exist():  # TODO remove
             if self.conf.dispAdd(id):
                 upd = True
         return upd
@@ -138,7 +138,7 @@ class DispServer:
         not be running to succeed
         """
         upd = False
-        if not self.exist():
+        if not self.exist():  # TODO remove
             if self.conf.dispAdd(id):
                 upd = True
                 _ = self.conf.dispUpdMac(id, mac)
@@ -157,7 +157,7 @@ class DispServer:
         """
         ok = False
         if not self.exist():
-            self.conf.dispSetTabId(id, viewId)
+            self.conf.dispSetTabId(id, viewId)  # TODO remove
             ok = True
         else:
             ok = self.status.setChgTab(id, viewId)
@@ -207,7 +207,7 @@ class DispServer:
         # TODO one day translate json ids to gui flds
         # Make a function that translate marked text like
         # @path@ to Path. It just needs a dict of flds
-        if not self.exist():
+        if not self.exist():  # TODO Remove
             fldId = ff.bufFreq.jId
             if pathJson[fldId] > pathJson[ff.bufSize.jId]:
                 isOk = False

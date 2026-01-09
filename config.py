@@ -185,11 +185,9 @@ class Config:
 
     def dispGet(self) -> dict[str, str]:
         """
-        returns a map of display id and view id
+        returns displays json obj
         """
-        viewids = dict()
-        for k, d in self.conf[fd.displays.jId].items():
-            viewids[k] = d[ff.view.jId]
+        viewids = dict(self.conf[fd.displays.jId])
         return viewids
 
     def dispSetBleDisable(self, id: str, isDisable: bool):

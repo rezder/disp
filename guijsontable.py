@@ -84,7 +84,7 @@ class Table:
         if self.isPopUp:
             self.popMenu = tk.Menu(win, tearoff=0)
             self.popMenu.add_command(label="Delete Row",
-                                     command=self.deleteRow)
+                                     command=self.deleteRowClicked)
             self.popMenu.add_command(label="New Row",
                                      command=self.addNewRow)
             self.popMenu.bind("<FocusOut>", self.popUpMenuClose)
@@ -106,8 +106,17 @@ class Table:
         _ = self.createRow(self.newRowsNo)
         self.newRowsNo = self.newRowsNo+1
 
-    def deleteRow(self):
+    def addNewRowWithKey(self) -> int:
+        key = self.newRowsNo
+        _ = self.createRow(self.newRowsNo)
+        self.newRowsNo = self.newRowsNo+1
+        return key
+
+    def deleteRowClicked(self):
         key = self.clickedKey
+        self.deleteRow(key)
+
+    def deleteRow(self, key):
         row = self.rowsFlds[key]
         self.moveRowToUnused(row)
         if type(key) is str:
@@ -289,6 +298,10 @@ class Table:
                 jsonObj[newk] = item
 
         return jsonObj, self.delKeys, chgKeys, newKeys
+
+    def getAllKeys(self) -> list:
+        res = list(self.rowsFlds.keys())
+        return res
 
     def validate(self) -> bool:
         isOk = True

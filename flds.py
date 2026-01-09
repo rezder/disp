@@ -254,3 +254,76 @@ class alarms_server:
 
     dis = FldDef(flds.disable, 1, 1, gf.FldBool,
                  defaultVal=False, isJson=False)
+
+
+class settings:
+    iface = FldDef(flds.interface,
+                   10,
+                   4,
+                   gf.FldEntry,
+                   )
+    broadCP = FldDef(flds.broadCP,
+                     10,
+                     4,
+                     gf.FldEntry,
+                     )
+    disSub = FldDef(flds.dissub,
+                    10,
+                    4,
+                    gf.FldEntry,
+                    )
+
+
+class disp:
+    dispId = FldDef(flds.dispId,
+                    10,
+                    10,
+                    gf.FldLabel,
+                    isKey=True,
+                    empty=empty.noEmpty)
+
+    view = FldDef(flds.view,
+                  10,
+                  10,
+                  gf.FldOpt,
+                  empty=empty.noEmpty,
+                  defaultVal="None")
+
+    addr = FldDef(flds.addr,
+                  15,
+                  15,
+                  gf.FldLabel)
+
+    dis = FldDef(flds.disable,
+                 10,
+                 4,
+                 gf.FldBool,
+                 defaultVal=False)
+
+    viewId = FldDef(flds.viewId,
+                    10,
+                    10,
+                    gf.FldLabel,
+                    isKey=True,
+                    empty=empty.noEmpty)
+
+    poss = FldDef(fldsDict.poss,
+                  10,
+                  4,
+                  gf.FldLabel,
+                  isVis=False
+                  )
+    pathJs = FldDef(flds.pathId,
+                    44,
+                    44,
+                    gf.FldOpt,
+                    isKey=True,
+                    defaultVal="environment.depth.belowTransducer"
+                    )
+    pos = FldDef(flds.pos,
+                 10,
+                 4,
+                 gf.FldEntry,
+                 )
+
+

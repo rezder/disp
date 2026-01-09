@@ -55,8 +55,9 @@ class FldDef:
                      isKey=self.isKey)
         return res
 
-    def createFld(self, parent: tk.Frame, isTab=False) -> gf.GuiFld:
-        noCap = False
+    def createFld(self, parent: tk.Frame,
+                  isTab=False, noCap=False) -> gf.GuiFld:
+        noCap = noCap
         width = self.width
         if isTab:
             noCap = True

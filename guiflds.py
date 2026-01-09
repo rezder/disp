@@ -45,6 +45,26 @@ def jsonOuterJoin(json1: dict, json2: dict, default: dict) -> dict:
     return res
 
 
+def jsonOuterJsonSplit(json: dict, default: dict) -> tuple[dict, dict]:
+    res1 = dict()
+    res2 = dict()
+    for k, item in json.items():
+        r1 = dict()
+        r2 = dict()
+        is2 = False
+        for f, v in item.items():
+            if f in default.keys():
+                r2[f] = v
+                if v != default[f]:
+                    is2 = True
+            else:
+                r1[f] = v
+        if is2:
+            res2[k] = r2
+        res1[k] = r1
+    return res1, res2
+
+
 def compJson(json1: dict, json2: dict) -> bool:
     isEqual = True
     for k, v in json1.items():
@@ -96,7 +116,7 @@ class Fld:
         self.isDict = False
         if fType == dict:
             self.isDict = True
-            if self.toStr is None:
+            if toStr is None:
                 self.toStr = json.dumps
                 self.fromStr = json.loads
         self.align = "w"

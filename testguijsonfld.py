@@ -6,7 +6,8 @@ from config import Config
 from guiflddefs import FldDef
 from guiflds import Fld, FldLink
 from flds import paths
-
+from flds import disp
+from guiflds import compJson
 
 def createFldDefs() -> dict[str, FldDef]:
     flds: dict[str, gf.GuiFldDef] = dict()
@@ -66,6 +67,7 @@ def createFldDefs() -> dict[str, FldDef]:
                           linkDef=FldLink(flds["label"].fld, jf),
                           defaultVal=("DBT")
                           )
+    flds[disp.poss.fld.jId] = disp.poss
 
     return flds
 
@@ -91,6 +93,17 @@ class TestFlds:
         self.testFldLabel()
         self.testPathsFlds()
         self.testFldBool()
+        self.testFldDict()
+
+    def testFldDict(self):
+        jid = disp.poss.fld.jId
+        gfld = self.fldDefs[jid].createFld(self.window)
+        d = {"rho": 1,
+             "thk": 3}
+        gfld.show(d)
+        dout = gfld.get()
+        if not compJson(d, dout):
+            print("Error object: {}\n differ from {}".format(d, dout))
 
     def testPathsFlds(self):
         paths.dec
