@@ -185,7 +185,7 @@ class TestFlds:
 
     def testFldJsonOpt(self):
         conf = Config(isDefault=True)
-        tabsJson = conf.tabsGet()
+        tabsJson = conf.dispsGet()[2]
         pathsJson, alarmsJson, bigsJson = conf.pathsGet()
 
         key = "jsonTabs"
@@ -220,7 +220,7 @@ class TestFlds:
 
     def testFldJsonOptPaths(self):
         conf = Config(isDefault=True)
-        #  tabsJson = conf.tabsGet()
+        #  tabsJson = conf.dispsGet()[2]
         pathsJson, alarmsJson, bigsJson = conf.pathsGet()
         fldMaster: gf.FldOpt = paths.pathJs.createFld(self.window)
         fldMaster.setJsonObj(pathsJson)

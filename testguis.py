@@ -36,10 +36,8 @@ class TestGui:
         self.dispGui.show(disps, macs, views, paths)
 
     def getdispdata(self) -> tuple[dict, dict, dict, dict]:
-        paths, _, _ = self.conff.pathsGet()
-        disps = self.conff.dispGet()
-        macs = self.conff.dispGetBles()
-        views = self.conff.tabsGet()
+
+        disps, macs, views, paths = self.conff.dispsGet()
         return disps, macs, views, paths
 
     def logger(self, txt: str):

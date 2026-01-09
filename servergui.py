@@ -8,7 +8,10 @@ import guimenu
 import guialarms
 import guipaths
 import guiserial
+import guidispconf
+from guisettings import Sett
 from server import DispServer
+from flds import fldsDict as fd
 
 
 class GuiDispServer:
@@ -96,7 +99,8 @@ class GuiDispServer:
         # Paths
         pathsFrame, pathsWin = guimenu.addWinMenuItem(self.window,
                                                       menuSettings,
-                                                      "Paths")
+                                                      fd.paths.header
+                                                      )
         self.pathsGui = guipaths.Paths(pathsWin,
                                        pathsFrame,
                                        self.logger,
@@ -104,6 +108,27 @@ class GuiDispServer:
                                        self.server.pathsSave)
         self.pathsGui.mainFrame.pack()
         self.pathsGui.show(self.server.conf.pathsGet())
+        # Displays conf
+        dispsFrame, dispsWin = guimenu.addWinMenuItem(self.window,
+                                                      menuSettings,
+                                                      fd.displays.header)
+        self.dispsGui = guidispconf.Disp(dispsWin,
+                                         dispsFrame,
+                                         self.logger,
+                                         self.server.displaysSave)
+        self.dispsGui.mainFrame.pack()
+        self.dispsGui.show(*self.server.conf.dispsGet())
+        # Sett conf
+        settFrame, settWin = guimenu.addWinMenuItem(self.window,
+                                                    menuSettings,
+                                                    "Misc")
+        self.settGui = Sett(settWin,
+                            settFrame,
+                            self.logger,
+                            self.server.settingsSave)
+        self.settGui.mainFrame.pack()
+        self.settGui.show(self.server.conf.settingsGet())
+
         # Add  Menu bar
         self.menuBar.add_cascade(label="Registor Display",
                                  menu=menuRegistor,
@@ -122,6 +147,8 @@ class GuiDispServer:
 
         self.statusGui.subscribeOns(self.dispListGui.displayOns)
         self.statusGui.subscribeAlarms(self.alarmsGui.alarmMsg)
+
+        self.pathsGui.subScribePathUpd(self.dispsGui.pathsChg)
 
         # window callbacks
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)

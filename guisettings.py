@@ -1,7 +1,6 @@
 import tkinter as tk
 
 import guiflds as gf
-from guiflds import Fld
 from flds import settings as dd
 
 
@@ -10,13 +9,11 @@ class Sett:
                  parentWin: tk.Toplevel,
                  parent: tk.Frame,
                  logger,
-                 validateFn,
                  saveFn
                  ):
         self.parentWin = parentWin
         self.parent = parent
         self.logger = logger
-        self.confValidateFn = validateFn
         self.confSaveFn = saveFn
         self.oldJsoObj = None
         self.mainFrame = tk.Frame(self.parent)
@@ -53,11 +50,13 @@ class Sett:
         for guifld in self.guiflds.values():
             isOk = isOk and guifld.validate()
         if isOk:
-            errTxt, errPtrs = self.confValidateFn()
+            jsoObj = dict()
+            for guifld in self.guiflds.values():
+                jsoObj[guifld.fld.jId] = guifld.get()
+            errTxt, errPtrs = self.confSaveFn(jsoObj)
             if len(errPtrs) != 0:
                 self.logger(errTxt)
             else:
-                jsoObj = self.confSaveFn()
                 self.show(jsoObj)
 
     def reload(self):

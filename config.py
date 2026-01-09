@@ -1,6 +1,7 @@
 import json
 import os
 import netifaces
+import copy
 from flds import flds as ff
 from flds import fldsDict as fd
 from jsonptr import Ptr, ErrPtr
@@ -137,12 +138,18 @@ class Config:
         else:
             self.conff = Config.load(self.fileName)
             self.conf = self.conff[fd.conf.jId]
+        self.oldConff = copy.deepcopy(self.conff)
         self.jsoDefs = createJsonDef()
         errTxt, errList = self.validate()
         if len(errList) != 0:
             raise Exception("Config load error: {}".format(errTxt))
         self.defaultTab = "None"
+        self.settFlds = [ff.broadCP, ff.interface, ff.dissub]
 
+    def roleBack(self):
+        self.conff = self.oldConff
+        self.conf = self.conff[fd.conf.jid]
+        self.oldConff = copy.deepcopy(self.conff)
     #  ##### Displays #################
 
     def dispIs(self, id) -> bool:
@@ -183,20 +190,30 @@ class Config:
         tab = dict(self.conf[fd.tabs.jId][tabId][fd.poss.jId])
         return (tabId, tab)
 
-    def dispGet(self) -> dict[str, str]:
+    def dispsGet(self) -> tuple[dict, dict, dict, dict]:
         """
-        returns displays json obj
+        :returns:
+        - displays
+        - macs
+        - views
+        - paths
         """
-        viewids = dict(self.conf[fd.displays.jId])
-        return viewids
+        displays = dict(self.conf[fd.displays.jId])
+        macs = self.dispGetBles()
+        views = copy.deepcopy(self.conf[fd.tabs.jId])
+        paths = self.pathsGet()[0]
+
+        return displays, macs, views, paths
+
+    def dispsSet(self, disps, macs, views):
+        self.conf[fd.displays.jId] = dict(disps)
+        self.conf[fd.macs.jId] = dict(macs)
+        self.conf[fd.tabs.jId] = copy.deepcopy(views)
 
     def dispSetBleDisable(self, id: str, isDisable: bool):
         self.conf[fd.macs.jId][id][ff.disable.jId] = isDisable
 
     #  ################ Tabs ###########
-
-    def tabsGet(self) -> dict:
-        return self.conf[fd.tabs.jId]
 
     def tabsGetTab(self, tabId) -> dict:
         return dict(self.conf[fd.tabs.jId][tabId][fd.poss.jId])
@@ -261,6 +278,18 @@ class Config:
     def pathsGetBigUnits(self) -> dict:
         return self.conf[fd.bigs.jId]
 
+    # ################ Sett ################
+
+    def settingsSave(self, jsoObj):
+        for f in self.settFlds:
+            self.conf[f.jId] = jsoObj[f.jId]
+
+    def settingsGet(self) -> dict:
+        res = dict()
+        for f in self.settFlds:
+            res[f.jId] = self.conf[f.jId]
+        return res
+
     # ############### Misc ##################
 
     def getBroadcastIp(self) -> str:
@@ -281,11 +310,9 @@ class Config:
         return not self.conf[ff.dissub.jId]
 
     def save(self):
-        errTxt, errList = self.validate()
-        if len(errList) != 0:
-            raise Exception("Config save error: {}".format(errTxt))
         with open(self.fileName, "w") as f:
             f.write(json.dumps(self.conff, indent=2))
+        self.oldConff = copy.deepcopy(self.conff)
 
     def validate(self) -> tuple[str, list[ErrPtr]]:
         errList: list[ErrPtr] = list()

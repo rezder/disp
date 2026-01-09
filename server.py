@@ -12,6 +12,7 @@ from status import Status
 import handler
 import guirequest as gr
 from flds import flds as ff
+from jsonptr import ErrPtr
 
 signalkUrl = "ws://localhost:3000/signalk/v1/stream?subscribe=none"
 #  signalkUrl = "ws://localhost:3000/signalk/v1/stream"
@@ -267,6 +268,24 @@ class DispServer:
             pjjj = self.conf.pathsGet()
 
         return isOk, errTxt, pjjj
+
+    def displaysSave(self, disps, macs, views) -> tuple[str, list[ErrPtr]]:
+        self.conf.dispsSet(disps, macs, views)
+        errTxt, errPtrs = self.conf.validate()
+        if len(errPtrs) != 0:
+            self.conf.rollBack()
+        else:
+            self.conf.save()
+        errTxt, errPtrs
+
+    def settingsSave(self, jsoObj) -> tuple[str, list[ErrPtr]]:
+        self.conf.settSet(jsoObj)
+        errTxt, errPtrs = self.conf.validate()
+        if len(errPtrs) != 0:
+            self.conf.rollBack()
+        else:
+            self.conf.save()
+        errTxt, errPtrs
 
 
 async def serve(status: Status,

@@ -13,13 +13,11 @@ class Disp:
                  parentWin: tk.Toplevel,
                  parent: tk.Frame,
                  logger,
-                 validateFn,
                  saveFn
                  ):
         self.parentWin = parentWin
         self.parent = parent
         self.logger = logger
-        self.confValidateFn = validateFn
         self.confSaveFn = saveFn
         self.oldDisps = None
         self.oldMacs = None
@@ -130,8 +128,8 @@ class Disp:
         else:
             self.dispTab.removeRows()
 
-    def switchView(self, newKey):
-        if newKey != self.curViewKey:
+    def switchView(self, newKey, isForce=False):
+        if newKey != self.curViewKey or isForce:
             if self.curViewKey is not None:
                 self.viewTab.setFldVal(df.viewId.fld,
                                        self.curViewKey,
@@ -153,7 +151,10 @@ class Disp:
     def viewClick(self, key, fld, event):
         self.switchView(key)
 
-    def pathsChg(self, pathsJson: dict):
+    def pathsChg(self,
+                 paths: dict,
+                 alarms: dict,
+                 bigs: dict):
         jId = df.pathJs.fld.jId
         fldsJson = {jId: self.paths}
         self.possTab.setTabFldsJson(fldsJson)
@@ -165,7 +166,7 @@ class Disp:
         if isOk:
             curKey = self.curViewKey
             for key in self.viewTab.getAllKeys():
-                self.switchView(key)
+                self.switchView(key, True)
                 isOk = isOk and self.possTab.validate()
                 if not isOk:
                     break
@@ -175,11 +176,10 @@ class Disp:
             tab = self.dispTab.get()[0]
             disps, macs = jsonOuterJsonSplit(tab, self.macsDefaults)
             views = self.viewTab.get()[0]
-            errTxt, errPtrs = self.confValidateFn(disps, macs, views)
+            errTxt, errPtrs = self.confSaveFn(disps, macs, views)
             if len(errPtrs) != 0:
                 self.logger(errTxt)
             else:
-                disps, macs, views = self.confSaveFn(disps, macs, views)
                 self.show(disps, macs, views, self.paths)
 
     def reload(self):
