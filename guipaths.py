@@ -277,11 +277,3 @@ class Paths:
     def execPathUdp(self, tPathJson: tuple[dict, dict, dict]):
         for f in self.subPathUpdList:
             f(tPathJson)
-
-    def serverOn(self, isOn: bool, rconf: Config):
-        if isOn:
-            self.saveButt.config(state=tk.DISABLED)
-            self.delButt.config(state=tk.DISABLED)
-        else:
-            self.saveButt.config(state=tk.NORMAL)
-            self.delButt.config(state=tk.NORMAL)

@@ -71,29 +71,6 @@ class GuiDispServer:
         # Menu bar
         self.menuBar = tk.Menu(self.window, tearoff=0)
 
-        # Menu Registor
-        menuRegistor = tk.Menu(self.menuBar, tearoff=0)
-        # Upd
-        udpFrame, _ = guimenu.addWinMenuItem(self.window,
-                                             menuRegistor,
-                                             "Udp Display Registor",
-                                             titleMenu="Udp")
-        self.udpGui = guiserial.Udp(udpFrame,
-                                    self.server.addNewUdpDisp,
-                                    self.logger)
-        self.udpGui.mainFrame.pack()
-        self.udpGui.show(self.server.conf.getSubPort())
-        # Ble
-        bleFrame, _ = guimenu.addWinMenuItem(self.window,
-                                             menuRegistor,
-                                             "Ble Display Registor",
-                                             "Ble")
-        self.bleGui = guiserial.Ble(bleFrame,
-                                    self.server.addNewBleDisp,
-                                    self.logger)
-        self.bleGui.mainFrame.pack()
-        self.bleGui.show()
-
         # Menu settings
         menuSettings = tk.Menu(self.menuBar, tearoff=0)
         # Paths
@@ -115,7 +92,9 @@ class GuiDispServer:
         self.dispsGui = guidispconf.Disp(dispsWin,
                                          dispsFrame,
                                          self.logger,
-                                         self.server.displaysSave)
+                                         self.server.displaysSave,
+                                         self.server.conf.getSubPort(),
+                                         self.server.newDispIdValidation)
         self.dispsGui.mainFrame.pack()
         self.dispsGui.show(*self.server.conf.dispsGet())
         # Sett conf
@@ -130,18 +109,13 @@ class GuiDispServer:
         self.settGui.show(self.server.conf.settingsGet())
 
         # Add  Menu bar
-        self.menuBar.add_cascade(label="Registor Display",
-                                 menu=menuRegistor,
-                                 background="grey26")
+
         self.menuBar.add_cascade(label="Settings",
                                  menu=menuSettings)
 
         self.window.config(menu=self.menuBar)
 
         # Gui inter connectioncs
-        self.stButton.subscribeOnOff(self.bleGui.serverOn)
-        self.stButton.subscribeOnOff(self.udpGui.serverOn)
-        self.stButton.subscribeOnOff(self.pathsGui.serverOn)
         self.stButton.subscribeOnOff(self.alarmsGui.serverOnOff)
         self.stButton.subscribeOnOff(self.dispListGui.serverOnOff)
 
@@ -149,6 +123,7 @@ class GuiDispServer:
         self.statusGui.subscribeAlarms(self.alarmsGui.alarmMsg)
 
         self.pathsGui.subScribePathUpd(self.dispsGui.pathsChg)
+        self.settGui.subScribeUpd(self.dispsGui.settingsUpd)
 
         # window callbacks
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)

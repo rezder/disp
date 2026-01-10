@@ -6,6 +6,8 @@ from guijsontable import Table
 from flds import disp as df
 from guiflds import jsonOuterJoin, jsonOuterJsonSplit
 from gui import BORDER_COLOR, BORDER_WIDTH
+import guimenu
+import guiserial
 
 
 class Disp:
@@ -13,16 +15,20 @@ class Disp:
                  parentWin: tk.Toplevel,
                  parent: tk.Frame,
                  logger,
-                 saveFn
+                 saveFn,
+                 subPort: int,
+                 dispIdValidateFn
                  ):
         self.parentWin = parentWin
         self.parent = parent
         self.logger = logger
+        self.dispIdValidateFn = dispIdValidateFn
         self.confSaveFn = saveFn
         self.oldDisps = None
         self.oldMacs = None
         self.oldViews = None
         self.paths = None
+        self.subPort = subPort
         self.macsDefaults = {df.addr.fld.jId: "",
                              df.dis.fld.jId: False}
         self.mainFrame = tk.Frame(self.parent)
@@ -95,6 +101,57 @@ class Disp:
                              df.dispId,
                              dispFldDefs)
         self.dispTab.mainFrame.pack()
+
+        self.udpFram, self.bleFrame = createMenu(self.parentWin)
+        self.bleGui = guiserial.Ble(self.bleFrame,
+                                    self.bleDispUpd,
+                                    self.logger,
+                                    self.dispIdValidateFn)
+        self.udpGui = guiserial.Udp(self.udpFram,
+                                    self.udpDispUpd,
+                                    self.logger,
+                                    self.dispIdValidateFn)
+        self.udpGui.mainFrame.pack()
+        self.udpGui.show(self.subPort)
+        self.bleGui.mainFrame.pack()
+        self.bleGui.show()
+
+    def settingsUpd(self, settJso: dict):
+        self.udpGui.settingsUpd(settJso)
+
+    def udpDispUpd(self, newId: str):
+        isNew = True
+        for key in self.dispTab.getAllKeys():
+            id = self.dispTab.getFldVal(df.dispId.fld, key)
+            if id == newId:
+                isNew = False
+                break
+        if isNew:
+            key = self.dispTab.addNewRowWithKey()
+            self.dispTab.setFldVal(df.dispId.fld, key, newId)
+
+    def bleDispUpd(self, newId: str, newAddr: str):
+        idKey = None
+        addrKey = None
+        for key in self.dispTab.getAllKeys():
+            id = self.dispTab.getFldVal(df.dispId.fld, key)
+            addr = self.dispTab.getFldVal(df.addr.fld, key)
+            if id == newId:
+                idKey = key
+            if addr == newAddr:
+                addrKey = key
+        if idKey is None and addrKey is None:
+            key = self.dispTab.addNewRowWithKey()
+            self.dispTab.setFldVal(df.dispId.fld, key, newId)
+            self.dispTab.setFldVal(df.addr.fld, key, newAddr)
+        else:
+            if idKey is not None and addrKey is None:
+                self.dispTab.setFldVal(df.addr.fld, idKey, newAddr)
+            elif addrKey is not None and idKey is None:
+                self.dispTab.setFldVal(df.dispId.fld, addrKey, newId)
+            elif addrKey != idKey:
+                txt = "Display id allready exist with different mac address"
+                self.logger(txt)
 
     def show(self,
              disps: dict,
@@ -201,3 +258,21 @@ class Disp:
     def posNew(self):
         key = self.viewTab.addNewRowWithKey()
         self.switchView(key)
+
+def createMenu(win: tk.Toplevel) -> tuple[tk.Frame, tk.Frame]:
+
+        menuBar = tk.Menu(win, tearoff=0)
+        menuRegistor = tk.Menu(menuBar, tearoff=0)
+        udpFrame, _ = guimenu.addWinMenuItem(win,
+                                             menuRegistor,
+                                             "Udp Display Registor",
+                                             titleMenu="Udp")
+        bleFrame, _ = guimenu.addWinMenuItem(win,
+                                             menuRegistor,
+                                             "Ble Display Registor",
+                                             "Ble")
+        menuBar.add_cascade(label="Registor Display",
+                            menu=menuRegistor,
+                            background="grey26")
+        win.config(menu=menuBar)
+        return udpFrame, bleFrame

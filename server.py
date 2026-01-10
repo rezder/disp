@@ -119,6 +119,28 @@ class DispServer:
         """
         pass
 
+    def newDispIdValidation(self,
+                            dispId: str,
+                            isMacVal: bool = False) -> tuple[bool, str]:
+        isOk = True
+        errMsg = None
+        if dispId == "":
+            isOk = False
+            errMsg = "Display id is empty"
+        else:
+            isDisp = self.conf.dispIs(dispId)
+            isMac = self.conf.dispGetBle(dispId)
+            isUpd = isDisp and not isMac
+            if isMacVal:
+                if isUpd:
+                    isOk = False
+                    errMsg = "Display: {} is an Udp display".format(dispId)
+            else:
+                if isMac:
+                    isOk = False
+                    errMsg = "Display: {} is an Ble display".format(dispId)
+        return isOk, errMsg
+
     def addNewUdpDisp(self, id: str) -> bool:
         """
         Adds a new display to the configuration
@@ -279,13 +301,13 @@ class DispServer:
         errTxt, errPtrs
 
     def settingsSave(self, jsoObj) -> tuple[str, list[ErrPtr]]:
-        self.conf.settSet(jsoObj)
+        self.conf.settingsSave(jsoObj)
         errTxt, errPtrs = self.conf.validate()
         if len(errPtrs) != 0:
             self.conf.rollBack()
         else:
             self.conf.save()
-        errTxt, errPtrs
+        return errTxt, errPtrs
 
 
 async def serve(status: Status,

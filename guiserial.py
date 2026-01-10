@@ -4,7 +4,7 @@ import time
 import tkinter as tk
 
 from gui import BORDER_COLOR, BORDER_WIDTH
-from config import Config
+from flds import flds as ff
 
 
 DEFAULT_BAUDRATE = 115200
@@ -12,15 +12,15 @@ DEFAULT_BAUDRATE = 115200
 
 class Udp:
 
-    def __init__(self, parent: tk.Frame, cb, logger):
-        self.subNewIdsList = list()
+    def __init__(self, parent: tk.Frame, receiverfn, logger, validateFn):
         self.parent = parent
         self.logger = logger
         self.mainFrame = tk.Frame(self.parent,
                                   highlightthickness=BORDER_WIDTH,
                                   highlightbackground=BORDER_COLOR)
 
-        self.cb = cb
+        self.receiverFn = receiverfn
+        self.validateFn = validateFn
 
         self.pwVar = tk.StringVar()
         self.portVar = tk.StringVar()
@@ -73,32 +73,16 @@ class Udp:
         path = getSerialPath()
         self.pathVar.set(path)
 
-    def subScribeNewIds(self, fn):
-        self.subNewIdsList.append(fn)
-
-    def executeNewIds(self, newId):
-        for f in self.subNewIdsList:
-            f(newId)
-
-    def serverOn(self, isOn: bool, rconf: Config):
-        if isOn:
-            self.updBut.config(state=tk.DISABLED)
-        else:
-            self.updBut.config(state=tk.NORMAL)
+    def settingsUpd(self, settJso: dict):
+        self.portVar.set(settJso[ff.broadCP.jId])
 
     def updateCb(self):
-        """ TODO
-        There is many problems no validation
-        empty id change from mac to udp
-        and if succes the serial may fail and leaving the conf
-        data
-        """
-        id = self.idVar.get()
-        if self.cb(id):  # Only updates if server not running
-            for f in self.subNewIdsList:
-                f(id)
+        dispId = self.idVar.get()
         path = self.pathVar.get()
-        if path != "":
+        isOk, errTxt = self.validateFn(dispId)
+        if path == "":
+            errTxt = "\nSerial port is missing"
+        if errTxt == "":
             port = int(self.portVar.get())
             ssid = self.ssidVar.get()
             pw = self.pwVar.get()
@@ -106,7 +90,7 @@ class Udp:
                 con = serial.Serial(path,
                                     baudrate=DEFAULT_BAUDRATE,
                                     timeout=2)
-                txt = id+'\n'+ssid+'\n'+pw+'\n'
+                txt = dispId+'\n'+ssid+'\n'+pw+'\n'
                 data = bytearray(txt.encode(encoding="ascii"))
                 dataTmp = port.to_bytes(4, byteorder="little")
                 for b in dataTmp:
@@ -115,24 +99,25 @@ class Udp:
                 con.flush()
                 con.close()
                 self.logger("Wifi data send")
+                self.receiverFn(dispId)
 
             except serial.SerialException as ex:
                 txt = "\nConnection failed with: {}".format(ex)
                 self.logger(txt)
         else:
-            self.logger("No device connect")
+            self.logger(errTxt)
 
 
 class Ble:
-    def __init__(self, parent: tk.Frame, cb, logger):
-        self.subNewIdsList = list()
+    def __init__(self, parent: tk.Frame, receiverFn, logger, validateFn):
         self.parent = parent
         self.logger = logger
         self.mainFrame = tk.Frame(self.parent,
                                   highlightthickness=BORDER_WIDTH,
                                   highlightbackground=BORDER_COLOR)
         self.path = getSerialPath()
-        self.cb = cb
+        self.receiver = receiverFn
+        self.validateFn = validateFn
 
         self.macVar = tk.StringVar()
         self.idVar = tk.StringVar()
@@ -170,26 +155,13 @@ class Ble:
         path = getSerialPath()
         self.pathVar.set(path)  # Hope None works
 
-    def subScribeNewIds(self, fn):
-        self.subNewIdsList.append(fn)
-
-    def executeNewIds(self, newId, macAddr):
-        for f in self.subNewIdsList:
-            f(newId, macAddr)
-
-    def serverOn(self, isOn: bool, rconf: Config):
-        if isOn:
-            self.updBut.config(state=tk.DISABLED)
-        else:
-            self.updBut.config(state=tk.NORMAL)
-
     def updateCb(self):
-        """ TODO
-        No validation empty id and double mac address is possible
-        change udp to macs
-        """
+        dispId = self.idVar.get()
         path = self.pathVar.get()
-        if path != "":
+        isOk, errTxt = self.validateFn(dispId, True)
+        if path == "":
+            errTxt = "\nSerial port is missing"
+        if errTxt == "":
             try:
                 self.logger("Create Serial connection")
                 con = serial.Serial(path,
@@ -209,9 +181,7 @@ class Ble:
                     mac = bts.decode("ascii")
                     self.macVar.set(mac)
                     self.logger("Mac data recieved: {}".format(mac))
-                    id = self.idVar.get()
-                    if self.cb(id, mac):  # Only updates if server not running
-                        self.executeNewIds(id, mac)
+                    self.receiver(dispId, mac)
                 else:  # timeout
                     data = bts.decode("ascii")
                     self.logger("Time out data recieved: {}".format(data))

@@ -11,6 +11,7 @@ class Sett:
                  logger,
                  saveFn
                  ):
+        self.subUpdList = list()
         self.parentWin = parentWin
         self.parent = parent
         self.logger = logger
@@ -58,6 +59,14 @@ class Sett:
                 self.logger(errTxt)
             else:
                 self.show(jsoObj)
+                self.execUdp(dict(jsoObj))
 
     def reload(self):
         self.show(self.oldJsoObj)
+
+    def subScribeUpd(self, fn):
+        self.subUpdList.append(fn)
+
+    def execUdp(self, settObj: dict):
+        for f in self.subUpdList:
+            f(settObj)

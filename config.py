@@ -155,6 +155,9 @@ class Config:
     def dispIs(self, id) -> bool:
         return id in self.conf[fd.displays.jId]
 
+    def dispIsBle(self, id) -> bool:
+        return id in self.conf[fd.macs.jId]
+
     def dispAdd(self, id) -> bool:  # TODO return defaultTab
         upd = False
         if id not in self.conf[fd.displays.jId]:
