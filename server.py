@@ -206,7 +206,7 @@ class DispServer:
     def getStatus(self) -> (bool, str, int, int, set, list):
         return self.status.getStatus()
 
-    def pathsSave(self, pathId, pathJson) -> tuple[bool,
+    def pathsSaveId(self, pathId, pathJson) -> tuple[bool,
                                                    set[str],
                                                    str,
                                                    dict]:
@@ -290,6 +290,18 @@ class DispServer:
             pjjj = self.conf.pathsGet()
 
         return isOk, errTxt, pjjj
+
+    def pathsSave(self,
+                  pathsJso: dict,
+                  alarmsJso: dict,
+                  bigsJso: dict) -> tuple[str, list[ErrPtr]]:
+        self.conf.pathsSet(pathsJso, alarmsJso, bigsJso)
+        errTxt, errPtrs = self.conf.validate()
+        if len(errPtrs) != 0:
+            self.conf.rollBack()
+        else:
+            self.conf.save()
+        errTxt, errPtrs
 
     def displaysSave(self, disps, macs, views) -> tuple[str, list[ErrPtr]]:
         self.conf.dispsSet(disps, macs, views)

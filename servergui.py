@@ -82,6 +82,7 @@ class GuiDispServer:
                                        pathsFrame,
                                        self.logger,
                                        self.server.pathsDelete,
+                                       self.server.pathsSaveId,
                                        self.server.pathsSave)
         self.pathsGui.mainFrame.pack()
         self.pathsGui.show(self.server.conf.pathsGet())

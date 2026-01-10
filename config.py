@@ -180,10 +180,10 @@ class Config:
         return upd
 
     def dispGetBles(self) -> dict:
-        return dict(self.conf[fd.macs.jId])
+        return copy.deepcopy(self.conf[fd.macs.jId])
 
     def dispGetBle(self, dispId) -> dict:
-        return self.conf[fd.macs.jId][dispId]
+        return dict(self.conf[fd.macs.jId][dispId])
 
     def dispSetTabId(self, dispId, tabId):
         self.conf[fd.displays.jId][dispId][ff.view.jId] = tabId
@@ -201,7 +201,7 @@ class Config:
         - views
         - paths
         """
-        displays = dict(self.conf[fd.displays.jId])
+        displays = copy.deepcopy(self.conf[fd.displays.jId])
         macs = self.dispGetBles()
         views = copy.deepcopy(self.conf[fd.tabs.jId])
         paths = self.pathsGet()[0]
@@ -209,8 +209,8 @@ class Config:
         return displays, macs, views, paths
 
     def dispsSet(self, disps, macs, views):
-        self.conf[fd.displays.jId] = dict(disps)
-        self.conf[fd.macs.jId] = dict(macs)
+        self.conf[fd.displays.jId] = copy.deepcopy(disps)
+        self.conf[fd.macs.jId] = copy.deepcopy(macs)
         self.conf[fd.tabs.jId] = copy.deepcopy(views)
 
     def dispSetBleDisable(self, id: str, isDisable: bool):
@@ -255,10 +255,20 @@ class Config:
         - alarms
         - bigs
         """
-        return self.conf[fd.paths.jId], self.conf[fd.alarms.jId], self.conf[fd.bigs.jId]
+        paths = copy.deepcopy(self.conf[fd.paths.jId])
+        alarms = copy.deepcopy(self.conf[fd.alarms.jId])
+        bigs = copy.deepcopy(self.conf[fd.bigs.jId])
+        return paths, alarms, bigs
 
     def pathsSetPath(self, pathId: str, pathJson: dict):
         self.conf[fd.paths.jId][pathId] = pathJson
+
+        # TODO when should we copy
+        # dont think gui ever modify
+    def pathsSet(self, pathsJso, alarmsJso, bigsJso):
+        self.conf[fd.paths.jId] = copy.deepcopy(pathsJso)
+        self.conf[fd.alarms.jId] = copy.deepcopy(alarmsJso)
+        self.conf[fd.bigs.jId] = copy.deepcopy(bigsJso)
 
     def pathsDeletePath(self, pathId: str):
         del self.conf[fd.paths.jId][pathId]

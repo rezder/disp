@@ -5,7 +5,6 @@ from guijsontable import Table
 from flds import paths as pathFlds
 from guiflddefs import FldDef
 from guimenu import addWinMenuItem
-from config import Config
 from guiflds import Fld
 
 
@@ -116,7 +115,8 @@ class Paths:
                  parent: tk.Frame,
                  logger,
                  deletePathCb,
-                 savePathCb
+                 savePathCb,
+                 savePathsFn
                  ):
         self.parentWin = parentWin
         self.subPathUpdList = list()
@@ -124,6 +124,7 @@ class Paths:
         self.logger = logger
         self.deletePathCb = deletePathCb
         self.savePathCb = savePathCb
+        self.savePathsFn = savePathsFn
         self.mainFrame = tk.Frame(self.parent)
         self.topFrame = tk.Frame(self.mainFrame)
         self.topFrame.pack()
@@ -155,7 +156,9 @@ class Paths:
                               isPopUp=False)
         self.tabelGui.bindAllVisFields("<ButtonRelease-1>", self.rowClick)
         self.tabelGui.mainFrame.pack()
-        self.alarmsGui, self.bigsGui = self.creatMenu(self.parentWin)
+        alarmsTab, bigsTab = self.creatMenu(self.parentWin)
+        self.alarmsTab = alarmsTab
+        self.bigsTab: Table = bigsTab
 
         self.saveButt = tk.Button(self.buttFrame,
                                   text="Save",
@@ -183,29 +186,30 @@ class Paths:
         alarmsFrame, _ = addWinMenuItem(win,
                                         menuBar,
                                         "Alarms")
-        # TODO add save and reload menu commands
-        # savecb must return isOk,list of (key,errFlds),
-        # errorTxt and tPathsJson
-        # only validation both min and max cant be empty.
-        # table and fld validation should take care of the rest
-        # if that is untrusted the validation should be repeated.
         alarmsFlds = [pathFlds.pathJs, pathFlds.min, pathFlds.max]
         alarmsTableGui = Table(
             win,
             alarmsFrame,
             pathFlds.pathJs,
-            alarmsFlds)
+            alarmsFlds,
+            saveFn=self.saveAlarms,
+            reloadFn=self.reloadAlarms
+        )
         alarmsTableGui.mainFrame.pack()
         bigsFrame, _ = addWinMenuItem(win,
                                       menuBar,
                                       "Bigs")
         bigsFlds = [pathFlds.pathJs, pathFlds.limit,
                     pathFlds.dpUnit, pathFlds.dec]
+
         bigsTableGui = Table(
             win,
             bigsFrame,
             pathFlds.pathJs,
-            bigsFlds)
+            bigsFlds,
+            saveFn=self.saveBigs,
+            reloadFn=self.reloadBigs)
+
         bigsTableGui.mainFrame.pack()
         win.config(menu=menuBar)
 
@@ -219,13 +223,51 @@ class Paths:
         self.tabelGui.show(paths)
         jId = pathFlds.pathJs.fld.jId
         fldsJson = {jId: paths}
-        self.alarmsGui.setTabFldsJson(fldsJson)
-        self.alarmsGui.show(alarms)
-        self.bigsGui.setTabFldsJson(fldsJson)
-        self.bigsGui.show(bigs)
+        self.alarmsTab.setTabFldsJson(fldsJson)
+        self.alarmsTab.show(alarms)
+        self.bigsTab.setTabFldsJson(fldsJson)
+        self.bigsTab.show(bigs)
 
     def rowClick(self, path: str, fld: Fld, event):
         self.pathGui.show(path, self.pathJsonOld[path])
+
+    def saveAlarms(self):
+        isOk = True
+        isOk = isOk and self.alarmsTab.validate()
+        if isOk:
+            alarmsJso = self.alarmsTab.get()[0]
+            bigsJso = self.bigsJsonOld
+            pathsJso = self.pathJsonOld
+            errTxt, errPtrs = self.savePathsFn(pathsJso,
+                                               alarmsJso,
+                                               bigsJso)
+            if len(errPtrs) != 0:
+                self.logger(errTxt)
+            else:
+                self.alarmsTab.show(alarmsJso)
+                self.alarmsJsonOld = alarmsJso
+
+    def reloadAlarms(self):
+        self.alarmsTab.show(self.alarmsJsonOld)
+
+    def saveBigs(self):
+        isOk = True
+        isOk = isOk and self.bigsTab.validate()
+        if isOk:
+            alarmsJso = self.alarmsJsonOld
+            bigsJso = self.bigsTab.get()[0]
+            pathsJso = self.pathJsonOld
+            errTxt, errPtrs = self.savePathsFn(pathsJso,
+                                               alarmsJso,
+                                               bigsJso)
+            if len(errPtrs) != 0:
+                self.logger(errTxt)
+            else:
+                self.bigsTab.show(bigsJso)
+                self.bigsJsonOld = bigsJso
+
+    def reloadBigs(self):
+        self.bigsTab.show(self.bigsJsonOld)
 
     def save(self):
         if self.pathGui.validateFlds():
@@ -236,8 +278,6 @@ class Paths:
             else:
                 txt = "Creating new path: {}"
                 self.logger(txt.format(path))
-            #  TODO save and delete need to include alarms and bigs
-            # maybe with a button on each tabel
             isOk, errFlds, errTxt, tPathsJson = self.savePathCb(path, itemJson)
             if isOk:
                 self.clear()
