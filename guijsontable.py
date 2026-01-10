@@ -18,13 +18,17 @@ class Table:
                  tabFldsJson: dict[str, dict] | None = None,
                  showCalcCb=None,
                  isPopUp=True,
-                 postChgCb=None):
+                 postChgCb=None,
+                 saveFn=None,
+                 reloadFn=None):
         self.parentWin = parentWin
         self.isPopUp = isPopUp
         self.parent = parent
         self.mainFrame = tk.Frame(self.parent)
         self.showCalcFldCb = showCalcCb
         self.postChgCb = postChgCb
+        self.saveFn = saveFn
+        self.reloadFn = reloadFn
         self.createPopupMenu(self.parentWin)
         self.tabFldsJson = tabFldsJson
         if self.tabFldsJson is None:
@@ -87,6 +91,12 @@ class Table:
                                      command=self.deleteRowClicked)
             self.popMenu.add_command(label="New Row",
                                      command=self.addNewRow)
+            if self.saveFn is not None:
+                self.popMenu.add_command(label="Save",
+                                         command=self.saveFn)
+            if self.reloadFn is not None:
+                self.popMenu.add_command(label="Reload",
+                                         command=self.reloadFn)
             self.popMenu.bind("<FocusOut>", self.popUpMenuClose)
             #  TODO add reset menu
 

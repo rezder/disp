@@ -238,7 +238,6 @@ class Paths:
                 self.logger(txt.format(path))
             #  TODO save and delete need to include alarms and bigs
             # maybe with a button on each tabel
-            # and drop down paths need to sync
             isOk, errFlds, errTxt, tPathsJson = self.savePathCb(path, itemJson)
             if isOk:
                 self.clear()
