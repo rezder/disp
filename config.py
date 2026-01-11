@@ -143,7 +143,7 @@ class Config:
         errTxt, errList = self.validate()
         if len(errList) != 0:
             raise Exception("Config load error: {}".format(errTxt))
-        self.defaultTab = "None"
+        self.defaultView = "None"
         self.settFlds = [ff.broadCP, ff.interface, ff.dissub]
 
     def roleBack(self):
@@ -157,13 +157,6 @@ class Config:
 
     def dispIsBle(self, id) -> bool:
         return id in self.conf[fd.macs.jId]
-
-    def dispAdd(self, id) -> bool:  # TODO return defaultTab
-        upd = False
-        if id not in self.conf[fd.displays.jId]:
-            self.conf[fd.displays.jId][id][ff.view.jId] = self.defaultTab
-            upd = True
-        return upd
 
     def dispUpdMac(self, id, mac) -> bool:
         upd = False
@@ -182,16 +175,10 @@ class Config:
     def dispGetBles(self) -> dict:
         return copy.deepcopy(self.conf[fd.macs.jId])
 
-    def dispGetBle(self, dispId) -> dict:
-        return dict(self.conf[fd.macs.jId][dispId])
-
-    def dispSetTabId(self, dispId, tabId):
-        self.conf[fd.displays.jId][dispId][ff.view.jId] = tabId
-
-    def dispGetTab(self, dispId) -> tuple[str, dict]:
-        tabId = self.conf[fd.displays.jId][dispId][ff.view.jId]
-        tab = dict(self.conf[fd.tabs.jId][tabId][fd.poss.jId])
-        return (tabId, tab)
+    def dispGetView(self, dispId) -> tuple[str, dict]:
+        viewId = self.conf[fd.displays.jId][dispId][ff.view.jId]
+        view = self.conf[fd.tabs.jId][viewId][fd.poss.jId]
+        return (viewId, view)
 
     def dispsGet(self) -> tuple[dict, dict, dict, dict]:
         """
@@ -216,37 +203,15 @@ class Config:
     def dispSetBleDisable(self, id: str, isDisable: bool):
         self.conf[fd.macs.jId][id][ff.disable.jId] = isDisable
 
-    #  ################ Tabs ###########
+    #  ################ Views ###########
 
-    def tabsGetTab(self, tabId) -> dict:
-        return dict(self.conf[fd.tabs.jId][tabId][fd.poss.jId])
+    def viewsGetView(self, viewId) -> dict:
+        return self.conf[fd.tabs.jId][viewId][fd.poss.jId]
 
-    def tabsGetIds(self) -> list:
+    def viewsGetIds(self) -> list:
         return list(self.conf[fd.tabs.jId].keys())
 
     #  ############## Paths #################
-
-    def pathsGetRefs(self, path: str) -> tuple[list[str], bool, bool]:
-        """
-        return reference to path.
-        :returns:
-        - tabs     - reference on displays tab
-        - inBigs   - if it have a big unit
-        - inAlarms = if it have an alarm
-        """
-        tabs = set()
-        inBigs = False
-        inAlarms = False
-        for id, tab in self.conf[fd.tabs.jId].items():
-            for tabPath in tab[fd.poss.jId].keys():
-                if path == tabPath:
-                    tabs.add(id)
-        if path in self.conf[fd.bigs.jId]:
-            inBigs = True
-
-        if path in self.conf[fd.alarms.jId]:
-            inAlarms = True
-        return tabs, inBigs, inAlarms
 
     def pathsGet(self) -> tuple[dict, dict, dict]:
         """
@@ -260,18 +225,12 @@ class Config:
         bigs = copy.deepcopy(self.conf[fd.bigs.jId])
         return paths, alarms, bigs
 
-    def pathsSetPath(self, pathId: str, pathJson: dict):
-        self.conf[fd.paths.jId][pathId] = pathJson
-
         # TODO when should we copy
         # dont think gui ever modify
     def pathsSet(self, pathsJso, alarmsJso, bigsJso):
         self.conf[fd.paths.jId] = copy.deepcopy(pathsJso)
         self.conf[fd.alarms.jId] = copy.deepcopy(alarmsJso)
         self.conf[fd.bigs.jId] = copy.deepcopy(bigsJso)
-
-    def pathsDeletePath(self, pathId: str):
-        del self.conf[fd.paths.jId][pathId]
 
     def pathsGetAlarm(self, pathId) -> dict | None:
         res = None

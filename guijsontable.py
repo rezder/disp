@@ -324,13 +324,11 @@ class Table:
         if isOk:
             keys = dict()
             for k, row in self.rowsFlds.items():
-                row[self.keyId].setError(False)
-                if row[self.keyId] in keys:
-                    keys[self.keyId].append(k)
-                else:
-                    ll = list()
-                    ll.append(k)
-                    keys[self.keyId] = ll
+                row[self.keyId].setError(False)  # clear
+                newKeyId = row[self.keyId].get()
+                ids: list[str] = keys.get(newKeyId, list())
+                ids.append(k)
+                keys[newKeyId] = ids
             for k, keyList in keys.items():
                 if len(keyList) > 1:
                     isOk = False

@@ -114,16 +114,12 @@ class Paths:
                  parentWin: tk.Toplevel,
                  parent: tk.Frame,
                  logger,
-                 deletePathCb,
-                 savePathCb,
                  savePathsFn
                  ):
         self.parentWin = parentWin
         self.subPathUpdList = list()
         self.parent = parent
         self.logger = logger
-        self.deletePathCb = deletePathCb
-        self.savePathCb = savePathCb
         self.savePathsFn = savePathsFn
         self.mainFrame = tk.Frame(self.parent)
         self.topFrame = tk.Frame(self.mainFrame)
@@ -149,13 +145,13 @@ class Paths:
                 sortGuiFldDef = tabFld
             tabFlds.append(tabFld)
 
-        self.tabelGui = Table(self.parentWin,
+        self.pathsTab = Table(self.parentWin,
                               self.tableFrame,
                               sortGuiFldDef,
                               tabFlds,
                               isPopUp=False)
-        self.tabelGui.bindAllVisFields("<ButtonRelease-1>", self.rowClick)
-        self.tabelGui.mainFrame.pack()
+        self.pathsTab.bindAllVisFields("<ButtonRelease-1>", self.rowClick)
+        self.pathsTab.mainFrame.pack()
         alarmsTab, bigsTab = self.creatMenu(self.parentWin)
         self.alarmsTab = alarmsTab
         self.bigsTab: Table = bigsTab
@@ -215,21 +211,20 @@ class Paths:
 
         return alarmsTableGui, bigsTableGui
 
-    def show(self, tPathsJson):
-        paths, alarms, bigs = tPathsJson
-        self.pathJsonOld = paths
-        self.alarmsJsonOld = alarms
-        self.bigsJsonOld = bigs
-        self.tabelGui.show(paths)
+    def show(self, pathsJso, alarmsJso, bigsJso):
+        self.pathsJsoOld = pathsJso
+        self.alarmsJsonOld = alarmsJso
+        self.bigsJsonOld = bigsJso
+        self.pathsTab.show(pathsJso)
         jId = pathFlds.pathJs.fld.jId
-        fldsJson = {jId: paths}
+        fldsJson = {jId: pathsJso}
         self.alarmsTab.setTabFldsJson(fldsJson)
-        self.alarmsTab.show(alarms)
+        self.alarmsTab.show(alarmsJso)
         self.bigsTab.setTabFldsJson(fldsJson)
-        self.bigsTab.show(bigs)
+        self.bigsTab.show(bigsJso)
 
     def rowClick(self, path: str, fld: Fld, event):
-        self.pathGui.show(path, self.pathJsonOld[path])
+        self.pathGui.show(path, self.pathsJsoOld[path])
 
     def saveAlarms(self):
         isOk = True
@@ -237,7 +232,7 @@ class Paths:
         if isOk:
             alarmsJso = self.alarmsTab.get()[0]
             bigsJso = self.bigsJsonOld
-            pathsJso = self.pathJsonOld
+            pathsJso = self.pathsJsoOld
             errTxt, errPtrs = self.savePathsFn(pathsJso,
                                                alarmsJso,
                                                bigsJso)
@@ -246,6 +241,7 @@ class Paths:
             else:
                 self.alarmsTab.show(alarmsJso)
                 self.alarmsJsonOld = alarmsJso
+                self.execPathUdp(pathsJso, alarmsJso, bigsJso)
 
     def reloadAlarms(self):
         self.alarmsTab.show(self.alarmsJsonOld)
@@ -256,7 +252,7 @@ class Paths:
         if isOk:
             alarmsJso = self.alarmsJsonOld
             bigsJso = self.bigsTab.get()[0]
-            pathsJso = self.pathJsonOld
+            pathsJso = self.pathsJsoOld
             errTxt, errPtrs = self.savePathsFn(pathsJso,
                                                alarmsJso,
                                                bigsJso)
@@ -265,47 +261,51 @@ class Paths:
             else:
                 self.bigsTab.show(bigsJso)
                 self.bigsJsonOld = bigsJso
+                self.execPathUdp(pathsJso, alarmsJso, bigsJso)
 
     def reloadBigs(self):
         self.bigsTab.show(self.bigsJsonOld)
 
-    def save(self):
+    def updatePath(self, isDel=False):
         if self.pathGui.validateFlds():
-            path, itemJson = self.pathGui.get()
-            if path in self.pathJsonOld.keys():
+            pathId, pathJso = self.pathGui.get()
+            newPaths = self.pathsTab.get()[0]
+            isClear = False
+            if pathId in self.pathsJsoOld.keys():
                 txt = "Modifying path: {}"
-                self.logger(txt.format(path))
+                if isDel:
+                    txt = "Deleting path: {}"
+                    newPaths.pop(pathId)
+                else:
+                    newPaths[pathId] = pathJso
+                self.logger(txt.format(pathId))
             else:
                 txt = "Creating new path: {}"
-                self.logger(txt.format(path))
-            isOk, errFlds, errTxt, tPathsJson = self.savePathCb(path, itemJson)
-            if isOk:
-                self.clear()
-                self.show(tPathsJson)
-                self.execPathUdp(tPathsJson)
+                if isDel:
+                    txt = "Path: {} does not exist"
+                    isClear = True
+                else:
+                    newPaths[pathId] = pathJso
+                self.logger(txt.format(pathId))
+            if isClear:
+                self.pathGui.clear()
             else:
-                for head in errFlds:
-                    self.pathGui.setErrorFld(head)
+                alarmsJso = self.alarmsJsonOld
+                bigsJso = self.bigsJsonOld
+                errTxt, errPtrs = self.savePathsFn(newPaths,
+                                                   alarmsJso,
+                                                   bigsJso)
+                if len(errPtrs) != 0:
+                    self.logger(errTxt)
+                else:
+                    self.show(newPaths, alarmsJso, bigsJso)
+                    self.execPathUdp(newPaths, alarmsJso, bigsJso)
 
-                txt = "Error saving path: {}\nError: {}"
-                self.logger(txt.format(path, errTxt))
+    def save(self):
+        self.updatePath()
 
     def delete(self):
-        path, itemJson = self.pathGui.get()
-        if path in self.pathJsonOld.keys():
-            isOk, errTxt, tPathsJson = self.deletePathCb(path)
-
-            if isOk:
-                self.clear()
-                self.show(tPathsJson)
-                self.execPathUdp(tPathsJson)
-                self.logger("Path: {} deleted".format(path))
-            else:
-                self.pathGui.setErrorFld(pathFlds.path.fld.jId)
-                txt = "Error deleting path: {}:\n{}"
-                self.logger(txt.format(path, errTxt))
-        else:
-            self.logger("Nothing deleted path does not exist")
+        self.updatePath(True)
 
     def clear(self):
         self.pathGui.clear()
@@ -313,6 +313,6 @@ class Paths:
     def subScribePathUpd(self, fn):
         self.subPathUpdList.append(fn)
 
-    def execPathUdp(self, tPathJson: tuple[dict, dict, dict]):
+    def execPathUdp(self, pathsJso, alarmsJso, bigsJso):
         for f in self.subPathUpdList:
-            f(tPathJson)
+            f(pathsJso, alarmsJso, bigsJso)

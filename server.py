@@ -129,7 +129,7 @@ class DispServer:
             errMsg = "Display id is empty"
         else:
             isDisp = self.conf.dispIs(dispId)
-            isMac = self.conf.dispGetBle(dispId)
+            isMac = self.conf.dispIsBle(dispId)
             isUpd = isDisp and not isMac
             if isMacVal:
                 if isUpd:
@@ -141,56 +141,20 @@ class DispServer:
                     errMsg = "Display: {} is an Ble display".format(dispId)
         return isOk, errMsg
 
-    def addNewUdpDisp(self, id: str) -> bool:
-        """
-        Adds a new display to the configuration
-        only allowed if the async server is
-        not running.
-        """
-        upd = False
-        if not self.exist():  # TODO remove
-            if self.conf.dispAdd(id):
-                upd = True
-        return upd
-
-    def addNewBleDisp(self, id: str, mac: str) -> bool:
-        """
-        Adds a new display with a mac address
-        if not new only update mac address.
-        return true if update. Server must
-        not be running to succeed
-        """
-        upd = False
-        if not self.exist():  # TODO remove
-            if self.conf.dispAdd(id):
-                upd = True
-                _ = self.conf.dispUpdMac(id, mac)
-            else:
-                upd = self.conf.dispUpdMac(id, mac)
-
-        return upd
-
     def changeDisp(self, id, viewId) -> bool:
         """
-        Change current view used by display
-        and inform the server that display have been
-        change. If the server is running
-        it may not be ready to recieve the msg
-        if the that is the case not update.
+        Send message to Change view on active display.
+        Server may not be ready to recieve the msg
+        return true if messages send.
         """
-        ok = False
-        if not self.exist():
-            self.conf.dispSetTabId(id, viewId)  # TODO remove
-            ok = True
-        else:
-            ok = self.status.setChgTab(id, viewId)
-            if ok:
-                req = gr.GuiReq(gr.chgView, id)
-                req.setData(viewId)
-                _ = self.loop.call_soon_threadsafe(queueAdd,
-                                                   self.queue,
-                                                   req,
-                                                   self.status)
+        ok = self.status.setChgTab(id, viewId)
+        if ok:
+            req = gr.GuiReq(gr.chgView, id)
+            req.setData(viewId)
+            _ = self.loop.call_soon_threadsafe(queueAdd,
+                                               self.queue,
+                                               req,
+                                               self.status)
         return ok
 
     def alarmDisable(self, path: str, label: str, isDis: bool):
@@ -206,91 +170,6 @@ class DispServer:
     def getStatus(self) -> (bool, str, int, int, set, list):
         return self.status.getStatus()
 
-    def pathsSaveId(self, pathId, pathJson) -> tuple[bool,
-                                                   set[str],
-                                                   str,
-                                                   dict]:
-        """
-        Saves a path setting.
-        Validate before saving:
-        Buffer frequenz must be less or equal to buffer size.
-        Saving: save to file, update conf create new skData
-        :param pathId: the path that is being saved
-        :param pathJson: The path json object
-        :returns:
-        - isOk     - If path saved
-        - errFlds  - List of json fld headers causing the error
-        - errTxt   - Error text
-        - pjjj -(pathsJson,alarmsJson,bigJson)
-        """
-        isOk = True
-        errFlds = set()
-        errTxt = ""
-        pjjj = None
-        # TODO one day translate json ids to gui flds
-        # Make a function that translate marked text like
-        # @path@ to Path. It just needs a dict of flds
-        if not self.exist():  # TODO Remove
-            fldId = ff.bufFreq.jId
-            if pathJson[fldId] > pathJson[ff.bufSize.jId]:
-                isOk = False
-                errFlds.add(fldId)
-                txt = "\nError! Buffer frequenze must"\
-                    " not be bigger than buffer size"
-                errTxt = errTxt + txt
-        else:
-            isOk = False
-            errTxt = errTxt+"\nError! Server is running!"\
-                " Do not update settings!"
-        if isOk:
-            self.conf.pathsSetPath(pathId, pathJson)
-            self.conf.save()
-            pjjj = self.conf.pathsGet(),
-        return isOk, errFlds, errTxt, pjjj
-
-    def pathsDelete(self, pathId):
-        """
-        Deletes a path setting.
-        Validate before deleting:
-        Reference paths must not be deleted,
-        reference  tabs holds reference.
-        deleting: save to file, update conf create new skData
-        :param path: the path that is being saved
-        :returns:
-        - isOk     - If path deleted
-        - errTxt   - Error text
-        - pjj - pathsJson,alarmsJson,bigsJson
-        """
-        isOk = True
-        errTxt = ""
-        pjjj = None
-        tabRefs, bigs, alarms = self.conf.pathsGetRefs(pathId)
-        if len(tabRefs) > 0:
-            isOk = False
-            txt = "Error! Path: {} is reference on tabs:\n{}."
-            errTxt = errTxt + txt.format(pathId, tabRefs)
-        if len(bigs) > 0:
-            isOk = False
-            txt = ""
-            if len(errTxt) > 0:
-                txt = "\n"
-            txt = "Error! Path: {} is reference on bigs:\n{}."
-            errTxt = errTxt + txt.format(pathId, bigs)
-        if len(alarms) > 0:
-            isOk = False
-            txt = ""
-            if len(errTxt) > 0:
-                txt = "\n"
-            txt = "Error! Path: {} is reference on alarms:\n{}."
-            errTxt = errTxt + txt.format(pathId, alarms)
-
-        if isOk:
-            self.conf.pathsDeletePath(pathId)
-            self.conf.save()
-            pjjj = self.conf.pathsGet()
-
-        return isOk, errTxt, pjjj
-
     def pathsSave(self,
                   pathsJso: dict,
                   alarmsJso: dict,
@@ -301,7 +180,7 @@ class DispServer:
             self.conf.rollBack()
         else:
             self.conf.save()
-        errTxt, errPtrs
+        return errTxt, errPtrs
 
     def displaysSave(self, disps, macs, views) -> tuple[str, list[ErrPtr]]:
         self.conf.dispsSet(disps, macs, views)
@@ -310,7 +189,7 @@ class DispServer:
             self.conf.rollBack()
         else:
             self.conf.save()
-        errTxt, errPtrs
+        return errTxt, errPtrs
 
     def settingsSave(self, jsoObj) -> tuple[str, list[ErrPtr]]:
         self.conf.settingsSave(jsoObj)

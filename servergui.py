@@ -81,11 +81,9 @@ class GuiDispServer:
         self.pathsGui = guipaths.Paths(pathsWin,
                                        pathsFrame,
                                        self.logger,
-                                       self.server.pathsDelete,
-                                       self.server.pathsSaveId,
                                        self.server.pathsSave)
         self.pathsGui.mainFrame.pack()
-        self.pathsGui.show(self.server.conf.pathsGet())
+        self.pathsGui.show(*self.server.conf.pathsGet())
         # Displays conf
         dispsFrame, dispsWin = guimenu.addWinMenuItem(self.window,
                                                       menuSettings,

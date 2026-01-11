@@ -63,7 +63,7 @@ class TestTable:
                     if not gf.compJson(v, jsonObjDel[k]):
                         print("Error on key:{}".format(k))
 
-        tab = self.conf.tabsGetTab("Default")
+        tab = self.conf.viewsGetView("Default")
         tabFlds = [PathsFlds.path, TabsFlds.pos]
         self.tabTable = gt.Table(self.window,
                                  self.window,

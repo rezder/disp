@@ -10,15 +10,6 @@
         "bufSize": 0,
         "bufFreq": 0
       },
-      "navigation.speedOverGround": {
-        "minPeriod": 500,
-        "decimals": 1,
-        "units": 10,
-        "dispUnits": 11,
-        "label": "SOG",
-        "bufSize": 4,
-        "bufFreq": 4
-      },
       "navigation.courseOverGroundTrue": {
         "minPeriod": 500,
         "decimals": 0,
@@ -27,15 +18,6 @@
         "label": "COG",
         "bufSize": 4,
         "bufFreq": 4
-      },
-      "navigation.speedThroughWater": {
-        "minPeriod": 2000,
-        "decimals": 1,
-        "units": 10,
-        "dispUnits": 11,
-        "label": "STW",
-        "bufSize": 0,
-        "bufFreq": 0
       },
       "navigation.courseRhumbline.crossTrackError": {
         "minPeriod": 4000,
@@ -61,6 +43,33 @@
         "units": 0,
         "dispUnits": 0,
         "label": "DIS",
+        "bufSize": 0,
+        "bufFreq": 0
+      },
+      "navigation.speedOverGround": {
+        "minPeriod": 500,
+        "decimals": 1,
+        "units": 10,
+        "dispUnits": 11,
+        "label": "SOG",
+        "bufSize": 4,
+        "bufFreq": 4
+      },
+      "navigation.speedThroughWater": {
+        "minPeriod": 2000,
+        "decimals": 1,
+        "units": 10,
+        "dispUnits": 11,
+        "label": "STW",
+        "bufSize": 0,
+        "bufFreq": 0
+      },
+      "navigation.courseRhumbline.nextPoint.velocityMadeGood": {
+        "minPeriod": 4000,
+        "decimals": 1,
+        "label": "VMG",
+        "units": 10,
+        "dispUnits": 11,
         "bufSize": 0,
         "bufFreq": 0
       }

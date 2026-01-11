@@ -45,11 +45,6 @@ class Displays:
             disp = self.bleDisps.get(id)
         return disp
 
-    def getDispTab(self, id):
-        disp = self.getDisp(id)
-        tab = disp.getTab()
-        return tab
-
     def addBleDisps(self, disps: dict) -> set:
         """
         Construct and add the ids to the displays.

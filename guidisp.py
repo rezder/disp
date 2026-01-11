@@ -41,7 +41,7 @@ class List:
 
     def serverOnOff(self, isOn: bool, rconf: Config):
         if isOn:
-            self.viewIds = rconf.tabsGetIds()
+            self.viewIds = rconf.viewsGetIds()
             self.macs = rconf.dispGetBles()
         else:
             self.viewIds = None

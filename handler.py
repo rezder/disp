@@ -9,7 +9,6 @@ from config import Config
 from skdata import SkData
 from status import Status
 import guirequest as gr
-from flds import flds as ff
 
 
 class Subscription:
@@ -73,10 +72,10 @@ async def guiMsg(ws: wsclient.ClientConnection,
         if req.tp == gr.chgView:
             dispId = req.id
             if req.data is None:  # New
-                newViewId, newView = conf.dispGetTab(dispId)
+                newViewId, newView = conf.dispGetView(dispId)
             else:  # Change
                 newViewId = req.data
-                newView = conf.tabsGetTab(newViewId)
+                newView = conf.viewsGetView(newViewId)
 
             # conf read is a problem as it could be change
             # while wait on messages better to have all
