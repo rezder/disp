@@ -86,7 +86,7 @@
         "min": 5.0
       }
     },
-    "tabs": {
+    "views": {
       "Default": {
         "poss": {
           "environment.depth.belowTransducer": {

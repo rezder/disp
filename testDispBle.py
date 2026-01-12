@@ -24,8 +24,8 @@ async def main():
     id = "b1"
     mac = "f0:f5:bd:76:91:9d"
     display = ble.Display(id, mac, status)
-    tab = conf.viewsGetView("Default")
-    display.setTab(tab)
+    view = conf.viewsGetView("Default")
+    display.setView(view)
     print(display)
     await asyncio.sleep(2)
 

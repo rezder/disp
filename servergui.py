@@ -7,7 +7,6 @@ import guidisp
 import guimenu
 import guialarms
 import guipaths
-import guiserial
 import guidispconf
 from guisettings import Sett
 from server import DispServer
@@ -56,7 +55,7 @@ class GuiDispServer:
 
         # Left Frame
         self.dispListGui = guidisp.List(self.leftFrame,
-                                        self.server.changeDisp)
+                                        self.server.chgDispView)
 
         self.dispListGui.show()
         self.dispListGui.mainFrame.pack()

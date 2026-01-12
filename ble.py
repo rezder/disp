@@ -18,18 +18,18 @@ class Display:
         self.pauseCharId = bleak.uuids.normalize_uuid_32(102)
         self.dataCharId = bleak.uuids.normalize_uuid_32(101)
         self.cmdCharId = bleak.uuids.normalize_uuid_32(103)
-        self.tab = {}
+        self.view = {}
         self.turnedOff = False
 
     def __str__(self) -> str:
         txt = "Ble client id: {}, mac: {}".format(self.id, self.macAddr)
         return txt
 
-    def setTab(self, tab: dict):
-        self.tab = tab
+    def setView(self, view: dict):
+        self.view = view
 
-    def getTab(self) -> dict:
-        return self.tab
+    def getView(self) -> dict:
+        return self.view
 
     async def delayConnect(self):
         await ass.sleep(1)
@@ -57,14 +57,14 @@ class Display:
                 self.connTask = ass.create_task(self.delayConnect())
 
     async def display(self, dp: DispData, path: str):
-        if not self.turnedOff and path in self.tab:
+        if not self.turnedOff and path in self.view:
             self.checkConnTask()
             if self.connTask is None:
                 try:
                     buff = await self.client.read_gatt_char(self.pauseCharId)
                     isPaused = bool(int.from_bytes(buff))
                     if not isPaused:
-                        pos = self.tab[path][ff.pos.jId]
+                        pos = self.view[path][ff.pos.jId]
                         buff = dp.encode(pos)
                         print("Sending disp msg:{}".format(buff))  # TODO remov
                         await self.client.write_gatt_char(self.dataCharId,

@@ -19,7 +19,7 @@ def test(conf):
     print(ptr.getRow(conf))
     ptr = Ptr([fd.paths], [])
     print(ptr.getRows(conf))
-    flds = [fd.tabs, fd.poss, ff.pos]
+    flds = [fd.views, fd.poss, ff.pos]
     keys = ["Default", "navigation.speedOverGround"]
     ptr = Ptr(flds, keys)
     v = ptr.getValue(conf)

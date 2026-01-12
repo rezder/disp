@@ -10,11 +10,11 @@ class List:
 
     def __init__(self,
                  parent: tk.Frame,
-                 cbTabChg):
+                 chgDispViewFn):
         self.parent = parent
         self.mainFrame = tk.Frame(self.parent)
         self.items: list[Item] = list()
-        self.cbTabChg = cbTabChg
+        self.chgDispViewFn = chgDispViewFn
         self.viewIds = None
         self.macs = None
 
@@ -28,7 +28,7 @@ class List:
 
     def newId(self, dispId: str, viewId: str):
         r = Item(self.mainFrame,
-                 self.cbTabChg)
+                 self.chgDispViewFn)
         macAddr = None
         if dispId in self.macs:
             macAddr = self.macs[dispId][ff.addr.jId]
@@ -52,7 +52,7 @@ class List:
         for dispId, viewId in dispView.items():
             found = False
             for r in self.items:
-                if r.getId() == dispId:
+                if r.getDispId() == dispId:
                     found = True
                     r.setSelectedView(viewId)
                     break
@@ -64,10 +64,10 @@ class Item:
 
     def __init__(self,
                  parent: tk.Frame,
-                 cbTabChg):
+                 chgDispViewFn):
 
         self.parent = parent
-        self.cbTabChg = cbTabChg
+        self.chgDispViewFn = chgDispViewFn
         self.mainFrame = tk.Frame(
             self.parent,
             highlightthickness=BORDER_WIDTH,
@@ -79,8 +79,8 @@ class Item:
         self.idFrame.pack(fill="x")
         lH = tk.Label(self.idFrame, text="Id:")
         lH.grid(row=0, column=0)
-        self.idVar = tk.StringVar()
-        lId = tk.Label(self.idFrame, textvariable=self.idVar)
+        self.dispIdVar = tk.StringVar()
+        lId = tk.Label(self.idFrame, textvariable=self.dispIdVar)
         lId.grid(sticky="e", row=0, column=1)
 
         self.bleFrame = tk.Frame(self.mainFrame)
@@ -90,18 +90,18 @@ class Item:
                                    highlightthickness=BORDER_WIDTH,
                                    highlightbackground=BORDER_COLOR)
         self.radioFrame.pack(anchor=tk.W)
-        self.selTabVar = tk.StringVar()
+        self.selViewVar = tk.StringVar()
 
         self.bgColor = self.mainFrame.cget("bg")
 
     def show(self,
-             id: str,
-             tabs: list,
-             selectedTab: str,
+             dispId: str,
+             viewIds: list,
+             selectedView: str,
              macAddr: str):
-        self.idVar.set(id)
-        self.oldSelTab = selectedTab
-        self.selTabVar.set(self.oldSelTab)
+        self.dispIdVar.set(dispId)
+        self.oldSelView = selectedView
+        self.selViewVar.set(self.oldSelView)
 
         for c in self.bleFrame.winfo_children():
             c.destroy()
@@ -114,26 +114,26 @@ class Item:
             macLabel = tk.Label(self.bleFrame, textvariable=macVar)
             macLabel.pack(anchor=tk.CENTER)
 
-        for header in tabs:
+        for header in viewIds:
             r = tk.Radiobutton(
                 self.radioFrame,
                 text=header,
                 selectcolor='grey',
-                variable=self.selTabVar,
+                variable=self.selViewVar,
                 value=header,
                 command=self.radioCb)
             r.pack(anchor=tk.W)
 
     def setSelectedView(self, viewId: str):
-        self.selTabVar.set(viewId)
-        self.oldSelTab = viewId
+        self.selViewVar.set(viewId)
+        self.oldSelView = viewId
 
     def radioCb(self):
-        newValue = self.selTabVar.get()
-        if not self.cbTabChg(self.idVar.get(), newValue):
-            self.selTabVar.set(self.oldSelTab)
+        newViewId = self.selViewVar.get()
+        if not self.chgDispViewFn(self.dispIdVar.get(), newViewId):
+            self.selViewVar.set(self.oldSelView)
         else:
-            self.oldSelTab = newValue
+            self.oldSelView = newViewId
 
-    def getId(self) -> str:
-        return self.idVar.get()
+    def getDispId(self) -> str:
+        return self.dispIdVar.get()

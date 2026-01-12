@@ -141,15 +141,15 @@ class DispServer:
                     errMsg = "Display: {} is an Ble display".format(dispId)
         return isOk, errMsg
 
-    def changeDisp(self, id, viewId) -> bool:
+    def chgDispView(self, dispId, viewId) -> bool:
         """
         Send message to Change view on active display.
         Server may not be ready to recieve the msg
         return true if messages send.
         """
-        ok = self.status.setChgTab(id, viewId)
+        ok = self.status.setChgView(dispId, viewId)
         if ok:
-            req = gr.GuiReq(gr.chgView, id)
+            req = gr.GuiReq(gr.chgView, dispId)
             req.setData(viewId)
             _ = self.loop.call_soon_threadsafe(queueAdd,
                                                self.queue,

@@ -4,7 +4,7 @@ import guipaths as gp
 import guiflds as gf
 import guijsontable as gt
 from flds import paths as PathsFlds
-from flds import tabs as TabsFlds
+from flds import disp as DispFlds
 from flds import alarms_server as alarms
 from config import Config
 
@@ -64,7 +64,7 @@ class TestTable:
                         print("Error on key:{}".format(k))
 
         tab = self.conf.viewsGetView("Default")
-        tabFlds = [PathsFlds.path, TabsFlds.pos]
+        tabFlds = [PathsFlds.path, DispFlds.pos]
         self.tabTable = gt.Table(self.window,
                                  self.window,
                                  PathsFlds.path,

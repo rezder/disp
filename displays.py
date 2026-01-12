@@ -25,11 +25,11 @@ class Displays:
         res = id in self.udpDisps or id in self.bleDisps
         return res
 
-    def setTab(self, id: str, newTab: dict) -> dict:
+    def setView(self, id: str, newView: dict) -> dict:
         disp = self.getDisp(id)
-        oldTab = disp.getTab()
-        disp.setTab(newTab)
-        return oldTab
+        oldView = disp.getView()
+        disp.setView(newView)
+        return oldView
 
     def getDisp(self, id):
         """

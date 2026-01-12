@@ -150,18 +150,6 @@ def testDispDataEncoding():
         print("decoded copy deviates")
 
 
-def testPathRefSearch(conf: Config):
-    path = "environment.depth.belowTransducer"
-    tabs, isBig, isAlarm = conf.pathsGetRefs(path)
-    print(tabs)
-    if len(tabs) != 0:
-        print("expected path references in tabs: {}".format(tabs))
-    if isBig:
-        print("Error did not expect a big value")
-    if not isAlarm:
-        print("Error expected a alarm")
-
-
 def main():
     print("###################################################Start test"
           "###################################################")
@@ -176,7 +164,6 @@ def main():
     print(conf.getBroadcastIp())
 
     testDispDataEncoding()
-    testPathRefSearch(conf)
 
 
 if __name__ == "__main__":

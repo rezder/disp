@@ -117,17 +117,10 @@ class fldsDict:
     paths = Fld("paths", "Paths", "Paths", dict, isTab=True)
     bigs = Fld("bigs", "Bigs", "Bigs", dict, isTab=True)
     alarms = Fld("alarms", "Alarms", "Alarms", dict, isTab=True)
-    tabs = Fld("tabs", "Tabs", "Tabs", dict, isTab=True)
+    views = Fld("views", "Views", "Views", dict, isTab=True)
     poss = Fld("poss", "Positions", "Poss", dict, isTab=True)
     displays = Fld("displays", "Displays", "Displays", dict, isTab=True)
     macs = Fld("macs", "MAC Addresses", "MACs", dict, isTab=True)
-
-
-class tabs:
-    pos = FldDef(flds.pos,
-                 3,
-                 3,
-                 gf.FldEntry)
 
 
 class paths:

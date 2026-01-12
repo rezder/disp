@@ -70,8 +70,8 @@ class Status:
             self.lock.release()
         return ok
 
-    def setChgTab(self, id, tab) -> bool:
-        txt = "User request display: {} change to: {}".format(id, tab)
+    def setChgView(self, id, view: dict) -> bool:
+        txt = "User request display: {} change to: {}".format(id, view)
         return self.setUpdateQueue(txt)
 
     def setDisableDisp(self, id, isDisable) -> bool:

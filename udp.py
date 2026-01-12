@@ -21,7 +21,7 @@ class Display:
         self.on = False
         self.id = id
         self.status = status
-        self.tab = {}
+        self.view = {}
         self.keepAliveTask = ass.create_task(self.keepAlive(),
                                              name="Keep Alive")
         self.keepAliveTime = 10.0
@@ -53,11 +53,11 @@ class Display:
     def setAddr(self, ip, port):
         self.addr = (ip, port)
 
-    def setTab(self, tab: dict):
-        self.tab = tab
+    def setView(self, view: dict):
+        self.view = view
 
-    def getTab(self) -> dict:
-        return self.tab
+    def getView(self) -> dict:
+        return self.view
 
     def checkConnTask(self):
         if not self.on and self.connTask.done():
@@ -74,8 +74,8 @@ class Display:
     def display(self, dp: DispData, path: str):
         self.checkConnTask()
         if self.on:
-            if path in self.tab:
-                pos = self.tab[path][ff.pos.jId]
+            if path in self.view:
+                pos = self.view[path][ff.pos.jId]
                 buff = dp.encode(pos)
                 print("Sending disp msg:{}".format(buff))  # TODO remove
                 self.socket.sendto(buff, self.addr)

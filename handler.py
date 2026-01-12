@@ -84,7 +84,7 @@ async def guiMsg(ws: wsclient.ClientConnection,
             status.addDispOn(dispId, newViewId)
             txt = "Changing view on display: {} to view: {}"
             status.setTxt(txt.format(dispId, newViewId))
-            oldView = displays.setTab(dispId, newView)
+            oldView = displays.setView(dispId, newView)
             newSubSet = sub.add(set(newView.keys()))
             unsubSet = sub.remove(set(oldView.keys()))
             if len(newSubSet) > 0 or len(unsubSet) > 0:

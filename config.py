@@ -95,7 +95,7 @@ class Config:
                     "min": 5.0
                 }
             },
-            "tabs": {
+            "views": {
                 "None": {"poss": {}},
                 "Default": {"poss": {
                     "environment.depth.belowTransducer": {"pos": 0},
@@ -177,7 +177,7 @@ class Config:
 
     def dispGetView(self, dispId) -> tuple[str, dict]:
         viewId = self.conf[fd.displays.jId][dispId][ff.view.jId]
-        view = self.conf[fd.tabs.jId][viewId][fd.poss.jId]
+        view = self.conf[fd.views.jId][viewId][fd.poss.jId]
         return (viewId, view)
 
     def dispsGet(self) -> tuple[dict, dict, dict, dict]:
@@ -190,7 +190,7 @@ class Config:
         """
         displays = copy.deepcopy(self.conf[fd.displays.jId])
         macs = self.dispGetBles()
-        views = copy.deepcopy(self.conf[fd.tabs.jId])
+        views = copy.deepcopy(self.conf[fd.views.jId])
         paths = self.pathsGet()[0]
 
         return displays, macs, views, paths
@@ -198,7 +198,7 @@ class Config:
     def dispsSet(self, disps, macs, views):
         self.conf[fd.displays.jId] = copy.deepcopy(disps)
         self.conf[fd.macs.jId] = copy.deepcopy(macs)
-        self.conf[fd.tabs.jId] = copy.deepcopy(views)
+        self.conf[fd.views.jId] = copy.deepcopy(views)
 
     def dispSetBleDisable(self, id: str, isDisable: bool):
         self.conf[fd.macs.jId][id][ff.disable.jId] = isDisable
@@ -206,10 +206,10 @@ class Config:
     #  ################ Views ###########
 
     def viewsGetView(self, viewId) -> dict:
-        return self.conf[fd.tabs.jId][viewId][fd.poss.jId]
+        return self.conf[fd.views.jId][viewId][fd.poss.jId]
 
     def viewsGetIds(self) -> list:
-        return list(self.conf[fd.tabs.jId].keys())
+        return list(self.conf[fd.views.jId].keys())
 
     #  ############## Paths #################
 
@@ -328,7 +328,7 @@ def createJsonDef() -> dict[str, JsoDef]:
     cf.addFld(fd.paths, empty.noEmpty)
     cf.addFld(fd.alarms, empty.noEmpty)
     cf.addFld(fd.bigs, empty.noEmpty)
-    cf.addFld(fd.tabs, empty.noEmpty)
+    cf.addFld(fd.views, empty.noEmpty)
     cf.addFld(fd.displays, empty.noEmpty)
     cf.addFld(fd.macs, empty.noEmpty)
     cf.addFld(ff.broadCP, empty.noZero)
@@ -361,11 +361,11 @@ def createJsonDef() -> dict[str, JsoDef]:
     af.addFld(ff.max, empty.noNaN, isMan=False)
     defs[af.idFld.jId] = af
 
-    vf = JsoDef(fd.tabs)
+    vf = JsoDef(fd.views)
     vf.addFld(ff.viewId, empty.noEmpty, isKey=True)
     vf.addFld(fd.poss, empty.ok)
     defs[vf.idFld.jId] = vf
-    viewsPtr = Ptr([fd.conf, fd.tabs])
+    viewsPtr = Ptr([fd.conf, fd.views])
 
     pf = JsoDef(fd.poss)
     pf.addFld(ff.pathId, empty.noEmpty, isKey=True, refPtr=pathsPtr)
