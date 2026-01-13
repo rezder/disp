@@ -101,6 +101,10 @@ class Disp:
                              bottomFrame,
                              df.dispId,
                              dispFldDefs)
+        self.dispTab.popUpMenuDisableItem("New Row")
+        self.dispTab.popUpMenuDisableItem("Copy Row")
+        self.dispTab.popUpMenuDisableItem("Paste Row")
+
         self.dispTab.mainFrame.pack()
 
         self.udpFram, self.udpWin, self.bleFrame, self.bleWin = createMenu(self.parentWin)

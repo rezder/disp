@@ -29,7 +29,7 @@ class Table:
         self.postChgCb = postChgCb
         self.saveFn = saveFn
         self.reloadFn = reloadFn
-        self.createPopupMenu(self.parentWin)
+        self.popUpMenuCreate(self.parentWin)
         self.tabFldsJson = tabFldsJson
         if self.tabFldsJson is None:
             self.tabFldsJson = dict()
@@ -62,6 +62,7 @@ class Table:
         columNo = 0
         self.clickedKey = None  # Right click for now popMenu
         self.clickedFld = None
+        self.copyKey = None
 
         if self.isPopUp:
             self.allFldsBinds.append(("<Button-3>", self.popMenuUp))
@@ -75,7 +76,7 @@ class Table:
                 headFld.mainFrame.grid(row=0, column=columNo)
                 columNo = columNo+1
                 if self.isPopUp:
-                    headFld.bind("<Button-3>",
+                    headFld.bind("<Button-3><ButtonRelease-3>",
                                  partial(self.popMenuUp, -1, headFld.fld))
 
             else:
@@ -84,13 +85,17 @@ class Table:
                 self.keyId = tabFldDef.fld.jId
             self.headFlds.append(headFld)
 
-    def createPopupMenu(self, win: tk.Toplevel):
+    def popUpMenuCreate(self, win: tk.Toplevel):
         if self.isPopUp:
             self.popMenu = tk.Menu(win, tearoff=0)
             self.popMenu.add_command(label="Delete Row",
                                      command=self.deleteRowClicked)
             self.popMenu.add_command(label="New Row",
                                      command=self.addNewRow)
+            self.popMenu.add_command(label="Copy Row",
+                                     command=self.setCopyKey)
+            self.popMenu.add_command(label="Paste Row",
+                                     command=self.pasteKey)
             if self.saveFn is not None:
                 self.popMenu.add_command(label="Save",
                                          command=self.saveFn)
@@ -98,6 +103,12 @@ class Table:
                 self.popMenu.add_command(label="Reload",
                                          command=self.reloadFn)
             self.popMenu.bind("<FocusOut>", self.popUpMenuClose)
+
+    def popUpMenuDisableItem(self, label: str):
+        try:
+            self.popMenu.entryconfigure(label, state=tk.DISABLED)
+        except tk.TclError as ex:
+            print("popUp menu does not exist: {}".format(ex))
 
     def popUpMenuClose(self, ev):
         self.popMenu.unpost()
@@ -125,7 +136,19 @@ class Table:
         key = self.clickedKey
         self.deleteRow(key)
 
+    def setCopyKey(self):
+        self.copyKey = self.clickedKey
+
+    def pasteKey(self):
+        key = self.clickedKey
+        if self.copyKey is not None:
+            for fid, guiFld in self.rowsFlds[key].items():
+                #  if fid is not self.keyId:
+                guiFld.show(self.rowsFlds[self.copyKey][fid].get())
+
     def deleteRow(self, key):
+        if self.copyKey == key:
+            self.copyKey = None
         row = self.rowsFlds[key]
         self.moveRowToUnused(row)
         if type(key) is str:
@@ -237,6 +260,7 @@ class Table:
                     itemJson[id] = self.showCalcFldCb(k, fldDef.fld, itemJson)
 
     def show(self, inJsonObj: dict):
+        self.copyKey = None
         jsonObj = copy.deepcopy(inJsonObj)
         self.show_AddCalc(jsonObj)
 

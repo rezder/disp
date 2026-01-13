@@ -42,6 +42,8 @@ class TestTable:
         self.row.mainFrame.pack()
 
         self.table2 = self.createTable(gf.FldLabel)
+        self.table2.popUpMenuDisableItem("jdsfh")
+        self.table2.popUpMenuDisableItem("Copy Row")
         self.table2.show(self.jsonObj)
         jsonObjDel = dict(self.jsonObj)
         del jsonObjDel["environment.depth.belowTransducer"]
