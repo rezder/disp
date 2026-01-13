@@ -1,4 +1,5 @@
 import tkinter as tk
+
 from guisettings import Sett
 from guidispconf import Disp
 from jsonptr import ErrPtr

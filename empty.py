@@ -2,6 +2,7 @@
 Empty domain ok(0), noZero(1), noEmpty(2), noNaN(3),
 noNanZero(4)
 """
+
 ok = 0
 noZero = 1
 noEmpty = 2

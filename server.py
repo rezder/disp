@@ -11,7 +11,6 @@ from skdata import SkData
 from status import Status
 import handler
 import guirequest as gr
-from flds import flds as ff
 from jsonptr import ErrPtr
 
 signalkUrl = "ws://localhost:3000/signalk/v1/stream?subscribe=none"

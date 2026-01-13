@@ -2,6 +2,7 @@ import json
 import os
 import netifaces
 import copy
+
 from flds import flds as ff
 from flds import fldsDict as fd
 from jsonptr import Ptr, ErrPtr

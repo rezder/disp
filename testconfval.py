@@ -1,8 +1,8 @@
+
 import config
 from flds import flds as ff
 from flds import fldsDict as fd
 from jsoflds import walkObj
-
 from guiflds import Fld
 
 
@@ -22,7 +22,8 @@ def test(conf):
 
 
 def main():
-    conf = config.Config(isDefault=False)  # TODO change to TRUE for stable results
+    conf = config.Config(isDefault=False)  # TODO change to TRUE
+    # for stable results
     #  TODO make test conf with errrors filename is hardcoded in init
     test(conf)
     conff = config.Config.load("./data/testserver.json")

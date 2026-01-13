@@ -1,6 +1,7 @@
 import tkinter as tk
 import math
 import json
+
 from gui import BORDER_COLOR_ERR as BCE
 import empty
 
@@ -283,13 +284,13 @@ class GuiFld:
             if type(v) is str:
                 if self.isEmpty() and self.empty == empty.noEmpty:
                     isOk = False
-            if type(v) is float:
+            elif type(v) is float:
                 if math.isnan(v):
                     if self.empty in [empty.noNaN, empty.noNaNZero]:
                         isOk = False
                 elif v == 0 and self.empty == empty.noZero:
                     isOk = False
-            if type(v) is int and self.empty == empty.noZero:
+            elif type(v) is int and self.empty == empty.noZero:
                 if v == 0:
                     isOk = False
 
