@@ -48,7 +48,8 @@ class GuiDispServer:
                                          self.server.stop,
                                          self.server.stopClean)
 
-        self.statusGui = guistatus.Status(self.rightFrame,
+        self.statusGui = guistatus.Status(self.window,
+                                          self.rightFrame,
                                           self.stButton,
                                           self.server.getStatus)
         self.statusGui.mainFrame.pack()

@@ -1,5 +1,6 @@
 import tkinter as tk
 import tkinter.scrolledtext as scrolledtext
+from functools import partial
 
 import cmd
 import state
@@ -77,7 +78,12 @@ class Button:
 
 
 class Status:
-    def __init__(self, parent: tk.Frame, stButton: Button, statusCb):
+    def __init__(self,
+                 parentWin: tk.Toplevel,
+                 parent: tk.Frame,
+                 stButton: Button,
+                 statusCb):
+        self.parentWin = parentWin
         self.parent = parent
         self.statusCb = statusCb
         self.mainFrame = tk.Frame(self.parent)
@@ -88,8 +94,10 @@ class Status:
         self.statusTbox = scrolledtext.ScrolledText(self.mainFrame, undo=True)
         self.statusTbox['font'] = ('consolas', '12')
         self.statusTbox.pack(fill=tk.BOTH, expand=True)
+        menu = self.createCopyPaste(self.statusTbox, self.parentWin)
+        self.statusTbox.bind("<Button-3><ButtonRelease-3>",
+                             partial(popMenuUp, menu))
         heading = "Display server"
-
         self.statusTbox.insert(tk.END, heading)
         self.startButton.create(self.bottomFrame)
         self.startButton.getButton().pack(side=tk.LEFT)
@@ -98,6 +106,20 @@ class Status:
         self.stateGui.mainFrame.pack(side=tk.RIGHT)
 
         self.bottomFrame.pack(expand=True, fill=tk.BOTH)
+
+    def createCopyPaste(self, widget: tk.Widget, win) -> tk.Menu:
+        popMenu = tk.Menu(win, tearoff=0)
+        popMenu.add_command(label="Cut",
+                            command=lambda: widget.event_generate("<<Cut>>"))
+        popMenu.add_command(label="Copy",
+                            command=lambda: widget.event_generate("<<Copy>>"))
+        popMenu.add_command(label="Paste",
+                            command=lambda: widget.event_generate("<<Paste>>"))
+        popMenu.add_separator()
+        popMenu.add_command(label="Select All",
+                            command=partial(selectAll, widget))
+        popMenu.bind("<FocusOut>", partial(popMenuUnPost, popMenu))
+        return popMenu
 
     def write(self, txt):
         self.statusTbox.insert(tk.END, "\n"+txt)
@@ -124,3 +146,23 @@ class Status:
             self.stateGui.updStateCmd(c, st)
             self.executeOns(ons)
             self.executeAlarms(dms)
+
+
+def popMenuUp(menu: tk.Menu, event: tk.Event):
+    try:
+        menu.tk_popup(event.x_root,
+                      event.y_root)
+    finally:
+        menu.grab_release()
+
+
+def popMenuUnPost(menu: tk.Menu, event):
+    menu.unpost()
+
+
+def selectAll(widget: tk.Widget):
+    if isinstance(widget, tk.Text):
+        w: tk.Text = widget
+        w.tag_add(tk.SEL, "1.0", tk.END)
+    else:
+        raise Exception("Type:{} not implement".format(type(widget)))
