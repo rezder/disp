@@ -2,6 +2,7 @@ import serial
 import serial.tools.list_ports as sTools
 import time
 import tkinter as tk
+from tkinter import messagebox
 
 from gui import BORDER_COLOR, BORDER_WIDTH
 from flds import flds as ff
@@ -12,7 +13,13 @@ DEFAULT_BAUDRATE = 115200
 
 class Udp:
 
-    def __init__(self, parent: tk.Frame, receiverfn, logger, validateFn):
+    def __init__(self,
+                 parentWin: tk.Toplevel,
+                 parent: tk.Frame,
+                 receiverfn,
+                 logger,
+                 validateFn):
+        self.parentWin = parentWin
         self.parent = parent
         self.logger = logger
         self.mainFrame = tk.Frame(self.parent,
@@ -76,6 +83,9 @@ class Udp:
     def settingsUpd(self, settJso: dict):
         self.portVar.set(settJso[ff.broadCP.jId])
 
+    def handleErrMsg(self, errTxt: str):
+        tk.messagebox.showerror("Error", errTxt, parent=self.parentWin)
+
     def updateCb(self):
         dispId = self.idVar.get()
         path = self.pathVar.get()
@@ -102,14 +112,20 @@ class Udp:
                 self.receiverFn(dispId)
 
             except serial.SerialException as ex:
-                txt = "\nConnection failed with: {}".format(ex)
-                self.logger(txt)
+                errTxt = "\nConnection failed with: {}".format(ex)
+                self.handleErrMsg(errTxt)
         else:
-            self.logger(errTxt)
+            self.handleErrMsg(errTxt)
 
 
 class Ble:
-    def __init__(self, parent: tk.Frame, receiverFn, logger, validateFn):
+    def __init__(self,
+                 parentWin: tk.Toplevel,
+                 parent: tk.Frame,
+                 receiverFn,
+                 logger,
+                 validateFn):
+        self.parentWin = parentWin
         self.parent = parent
         self.logger = logger
         self.mainFrame = tk.Frame(self.parent,
@@ -151,6 +167,9 @@ class Ble:
                                 command=self.updateCb)
         self.updBut.pack()
 
+    def handleErrMsg(self, errTxt: str):
+        messagebox.showerror("Error", errTxt, parent=self.parentWin)
+
     def show(self):
         path = getSerialPath()
         self.pathVar.set(path)  # Hope None works
@@ -184,13 +203,15 @@ class Ble:
                     self.receiver(dispId, mac)
                 else:  # timeout
                     data = bts.decode("ascii")
-                    self.logger("Time out data recieved: {}".format(data))
+                    errTxt = "Time out data recieved: {}".format(data)
+                    self.handleErrMsg(errTxt)
 
             except serial.SerialException as ex:
-                txt = "\nConnection failed with: {}".format(ex)
-                self.logger(txt)
+                errTxt = "\nConnection failed with: {}".format(ex)
+                self.handleErrMsg(errTxt)
         else:
-            self.logger("No device connect")
+            errTxt = "No device connect"
+            self.handleErrMsg(errTxt)
 
 
 def getSerialPath() -> str:

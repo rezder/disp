@@ -98,7 +98,6 @@ class Table:
                 self.popMenu.add_command(label="Reload",
                                          command=self.reloadFn)
             self.popMenu.bind("<FocusOut>", self.popUpMenuClose)
-            #  TODO add reset menu
 
     def popUpMenuClose(self, ev):
         self.popMenu.unpost()

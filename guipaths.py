@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 
 import guiflds as gf
 from guijsontable import Table
@@ -179,12 +180,12 @@ class Paths:
         - Bigs table gui
         """
         menuBar = tk.Menu(win, tearoff=0)
-        alarmsFrame, _ = addWinMenuItem(win,
-                                        menuBar,
-                                        "Alarms")
+        alarmsFrame, alarmsWin = addWinMenuItem(win,
+                                                menuBar,
+                                                "Alarms")
         alarmsFlds = [pathFlds.pathJs, pathFlds.min, pathFlds.max]
         alarmsTableGui = Table(
-            win,
+            alarmsWin,
             alarmsFrame,
             pathFlds.pathJs,
             alarmsFlds,
@@ -192,14 +193,14 @@ class Paths:
             reloadFn=self.reloadAlarms
         )
         alarmsTableGui.mainFrame.pack()
-        bigsFrame, _ = addWinMenuItem(win,
-                                      menuBar,
-                                      "Bigs")
+        bigsFrame, bigsWin = addWinMenuItem(win,
+                                            menuBar,
+                                            "Bigs")
         bigsFlds = [pathFlds.pathJs, pathFlds.limit,
                     pathFlds.dpUnit, pathFlds.dec]
 
         bigsTableGui = Table(
-            win,
+            bigsWin,
             bigsFrame,
             pathFlds.pathJs,
             bigsFlds,
@@ -210,6 +211,9 @@ class Paths:
         win.config(menu=menuBar)
 
         return alarmsTableGui, bigsTableGui
+
+    def handleErrMsg(self, win, errTxt: str):
+        messagebox.showerror("Error", errTxt, parent=win)
 
     def show(self, pathsJso, alarmsJso, bigsJso):
         self.pathsJsoOld = pathsJso
@@ -237,7 +241,7 @@ class Paths:
                                                alarmsJso,
                                                bigsJso)
             if len(errPtrs) != 0:
-                self.logger(errTxt)
+                self.handleErrMsg(self.alarmsTab.parentWin, errTxt)
             else:
                 self.alarmsTab.show(alarmsJso)
                 self.alarmsJsonOld = alarmsJso
@@ -257,7 +261,7 @@ class Paths:
                                                alarmsJso,
                                                bigsJso)
             if len(errPtrs) != 0:
-                self.logger(errTxt)
+                self.handleErrMsg(self.bigsTab.parentWin, errTxt)
             else:
                 self.bigsTab.show(bigsJso)
                 self.bigsJsonOld = bigsJso
@@ -296,7 +300,7 @@ class Paths:
                                                    alarmsJso,
                                                    bigsJso)
                 if len(errPtrs) != 0:
-                    self.logger(errTxt)
+                    self.handleErrMsg(self.parentWin, errTxt)
                 else:
                     self.show(newPaths, alarmsJso, bigsJso)
                     self.execPathUdp(newPaths, alarmsJso, bigsJso)

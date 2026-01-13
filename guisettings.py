@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 
 import guiflds as gf
 from flds import settings as dd
@@ -8,13 +9,11 @@ class Sett:
     def __init__(self,
                  parentWin: tk.Toplevel,
                  parent: tk.Frame,
-                 logger,
                  saveFn
                  ):
         self.subUpdList = list()
         self.parentWin = parentWin
         self.parent = parent
-        self.logger = logger
         self.confSaveFn = saveFn
         self.oldJsoObj = None
         self.mainFrame = tk.Frame(self.parent)
@@ -56,7 +55,7 @@ class Sett:
                 jsoObj[guifld.fld.jId] = guifld.get()
             errTxt, errPtrs = self.confSaveFn(jsoObj)
             if len(errPtrs) != 0:
-                self.logger(errTxt)
+                messagebox.showerror("Error", errTxt, parent=self.parentWin)
             else:
                 self.show(jsoObj)
                 self.execUdp(dict(jsoObj))

@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 
 import guiflds as gf
 from flds import fldsDict as fd
@@ -102,12 +103,14 @@ class Disp:
                              dispFldDefs)
         self.dispTab.mainFrame.pack()
 
-        self.udpFram, self.bleFrame = createMenu(self.parentWin)
-        self.bleGui = guiserial.Ble(self.bleFrame,
+        self.udpFram, self.udpWin, self.bleFrame, self.bleWin = createMenu(self.parentWin)
+        self.bleGui = guiserial.Ble(self.bleWin,
+                                    self.bleFrame,
                                     self.bleDispUpd,
                                     self.logger,
                                     self.dispIdValidateFn)
-        self.udpGui = guiserial.Udp(self.udpFram,
+        self.udpGui = guiserial.Udp(self.udpWin,
+                                    self.udpFram,
                                     self.udpDispUpd,
                                     self.logger,
                                     self.dispIdValidateFn)
@@ -150,8 +153,11 @@ class Disp:
             elif addrKey is not None and idKey is None:
                 self.dispTab.setFldVal(df.dispId.fld, addrKey, newId)
             elif addrKey != idKey:
-                txt = "Display id allready exist with different mac address"
-                self.logger(txt)
+                errTxt = "Display id allready exist with different mac address"
+                self.handleErrMsg(self.bleWin, errTxt)
+
+    def handleErrMsg(self, win, errTxt: str):
+        messagebox.showerror("Error", errTxt, parent=win)
 
     def show(self,
              disps: dict,
@@ -235,7 +241,7 @@ class Disp:
             views = self.viewTab.get()[0]
             errTxt, errPtrs = self.confSaveFn(disps, macs, views)
             if len(errPtrs) != 0:
-                self.logger(errTxt)
+                self.handleErrMsg(self.parentWin, errTxt)
             else:
                 self.show(disps, macs, views, self.paths)
 
@@ -259,20 +265,23 @@ class Disp:
         key = self.viewTab.addNewRowWithKey()
         self.switchView(key)
 
-def createMenu(win: tk.Toplevel) -> tuple[tk.Frame, tk.Frame]:
 
-        menuBar = tk.Menu(win, tearoff=0)
-        menuRegistor = tk.Menu(menuBar, tearoff=0)
-        udpFrame, _ = guimenu.addWinMenuItem(win,
-                                             menuRegistor,
-                                             "Udp Display Registor",
-                                             titleMenu="Udp")
-        bleFrame, _ = guimenu.addWinMenuItem(win,
-                                             menuRegistor,
-                                             "Ble Display Registor",
-                                             "Ble")
-        menuBar.add_cascade(label="Registor Display",
-                            menu=menuRegistor,
-                            background="grey26")
-        win.config(menu=menuBar)
-        return udpFrame, bleFrame
+def createMenu(win: tk.Toplevel) -> tuple[tk.Frame,
+                                          tk.Toplevel,
+                                          tk.Frame,
+                                          tk.Toplevel]:
+    menuBar = tk.Menu(win, tearoff=0)
+    menuRegistor = tk.Menu(menuBar, tearoff=0)
+    udpFrame, udpWin = guimenu.addWinMenuItem(win,
+                                              menuRegistor,
+                                              "Udp Display Registor",
+                                              titleMenu="Udp")
+    bleFrame, bleWin = guimenu.addWinMenuItem(win,
+                                              menuRegistor,
+                                              "Ble Display Registor",
+                                              "Ble")
+    menuBar.add_cascade(label="Registor Display",
+                        menu=menuRegistor,
+                        background="grey26")
+    win.config(menu=menuBar)
+    return udpFrame, udpWin, bleFrame, bleWin

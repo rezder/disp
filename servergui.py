@@ -101,7 +101,6 @@ class GuiDispServer:
                                                     "Misc")
         self.settGui = Sett(settWin,
                             settFrame,
-                            self.logger,
                             self.server.settingsSave)
         self.settGui.mainFrame.pack()
         self.settGui.show(self.server.conf.settingsGet())

@@ -19,7 +19,7 @@ class TestGui:
         self.dispFrame = tk.Frame(self.mainFrame)
         self.dispFrame.pack()
         self.settGui = Sett(self.window, self.setFram,
-                            self.logger, self.validateFn, self.saveFn)
+                            self.validateFn, self.saveFn)
         self.settGui.mainFrame.pack()
         self.data1 = {dd.broadCP.fld.jId: 9090,
                       dd.iface.fld.jId: "wpsidsfhg",
