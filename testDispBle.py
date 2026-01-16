@@ -5,15 +5,14 @@ from status import Status
 from skdata import SkData
 import ble
 from config import Config
-from handler import createDispMsq
 
 
 def creatDummyMsg(skData) -> bytes:
     path = "navigation.speedOverGround"
     value = 10.1
     for i in range(3):
-        createDispMsq(skData, path, value)
-    b = createDispMsq(skData, path, value)
+        skData.getPath(path).createDispData(value)
+    b = skData.getPath(path).createDispData(value)
     return (b, path)
 
 
@@ -32,7 +31,7 @@ async def main():
     display.checkConnTask()
     (ok, txt, _, _, _, _) = status.getStatus()
     print(txt)
-    if not display.on:
+    if display.connTask is not None:
         print("Conncting to {} failed".format(mac))
         return
     b, path = creatDummyMsg(skData)

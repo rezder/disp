@@ -75,11 +75,11 @@ def testPathCreateMsg(skData: SkData, status: Status, conf: Config):
     skData.clearBuffers()
     values = [6.24, 6.24, 0, 0]
     pos = 0
-    exp = 0
+    exp = 359
     try:
         testPathBuffer(path, values, exp, pos, skData)
-    except Exception:
-        print("Error Avg cours does not work")
+    except Exception as ex:
+        print("Error Avg cours does not work: {}".format(ex))
 
     path = "navigation.courseRhumbline.crossTrackError"
     value = -122
@@ -162,7 +162,6 @@ def main():
     testBuffer()
 
     print(conf.getBroadcastIp())
-
     testDispDataEncoding()
 
 

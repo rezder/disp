@@ -1,4 +1,5 @@
 import tkinter as tk
+import sys
 
 import guipaths as gp
 import guiflds as gf
@@ -60,7 +61,7 @@ class TestTable:
             jsonObj, _, _, _ = self.table3.get()
             for k, v in jsonObjDel.items():
                 if k not in jsonObj:
-                    print("ERrror key is missing: {}".format(k))
+                    print("Error key is missing: {}".format(k))
                 else:
                     if not gf.compJson(v, jsonObjDel[k]):
                         print("Error on key:{}".format(k))
@@ -122,7 +123,12 @@ class TestTable:
         else:
             print(path)
 
+    def stop(self):
+        self.window.destroy()
+
     def start(self):
+        if len(sys.argv) > 1 and sys.argv[1] == "-t":
+            self.window.after(1000, self.stop)
         self.window.mainloop()
 
 

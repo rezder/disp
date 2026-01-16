@@ -10,7 +10,7 @@
       },
       "values": [
         {
-          "path": "navigation.courseRhumbline.crossTrackError",
+          "path": "navigation.courseRhumbline.nextPoint.distance",
           "value": -120
         },
         {

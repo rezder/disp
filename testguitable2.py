@@ -1,4 +1,5 @@
 import tkinter as tk
+import sys
 
 import guijsontable as gt
 from flds import alarms_server as alarms
@@ -40,7 +41,12 @@ class TestTable:
             b = self.tabTable.getFldVal(fld, pathId)
             print(b)
 
+    def stop(self):
+        self.window.destroy()
+
     def start(self):
+        if len(sys.argv) > 1 and sys.argv[1] == "-t":
+            self.window.after(1000, self.stop)
         self.window.mainloop()
 
 

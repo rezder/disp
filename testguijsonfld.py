@@ -1,4 +1,5 @@
 import tkinter as tk
+import sys
 
 import guiflds as gf
 import units
@@ -8,6 +9,7 @@ from guiflds import Fld, FldLink
 from flds import paths
 from flds import disp
 from guiflds import compJson
+
 
 def createFldDefs() -> dict[str, FldDef]:
     flds: dict[str, gf.GuiFldDef] = dict()
@@ -232,7 +234,12 @@ class TestFlds:
         fldMaster.jsonFilter.setSlave(fldLabel)
         fldMaster.jsonFilter.setSlave(fldUnit)
 
+    def stop(self):
+        self.window.destroy()
+
     def start(self):
+        if len(sys.argv) > 1 and sys.argv[1] == "-t":
+            self.window.after(1000, self.stop)
         self.window.mainloop()
 
 

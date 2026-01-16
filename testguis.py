@@ -1,4 +1,5 @@
 import tkinter as tk
+import sys
 
 from guisettings import Sett
 from guidispconf import Disp
@@ -19,8 +20,7 @@ class TestGui:
         self.setFram.pack()
         self.dispFrame = tk.Frame(self.mainFrame)
         self.dispFrame.pack()
-        self.settGui = Sett(self.window, self.setFram,
-                            self.validateFn, self.saveFn)
+        self.settGui = Sett(self.window, self.setFram, self.saveFn)
         self.settGui.mainFrame.pack()
         self.data1 = {dd.broadCP.fld.jId: 9090,
                       dd.iface.fld.jId: "wpsidsfhg",
@@ -31,7 +31,9 @@ class TestGui:
         self.settGui.show(self.data1)
         self.dispGui = Disp(self.window, self.dispFrame,
                             self.logger,
-                            self.dispValidateFn, self.dispSaveFn)
+                            self.dispSaveFn,
+                            9090,
+                            self.dispValidateFn)
         self.dispGui.mainFrame.pack()
         disps, macs, views, paths = self.getdispdata()
         self.dispGui.show(disps, macs, views, paths)
@@ -62,7 +64,12 @@ class TestGui:
         errPtrs = list()
         return txt, errPtrs
 
+    def stop(self):
+        self.window.destroy()
+
     def start(self):
+        if len(sys.argv) > 1 and sys.argv[1] == "-t":
+            self.window.after(1000, self.stop)
         self.window.mainloop()
 
 

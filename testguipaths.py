@@ -1,4 +1,5 @@
 import tkinter as tk
+import sys
 
 from guipaths import Paths
 from config import Config
@@ -14,12 +15,16 @@ class TestPaths:
         self.paths = Paths(self.window,
                            self.window,
                            self.logger,
-                           self.delete,
                            self.save)
         self.paths.mainFrame.pack()
-        self.paths.show(self.tPathsJson)
+        self.paths.show(*self.tPathsJson)
+
+    def stop(self):
+        self.window.destroy()
 
     def start(self):
+        if len(sys.argv) > 1 and sys.argv[1] == "-t":
+            self.window.after(1000, self.stop)
         self.window.mainloop()
 
     def logger(self, txt):

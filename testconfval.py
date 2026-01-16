@@ -8,7 +8,7 @@ from guiflds import Fld
 
 def test(conf):
     txt, errList = conf.validate()
-    print("Errors")
+    print("The conf errors")
     print(txt)
 
     ll = [ff.bufFreq, ff.bufSize, ff.broadCP]
