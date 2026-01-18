@@ -31,8 +31,8 @@ class Alarms:
 
     def checkMarkCb(self, pathId: str, fld: Fld):
         if fld is alarms.dis.fld:
-            isDis = self.tab.getFld(fld, pathId)
-            label = self.tab.getFld(alarms.label.fld, pathId)
+            isDis = self.tab.getFldVal(fld, pathId)
+            label = self.tab.getFldVal(alarms.label.fld, pathId)
             self.disActFn(pathId, label, isDis)
 
     def serverOnOff(self, isOn: bool, rconf: Config):
@@ -47,10 +47,9 @@ class Alarms:
 
     def alarmMsg(self, msgs: list[AlarmMsg]):
         for msg in msgs:
-            (valueVar, valueLabel, checkBox) = self.pathsGui[msg.path]
             if msg.isOn:
-                self.tab.setFld(alarms.val.fld, msg.path, msg.value)
+                self.tab.setFldVal(alarms.val.fld, msg.path, msg.value)
                 self.tab.getFld(alarms.val.fld, msg.path).setError(True)
             else:
                 self.tab.getFld(alarms.val.fld, msg.path).setError(False)
-                self.tab.getFld(alarms.val, msg.path).clear()
+                self.tab.getFld(alarms.val.fld, msg.path).clear()

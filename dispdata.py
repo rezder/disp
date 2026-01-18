@@ -112,5 +112,6 @@ def formatNo(dec: int, x: float) -> (str, bool):
                 txt = txt+"\0\0"
     else:
         txt = "NON"
+        sign = False
 
     return (txt, sign)

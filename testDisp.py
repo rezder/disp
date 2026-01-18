@@ -134,9 +134,8 @@ def testBuffer():
             print("Failed add")
 
 
-def testDispDataEncoding():
+def testDispDataEncoding(dp: DispData):
     pos = 1
-    dp = DispData(1.2, 1, "SOG", 0, False)
     buff = dp.encode(pos)
     print(buff)
     dpcopy = DispData.decode(buff)
@@ -162,7 +161,9 @@ def main():
     testBuffer()
 
     print(conf.getBroadcastIp())
-    testDispDataEncoding()
+    dp = DispData(1.2, 1, "SOG", 0, False)
+    testDispDataEncoding(dp)
+    dp = DispData(None, 1, "SOG", 0, False)
 
 
 if __name__ == "__main__":
