@@ -140,7 +140,7 @@ def parseSkUpdates(skMsg: str,
     :param skData: Signalk k information.
     :param status: Server status.
     :return: Returns a list of display messages.
-    :rtype: list[bytes]
+    :rtype: list[tuple[DispData,str]]
     """
     inkMsgs = list()
     jsObj = json.loads(skMsg)

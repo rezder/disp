@@ -29,7 +29,10 @@ def testPathNoBuffer(pathId,
     path = skData.getPath(pathId)
     dd = path.createDispData(value)
     print(dd.value)
-    print(dd.encode(pos))
+    b = dd.encode(pos)
+    print(b)
+    if len(b) != 14:
+        raise Exception("Error message do not 14 bytes but{}".format(len(b)))
     px(dd.value, exp)
     return dd
 
@@ -51,7 +54,11 @@ def testPathBuffer(pathId, values, exp, pos, skData: SkData):
                     print("Error expected None got {}".format(dd))
             else:
                 print(dd.value)
-                print(dd.encode(pos))
+                b = dd.encode(pos)
+                print(b)
+                print(len(b))
+                if len(b) != 14:
+                    raise Exception(" message to not 14 bytes but{}".format(len(b)))
                 px(dd.value, exp)
 
 
@@ -59,6 +66,11 @@ def testPathCreateMsg(skData: SkData, status: Status, conf: Config):
     path = "environment.depth.belowTransducer"
     value = 7.0
     exp = 7.0
+    pos = 2
+    testPathNoBuffer(path, value, exp, pos, skData)
+    path = "navigation.courseRhumbline.nextPoint.ID"
+    value = "016"
+    exp = "016"
     pos = 2
     testPathNoBuffer(path, value, exp, pos, skData)
 

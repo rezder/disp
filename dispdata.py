@@ -4,7 +4,7 @@ import units
 
 class DispData:
     def __init__(self,
-                 value: float,
+                 value: float | str,
                  decimals: int,
                  label: str,
                  units: int,
@@ -14,7 +14,11 @@ class DispData:
         self.decimals = decimals
         self.label = label
         self.units = units
-        vtxt, sign = formatNo(decimals, value)
+        if isinstance(value, str):
+            vtxt = formatTxt(value)
+            sign = False
+        else:
+            vtxt, sign = formatNo(decimals, value)
         self.valueTxt = vtxt
         self.sign = sign
         self.isAlarm = isAlarm
@@ -47,7 +51,8 @@ class DispData:
                          self.sign,
                          self.isAlarm))
         # txt have full size padded with \0
-        txt = units.shorts4[self.units] + self.label + self.valueTxt
+        label = formatTxt(self.label)
+        txt = units.shorts4[self.units] + label + self.valueTxt
         res.extend(txt.encode("ascii"))
         return res
 
@@ -62,12 +67,36 @@ class DispData:
         label = buff[8:11].decode("ascii")
         valueTxt = buff[11:14].decode("ascii")
         valueTxt = valueTxt.rstrip('\0')
-        value = float(valueTxt)/(dec*10)
+        if is_number(valueTxt):
+            value = float(valueTxt)/(dec*10)
+        else:
+            value = valueTxt
         if sign:
             value = value*-1
         unit = units.noShort4(unitsTxt)
         dp = DispData(value, dec, label, unit, isAlarm)
         return dp
+
+
+def is_number(s: str):
+    try:
+        float(s)
+        if s.upper() == "NAN" or s.upper() == "INF":
+            return False
+    except ValueError:  # Failed
+        return False
+    else:  # Succeeded
+        return True
+
+
+def formatTxt(txt: str) -> str:
+    if len(txt) > 2:
+        outTxt = txt[-3:]
+    else:
+        outTxt = txt+"\0\0\0"
+        outTxt = outTxt[:3]
+
+    return outTxt
 
 
 def formatNo(dec: int, x: float) -> (str, bool):

@@ -28,6 +28,15 @@
         "bufSize": 0,
         "bufFreq": 0
       },
+      "navigation.courseRhumbline.nextPoint.ID": {
+        "minPeriod": 4000,
+        "decimals": 0,
+        "label": "ID",
+        "units": 99,
+        "dispUnits": 99,
+        "bufSize": 0,
+        "bufFreq": 0
+      },
       "navigation.courseRhumbline.nextPoint.bearingTrue": {
         "minPeriod": 500,
         "decimals": 0,
@@ -46,6 +55,15 @@
         "bufSize": 0,
         "bufFreq": 0
       },
+      "navigation.courseRhumbline.nextPoint.velocityMadeGood": {
+        "minPeriod": 4000,
+        "decimals": 1,
+        "units": 10,
+        "dispUnits": 11,
+        "label": "VMG",
+        "bufSize": 0,
+        "bufFreq": 0
+      },
       "navigation.speedOverGround": {
         "minPeriod": 500,
         "decimals": 1,
@@ -61,15 +79,6 @@
         "units": 10,
         "dispUnits": 11,
         "label": "STW",
-        "bufSize": 0,
-        "bufFreq": 0
-      },
-      "navigation.courseRhumbline.nextPoint.velocityMadeGood": {
-        "minPeriod": 4000,
-        "decimals": 1,
-        "label": "VMG",
-        "units": 10,
-        "dispUnits": 11,
         "bufSize": 0,
         "bufFreq": 0
       }
@@ -92,10 +101,10 @@
           "environment.depth.belowTransducer": {
             "pos": 0
           },
-          "navigation.speedOverGround": {
+          "navigation.courseOverGroundTrue": {
             "pos": 1
           },
-          "navigation.courseOverGroundTrue": {
+          "navigation.speedOverGround": {
             "pos": 2
           },
           "navigation.speedThroughWater": {
@@ -103,18 +112,21 @@
           }
         }
       },
+      "None": {
+        "poss": {}
+      },
       "Route1": {
         "poss": {
-          "environment.depth.belowTransducer": {
+          "navigation.courseRhumbline.crossTrackError": {
             "pos": 0
           },
-          "navigation.courseOverGroundTrue": {
+          "navigation.courseRhumbline.nextPoint.bearingTrue": {
             "pos": 1
           },
-          "navigation.courseRhumbline.crossTrackError": {
+          "navigation.courseRhumbline.nextPoint.distance": {
             "pos": 2
           },
-          "navigation.courseRhumbline.nextPoint.bearingTrue": {
+          "navigation.courseRhumbline.nextPoint.ID": {
             "pos": 3
           }
         }
@@ -134,16 +146,13 @@
             "pos": 3
           }
         }
-      },
-      "None": {
-        "poss": {}
       }
     },
     "displays": {
-      "b1": {
+      "1": {
         "view": "Default"
       },
-      "1": {
+      "b1": {
         "view": "Default"
       },
       "b2": {

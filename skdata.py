@@ -154,58 +154,71 @@ class Buffer:
                 newVal = value - 2*self.compassVal
         return newVal
 
-    def add(self, value: float, dec: int) -> (bool, float):
-        if self.size > 1:
-            if value is not None:
-                if self.compassVal != 0:
-                    value = self.compassModifyVal(value)
-                self.sum = self.sum + value
-                self.no = self.no + 1
-            if self.buf[self.ix] is not None:
-                self.sum = self.sum - self.buf[self.ix]
-                self.no = self.no - 1
-            self.buf[self.ix] = value
-            self.ix = self.ix + 1
-            if self.ix == self.size:
-                self.ix = 0
+    def add_buffer(self,
+                   value: float | None) -> (bool, float | None):
+        res = (False, None)
+        if value is not None:
+            if self.compassVal != 0:
+                value = self.compassModifyVal(value)
+            self.sum = self.sum + value
+            self.no = self.no + 1
+        if self.buf[self.ix] is not None:
+            self.sum = self.sum - self.buf[self.ix]
+            self.no = self.no - 1
+        self.buf[self.ix] = value
+        self.ix = self.ix + 1
+        if self.ix == self.size:
+            self.ix = 0
 
-            self.fregIx = self.fregIx + 1
-            if self.fregIx == self.freqNo:
-                if self.no != 0:
-                    v = self.sum/self.no
-                    if self.compassVal != 0:
-                        v = self.compassModAvg(v)
-                    v = round(v, dec)
-                    if self.last != v:
-                        res = (True, v)
-                        self.last = v
-                    else:
-                        res = (False, v)
-                else:  # Calc Value is None
-                    if self.last is None:
-                        res = (False, None)
-                    else:
-                        self.last = None
-                        res = (True, None)
-                self.fregIx = 0
-            else:
-                res = (False, None)
+        self.fregIx = self.fregIx + 1
+        if self.fregIx == self.freqNo:
+            if self.no != 0:
+                v = self.sum/self.no
+                if self.compassVal != 0:
+                    v = self.compassModAvg(v)
+                res = (True, v)
+            else:  # Calc Value is None
+                res = (True, None)
+            self.fregIx = 0
+        else:
+            res = (False, None)
+        return res
+
+    def add_lastUpdate(self, value: float | str | None) -> bool:
+        isUpd = False
+        if self.last != value:
+            self.last = value
+            isUpd = True
+        return isUpd
+
+    def add(self,
+            value: float | str,
+            dec: int) -> (bool, float | None | str):
+        if self.size > 1 and not isinstance(value, str):
+            isBuf, bufVal = self.add_buffer(value)
+            vRound = roundValue(bufVal, dec)
+            isUpd = False
+            if isBuf:
+                isUpd = self.add_lastUpdate(vRound)
         else:  # No buffer
-            if value is not None:
-                vRound = round(value, dec)
-                if vRound != self.last:
-                    res = (True, vRound)
-                    self.last = vRound
-                else:  # Equal
-                    res = (False, vRound)
-            else:  # value is None
-                if self.last is None:
-                    res = (False, None)
-                else:
-                    self.last = None
-                    res = (True, None)
+            vRound = roundValue(value, dec)
+            isUpd = self.add_lastUpdate(vRound)
+        if isUpd:
+            res = (isUpd, vRound)
+        else:
+            res = (False, None)
 
         return res
+
+
+def roundValue(value: str | float | None, dec: int) -> str | float | None:
+    res = value
+    if value is not None:
+        if isinstance(value, str):
+            res = value[-3:]
+        else:
+            res = round(value, dec)
+    return res
 
 
 class PathBig:
@@ -226,7 +239,10 @@ class PathBig:
         dd = None
         v = None
         if value is not None:
-            v = self.fn(value)
+            if isinstance(value, int):
+                value = float(value)
+            if isinstance(value, str) or not math.isnan(value):
+                v = self.fn(value)
         isUpdate, bv = self.buffer.add(v, self.decimals)
         if isUpdate:
             dd = DispData(bv, self.decimals, self.label, self.dispUnits, False)
@@ -256,7 +272,12 @@ class Path(PathBig):
                                    pathJson[ff.bufFreq.jId])
         self.alarm = None
 
-    def createDispData(self, value) -> DispData | None:
+    def createDispData(self,
+                       value: str | float | int | None) -> DispData | None:
+        """
+        Create display data from a value. int is converted to a float and
+        nan is treated as None
+        """
         dd, bv = super().createDispData(value)
         if dd is not None:
             if self.alarm is not None:

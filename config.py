@@ -8,6 +8,7 @@ from flds import fldsDict as fd
 from jsonptr import Ptr, ErrPtr
 from jsoflds import JsoDef, walkObj
 import empty
+import units
 
 
 class Config:
@@ -82,8 +83,17 @@ class Config:
                     "label": "DIS",
                     "bufSize": 0,
                     "bufFreq": 0
-                    }
-                },
+                    },
+                "navigation.courseRhumbline.nextPoint.ID": {
+                    "minPeriod": 4000,
+                    "decimals": 0,
+                    "label": "ID",
+                    "units": 99,
+                    "dispUnits": 99,
+                    "bufSize": 0,
+                    "bufFreq": 0
+                }
+            },
             "bigs": {
                 "navigation.courseRhumbline.nextPoint.distance": {
                     "limit": 999,
@@ -147,9 +157,9 @@ class Config:
         self.defaultView = "None"
         self.settFlds = [ff.broadCP, ff.interface, ff.dissub]
 
-    def roleBack(self):
+    def rollBack(self):
         self.conff = self.oldConff
-        self.conf = self.conff[fd.conf.jid]
+        self.conf = self.conff[fd.conf.jId]
         self.oldConff = copy.deepcopy(self.conff)
     #  ##### Displays #################
 
@@ -311,6 +321,22 @@ def valPaths(path, ptr, paths) -> list[ErrPtr]:
         err = ErrPtr(ptr+ff.bufFreq, v, txt,
                      ref=ptr+ff.bufSize)
         errs.append(err)
+    if len(path[ff.label.jId]) > 3:
+        label = path[ff.label.jId]
+        txt = "{}: contains {} it is too long: max 3 char."
+        err = ErrPtr(ptr+ff.label, label, txt)
+        errs.append(err)
+    if path[ff.skUnit.jId] == units.txt:
+        if path[ff.dpUnit.jId] != units.txt:
+            txt = " should be {}".format(units.shortTxt(units.txt))
+            txt = "{}: "+txt
+            err = ErrPtr(ptr+ff.dpUnit, None, txt, isVal=False)
+            errs.append(err)
+        if path[ff.bufSize.jId] != 0:
+            v = path[ff.bufSize]
+            txt = "{}: should be zero not {}"+txt
+            err = ErrPtr(ptr+ff.bufSize, v, txt)
+            errs.append(err)
     return errs
 
 
