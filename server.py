@@ -273,7 +273,9 @@ async def serve(status: Status,
                 await skData.clearTask()
                 ok = await displays.close()
                 if not ok:
-                    print("Some displays failed to turn off")
+                    txt = ("Some Udp displays failed to "
+                           "report back that they turn off")
+                    print(txt)
                 status.setTxt("Async server done")
                 # It leaves a pending task no name see
                 # https://github.com/pytest-dev/pytest-asyncio/issues/759

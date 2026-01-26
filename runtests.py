@@ -15,10 +15,12 @@ def getTestFiles(dirName: str) -> [str]:
 
 def runTest(fileName) -> tuple[str, bool]:
     isOk = True
-    txt = ""
+    txt = "############# {} ##############:\n".format(fileName)
     args = ["python", fileName, "-t"]
     cp = sub.run(args, text=True, capture_output=True)
-    txt = cp.stdout + " Err: " + cp.stderr
+    txt = txt + cp.stdout
+    if len(cp.stderr):
+        txt = txt + "\n From stdErr: " + cp.stderr
 
     if cp.returncode != 0:
         isOk = False

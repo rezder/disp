@@ -25,10 +25,19 @@ class Displays:
         res = id in self.udpDisps or id in self.bleDisps
         return res
 
-    def setView(self, id: str, newView: dict) -> dict:
-        disp = self.getDisp(id)
-        oldView = disp.getView()
-        disp.setView(newView)
+    async def setView(self, id: str, newView: dict) -> dict:
+        """
+        Assync Sets new view on display it is Ble their is async
+        """
+        oldView = None
+        if id in self.udpDisps:
+            disp = self.udpDisps.get(id)
+            oldView = disp.getView()
+            disp.setView(newView)
+        elif id in self.bleDisps:
+            disp = self.bleDisps.get(id)
+            oldView = disp.getView()
+            await disp.setView(newView)
         return oldView
 
     def getDisp(self, id):
@@ -42,7 +51,7 @@ class Displays:
         if id in self.udpDisps:
             disp = self.udpDisps.get(id)
         else:
-            disp = self.bleDisps.get(id)
+            disp = self.bleDisps.get(id)  # returns None
         return disp
 
     def addBleDisps(self, disps: dict) -> set:
@@ -92,11 +101,13 @@ class Displays:
             self.udpDisps[id] = d
         return isNew
 
-    async def display(self, dp: DispData, path: str):
+    async def display(self,
+                      path: str,
+                      dds: dict[str:DispData]):
         for ud in self.udpDisps.values():
-            ud.display(dp, path)
+            ud.display(path, dds)
         for dd in self.bleDisps.values():
-            await dd.display(dp, path)
+            await dd.display(path, dds)
 
     async def close(self) -> bool:
         ok = True

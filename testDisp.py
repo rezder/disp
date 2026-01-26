@@ -21,6 +21,12 @@ def testSubSk(skData):
     print(skData.msgUnsubAll())
 
 
+def checkBytesLen(buff):
+    if len(buff) != 14:
+        txt = "Error message do not 14 bytes but{}"
+        raise Exception(txt.format(len(buff)))
+
+
 def testPathNoBuffer(pathId,
                      value,
                      exp,
@@ -31,8 +37,7 @@ def testPathNoBuffer(pathId,
     print(dd.value)
     b = dd.encode(pos)
     print(b)
-    if len(b) != 14:
-        raise Exception("Error message do not 14 bytes but{}".format(len(b)))
+    checkBytesLen(b)
     px(dd.value, exp)
     return dd
 
@@ -56,9 +61,7 @@ def testPathBuffer(pathId, values, exp, pos, skData: SkData):
                 print(dd.value)
                 b = dd.encode(pos)
                 print(b)
-                print(len(b))
-                if len(b) != 14:
-                    raise Exception(" message to not 14 bytes but{}".format(len(b)))
+                checkBytesLen(b)
                 px(dd.value, exp)
 
 
@@ -78,6 +81,11 @@ def testPathCreateMsg(skData: SkData, status: Status, conf: Config):
     values = [10.0, 5.0, 10.0, 3.0]
     pos = 3
     exp = 13.6
+    testPathBuffer(path, values, exp, pos, skData)
+    path = "navigation.speedOverGround"
+    values = [None, None, None, None]
+    pos = 3
+    exp = None
     testPathBuffer(path, values, exp, pos, skData)
     path = "navigation.courseOverGroundTrue"
     values = [3.12, 3.12, 3.14, 3.14]
@@ -171,6 +179,9 @@ def main():
     testSubSk(skData)
     testPathCreateMsg(skData, status, conf)
     testBuffer()
+    b = DispData.encodeClear(2)
+    print(b)
+    checkBytesLen(b)
 
     print(conf.getBroadcastIp())
     dp = DispData(1.2, 1, "SOG", 0, False)

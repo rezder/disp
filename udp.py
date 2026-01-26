@@ -18,7 +18,6 @@ class Display:
     """
     def __init__(self, id: str, ip: str, port: int, status: Status):
         self.addr = (ip, port)
-        self.on = False
         self.id = id
         self.status = status
         self.view = {}
@@ -28,10 +27,13 @@ class Display:
         self.actTs = time.monotonic()
         self.connTask = ass.create_task(udpSocket(remote_addr=self.addr),
                                         name="Udp connection")
+        self.turnedOff = False
+        self.isFullDD = False
 
     def __str__(self) -> str:
         txt = "Display: id:{}, on: {}, addr: {}"
-        res = txt.format(self.id, self.on, self.addr)
+        isOn = self.connTask is None
+        res = txt.format(self.id, isOn, self.addr)
         return res
 
     async def keepAlive(self):
@@ -43,7 +45,7 @@ class Display:
             sleep = self.keepAliveTime + self.actTs - ts
             if sleep < 0:
                 self.checkConnTask()
-                if self.on:
+                if self.connTask is None:
                     self.socket.sendto(bytearray(cmd, "ascii"), self.addr)
                     sleep = self.keepAliveTime
                     self.actTs = ts
@@ -55,31 +57,56 @@ class Display:
 
     def setView(self, view: dict):
         self.view = view
+        self.isFullDD = True
 
     def getView(self) -> dict:
         return self.view
 
     def checkConnTask(self):
-        if not self.on and self.connTask.done():
+        if self.connTask is not None and self.connTask.done():
             ex = self.connTask.exception()
             if ex is None:
                 self.socket = self.connTask.result()
-                self.on = True
                 self.connTask = None
+                self.isFullDD = True
             else:
                 txt = "Display id: {} udp connecting faild\nWith: {}"
                 self.status.setTxt(txt.format(self.id, ex))
                 self.connTask = ass.create_task(self.client.connect())
 
-    def display(self, dp: DispData, path: str):
-        self.checkConnTask()
-        if self.on:
-            if path in self.view:
-                pos = self.view[path][ff.pos.jId]
-                buff = dp.encode(pos)
-                print("Sending disp msg:{}".format(buff))  # TODO remove
-                self.socket.sendto(buff, self.addr)
-                self.actTs = time.monotonic()
+    def display(self, path: str, dds: dict[str, DispData]):
+        if not self.turnedOff and (path in self.view or self.isFullDD):
+            self.checkConnTask()
+            if self.connTask is None:
+                if self.isFullDD:
+                    poss: list[int] = list(range(4))
+                    time.sleep(0.5)
+                    for p, dd in dds.items():
+                        pos = self.disp_sendMsg(dd, p)
+                        if pos is not None:
+                            poss.remove(pos)
+                    for pos in poss:
+                        self.disp_sendClear(pos)
+                        time.sleep(0.5)
+                    self.isFullDD = False
+                else:
+                    _ = self.disp_sendMsg(dds[path], path)
+
+    def disp_sendClear(self, pos):
+        buff = DispData.encodeClear(pos)
+        self.socket.sendto(buff, self.addr)
+        self.actTs = time.monotonic()
+
+    def disp_sendMsg(self, dd: DispData, path: str) -> int | None:
+        pos = None
+        if path in self.view:
+            pos = self.view[path][ff.pos.jId]
+            buff = dd.encode(pos)
+            #  TODO remove
+            print("Sending disp msg to udp:{}".format(buff))
+            self.socket.sendto(buff, self.addr)
+            self.actTs = time.monotonic()
+        return pos
 
     async def _sendCmd(self, cmd, delay, times) -> bool:
         """
@@ -115,29 +142,27 @@ class Display:
 
     async def turnOff(self) -> bool:
         ok = True
-        self.checkConnTask()
-        if self.on:
-            self.keepAliveTask.cancel()
-            try:
-                await self.keepAliveTask
-                ex = self.keepAliveTask.exception()
-                if ex is not None:
-                    print("Error on keep alive task: {}".format(ex))
-            except ass.CancelledError:
-                pass
-            self.keepAliveTask = None
-            ok = await self._sendCmd('C', 2, 3)
-            if ok:
-                self.on = False
-            self.socket.close()
-        else:
-            if self.connTask is not None:
+        if not self.turnedOff:
+            self.checkConnTask()
+            if self.connTask is None:
+                self.keepAliveTask.cancel()
+                try:
+                    await self.keepAliveTask
+                    ex = self.keepAliveTask.exception()
+                    if ex is not None:
+                        print("Error on keep alive task: {}".format(ex))
+                except ass.CancelledError:
+                    pass
+                self.keepAliveTask = None
+                ok = await self._sendCmd('C', 2, 3)
+                self.socket.close()
+            else:
                 if not self.connTask.done():
                     self.connTask.cancel()
                     try:
                         await self.connTask
                     except ass.CancelledError:
                         pass
-
                 self.connTask = None
+            self.turnedOff = True
         return ok

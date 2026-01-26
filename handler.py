@@ -84,7 +84,7 @@ async def guiMsg(ws: wsclient.ClientConnection,
             status.addDispOn(dispId, newViewId)
             txt = "Changing view on display: {} to view: {}"
             status.setTxt(txt.format(dispId, newViewId))
-            oldView = displays.setView(dispId, newView)
+            oldView = await displays.setView(dispId, newView)
             newSubSet = sub.add(set(newView.keys()))
             unsubSet = sub.remove(set(oldView.keys()))
             if len(newSubSet) > 0 or len(unsubSet) > 0:
@@ -124,10 +124,12 @@ async def signalkMsg(ws, displays: Displays, skData, status):
     """
     Async function for handle websoket signal k incomming messages
     """
+    dds: dict[str, DispData] = dict()
     async for jsonMsg in ws:
-        inkMsgs = parseSkUpdates(jsonMsg, skData, status)
-        for (m, p) in inkMsgs:
-            await displays.display(m, p)
+        ddMsgs = parseSkUpdates(jsonMsg, skData, status)
+        for (dd, p) in ddMsgs:
+            dds[p] = dd
+            await displays.display(p, dds)
 
 
 def parseSkUpdates(skMsg: str,
@@ -142,13 +144,14 @@ def parseSkUpdates(skMsg: str,
     :return: Returns a list of display messages.
     :rtype: list[tuple[DispData,str]]
     """
-    inkMsgs = list()
+    ddMsgs = list()
     jsObj = json.loads(skMsg)
     if "updates" in jsObj:
         for delta in jsObj["updates"]:
             # source can be used to filter unwanted sources
             # but subscribe msg could be changed to include
             # .values[$source]
+            # ex: navigation.speedThroughWater.values[n2kFromFile.43]
             # if "source" in delta:
             #     print("source: {}".format(delta["source"]))
             #     if "label" in delta["source"]:
@@ -160,14 +163,14 @@ def parseSkUpdates(skMsg: str,
                     value = v["value"]
                     dispData = skData.getPath(pathId).createDispData(value)
                     if dispData is not None:
-                        inkMsgs.append((dispData, pathId))
+                        ddMsgs.append((dispData, pathId))
                 except KeyError:
                     t = "Faild to find path: {} on display"
                     status.setTxt(t.format(v["path"]))
     else:
         status.setTxt("Signal k unprocced messages: {}".format(jsObj))
 
-    return inkMsgs
+    return ddMsgs
 
 
 async def udpSubscribe(displays: Displays,
@@ -185,8 +188,8 @@ async def udpSubscribe(displays: Displays,
             id = id.strip()
             if conf.dispIs(id):
                 isNew = displays.add(id, addr[0], addr[1])
-                status.setTxt("New display added id: {}".format(id))
                 if isNew:
+                    status.setTxt("New display added id: {}".format(id))
                     req = gr.GuiReq(gr.chgView, id)
                     await queue.put(req)
             else:

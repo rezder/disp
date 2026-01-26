@@ -310,25 +310,24 @@ class Table:
         jsonObj = None
         chgKeys: list[tuple[str, str]] = list()
         newKeys: list[str] = list()
-        if self.validate():
-            jsonObj = dict()
-            for k, row in self.rowsFlds.items():
-                item = dict()
-                newk = row[self.keyId].get()
-                if k != newk:
-                    if type(k) is int:
-                        newKeys.append(newk)
-                    else:
-                        chgKeys.append((k, newk))
-                for fldId, guiFld in row.items():
-                    if guiFld.isJson\
-                       and guiFld.linkDef is None\
-                       and not guiFld.isKey:
+        jsonObj = dict()
+        for k, row in self.rowsFlds.items():
+            item = dict()
+            newk = row[self.keyId].get()
+            if k != newk:
+                if type(k) is int:
+                    newKeys.append(newk)
+                else:
+                    chgKeys.append((k, newk))
+            for fldId, guiFld in row.items():
+                if guiFld.isJson\
+                   and guiFld.linkDef is None\
+                   and not guiFld.isKey:
 
-                        data = guiFld.get()
-                        if data is not None:
-                            item[fldId] = data
-                jsonObj[newk] = item
+                    data = guiFld.get()
+                    if data is not None:
+                        item[fldId] = data
+            jsonObj[newk] = item
 
         return jsonObj, self.delKeys, chgKeys, newKeys
 
@@ -357,5 +356,4 @@ class Table:
                     isOk = False
                     for key in keyList:
                         self.rowsFlds[key][self.keyId].setError(True)
-
         return isOk

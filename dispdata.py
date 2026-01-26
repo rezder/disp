@@ -56,6 +56,16 @@ class DispData:
         res.extend(txt.encode("ascii"))
         return res
 
+    def encodeClear(pos: int):
+        res = bytearray((pos,
+                         0,
+                         False,
+                         False))
+        # txt have full size padded with \0
+        txt = "\0\0\0\0\0\0\0\0\0\0"
+        res.extend(txt.encode("ascii"))
+        return res
+
     def decode(buff: bytearray):
         if len(buff) < 14:
             raise Exception("buffer to small")

@@ -280,7 +280,7 @@ class Path(PathBig):
         """
         dd, bv = super().createDispData(value)
         if dd is not None:
-            if self.alarm is not None:
+            if self.alarm is not None and bv is not None:
                 isAlarm = self.alarm.eval(bv)
                 dd.isAlarm = isAlarm
         if self.pathBig is not None:

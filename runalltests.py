@@ -2,7 +2,7 @@
 import runtests as rt
 
 
-def main(txtLen):
+def main():
     files = rt.getTestFiles("..")
     print("Numbers of files: {}".format(len(files)))
     errTxt = ""
@@ -22,11 +22,17 @@ def main(txtLen):
             print()
 
         errTxt = errTxt + "\n" + txt
-    if len(errTxt) != txtLen:
-        print("Test output changed from {} to {}".format(txtLen,
+
+    fileName = "./data/testtxt.txt"
+    with open(fileName, "r") as f:
+        oldErrTxt = f.read()
+    if len(errTxt) != len(oldErrTxt):
+        print("Test output changed from {} to {}".format(len(oldErrTxt),
                                                          (len(errTxt))))
-        # print(errTxt)
+        print("save errtxt in {}".format(fileName+".new"))
+        with open(fileName+".new", "w") as f:
+            f.write(errTxt)
 
 
 if __name__ == "__main__":
-    main(9255)
+    main()

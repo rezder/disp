@@ -18,15 +18,22 @@ class Display:
         self.pauseCharId = bleak.uuids.normalize_uuid_32(102)
         self.dataCharId = bleak.uuids.normalize_uuid_32(101)
         self.cmdCharId = bleak.uuids.normalize_uuid_32(103)
+        self.isFullDD = False
         self.view = {}
         self.turnedOff = False
+        self.lock = ass.Lock()
 
     def __str__(self) -> str:
         txt = "Ble client id: {}, mac: {}".format(self.id, self.macAddr)
         return txt
 
-    def setView(self, view: dict):
-        self.view = view
+    async def setView(self, view: dict):
+        """
+        Async lock set View
+        """
+        async with self.lock:
+            self.view = view
+            self.isFullDD = True
 
     def getView(self) -> dict:
         return self.view
@@ -42,6 +49,7 @@ class Display:
                     self.connTask = None
                     txt = "Display id {} connected"
                     self.status.setTxt(txt.format(self.id))
+                    self.isFullDD = True
                 else:
                     ex = self.connTask.exception()
                     if ex is not None:
@@ -56,23 +64,57 @@ class Display:
             if not self.client.is_connected:
                 self.connTask = ass.create_task(self.delayConnect())
 
-    async def display(self, dp: DispData, path: str):
-        if not self.turnedOff and path in self.view:
-            self.checkConnTask()
-            if self.connTask is None:
-                try:
-                    buff = await self.client.read_gatt_char(self.pauseCharId)
-                    isPaused = bool(int.from_bytes(buff))
-                    if not isPaused:
-                        pos = self.view[path][ff.pos.jId]
-                        buff = dp.encode(pos)
-                        print("Sending disp msg:{}".format(buff))  # TODO remov
-                        await self.client.write_gatt_char(self.dataCharId,
-                                                          buff,
-                                                          response=False)
-                except bleak.BleakCharacteristicNotFoundError as ex:
-                    txt = "Lost bluetooth connection: {}".format(ex)
-                    self.status.setTxt(txt)
+    async def display(self, path: str, dds: dict[str, DispData]):
+        """
+        Async! lock! Sends dispdata to display
+        First time or after view change all paths is send.
+        Second time only one path is send.
+        """
+        async with self.lock:
+            if not self.turnedOff and (path in self.view or self.isFullDD):
+                self.checkConnTask()
+                if self.connTask is None:
+                    try:
+                        buff = await self.client.read_gatt_char(self.pauseCharId)
+                        isPaused = bool(int.from_bytes(buff))
+                        if not isPaused:
+                            if self.isFullDD:
+                                poss: list[int] = list(range(4))
+                                for p, dd in dds.items():
+                                    pos = await self.disp_sendMsg(dd, p)
+                                    await ass.sleep(0.100)
+                                    if pos is not None:
+                                        poss.remove(pos)
+                                if len(poss) != 0:
+                                    for pos in poss:
+                                        await self.disp_sendClear(pos)
+                                        await ass.sleep(0.100)
+                                self.isFullDD = False
+                            else:
+                                await self.disp_sendMsg(dds[path], path)
+
+                    except bleak.BleakCharacteristicNotFoundError as ex:
+                        txt = "Lost bluetooth connection: {}".format(ex)
+                        self.status.setTxt(txt)
+
+    async def disp_sendClear(self, pos):
+        buff = DispData.encodeClear(pos)
+        # print("Sending disp msg:{}".format(buff))
+        await self.client.write_gatt_char(self.dataCharId,
+                                          buff,
+                                          response=False)
+
+    async def disp_sendMsg(self, dd: DispData, path: str) -> int | None:
+        pos = None
+        if path in self.view:
+            pos = self.view[path][ff.pos.jId]
+            buff = dd.encode(pos)
+            #  TODO remove
+            print("Sending disp msg:{}".format(buff))
+            await self.client.write_gatt_char(self.dataCharId,
+                                              buff,
+                                              response=False)
+        return pos
 
     async def turnOff(self):
         """
@@ -97,5 +139,3 @@ class Display:
 
                 self.connTask = None
             self.turnedOff = True
-        else:
-            raise Exception("Turn of  called twice!")
