@@ -1,0 +1,190 @@
+
+############# /home/rho/Python/arduino/havsmolf/icm/testBle.py ##############:
+
+ From stdErr: Traceback (most recent call last):
+  File "/home/rho/Python/arduino/havsmolf/.venv/lib/python3.14/site-packages/serial/serialposix.py", line 322, in open
+    self.fd = os.open(self.portstr, os.O_RDWR | os.O_NOCTTY | os.O_NONBLOCK)
+              ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/dev/ttyACM0'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/rho/Python/arduino/havsmolf/icm/testBle.py", line 48, in <module>
+    main()
+    ~~~~^^
+  File "/home/rho/Python/arduino/havsmolf/icm/testBle.py", line 30, in main
+    with sen.BleEsp("/dev/ttyACM0",
+         ~~~~~~~~~~^^^^^^^^^^^^^^^^
+                    200,
+                    ^^^^
+                    3,
+                    ^^
+                    "34:85:18:7B:AE:E5") as ble:
+                    ^^^^^^^^^^^^^^^^^^^^
+  File "/home/rho/Python/arduino/havsmolf/icm/sensors.py", line 109, in __enter__
+    self.startSerialCon()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "/home/rho/Python/arduino/havsmolf/icm/sensors.py", line 202, in startSerialCon
+    self.serial = serial.Serial(self.path, DEFAULT_BAUDRATE, timeout=2)
+                  ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rho/Python/arduino/havsmolf/.venv/lib/python3.14/site-packages/serial/serialutil.py", line 244, in __init__
+    self.open()
+    ~~~~~~~~~^^
+  File "/home/rho/Python/arduino/havsmolf/.venv/lib/python3.14/site-packages/serial/serialposix.py", line 325, in open
+    raise SerialException(msg.errno, "could not open port {}: {}".format(self._port, msg))
+serial.serialutil.SerialException: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+
+############# /home/rho/Python/arduino/havsmolf/icm/testSensor.py ##############:
+
+ From stdErr: Traceback (most recent call last):
+  File "/home/rho/Python/arduino/havsmolf/.venv/lib/python3.14/site-packages/serial/serialposix.py", line 322, in open
+    self.fd = os.open(self.portstr, os.O_RDWR | os.O_NOCTTY | os.O_NONBLOCK)
+              ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/dev/ttyACM0'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/rho/Python/arduino/havsmolf/icm/testSensor.py", line 73, in <module>
+    main(True, False, pw)
+    ~~~~^^^^^^^^^^^^^^^^^
+  File "/home/rho/Python/arduino/havsmolf/icm/testSensor.py", line 10, in main
+    con = sen.SerialEspOnDemand(path,
+                                sen.esp32DataSize(),
+                                sen.esp32HavsmolfData)
+  File "/home/rho/Python/arduino/havsmolf/icm/sensors.py", line 221, in __init__
+    self.serial = serial.Serial(path, baudrate=DEFAULT_BAUDRATE, timeout=2)
+                  ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rho/Python/arduino/havsmolf/.venv/lib/python3.14/site-packages/serial/serialutil.py", line 244, in __init__
+    self.open()
+    ~~~~~~~~~^^
+  File "/home/rho/Python/arduino/havsmolf/.venv/lib/python3.14/site-packages/serial/serialposix.py", line 325, in open
+    raise SerialException(msg.errno, "could not open port {}: {}".format(self._port, msg))
+serial.serialutil.SerialException: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+
+############# /home/rho/Python/arduino/havsmolf/icm/testvoltdiv.py ##############:
+Volt in
+Expect 11: 10.998102466793169
+Expect 630: 630.1086956521739
+Engin ground r2 unknown
+Expect 300: 299.77464788732397
+Expect 313: 313.16326530612247
+Expect 100: 99.68009478672985
+Expect 179: 179.4736842105263
+Return r1 unknown
+Expect 70: 69.98815165876778
+Expect 844: 843.9749999999999
+
+############# /home/rho/Python/arduino/havsmolf/disp/testguis.py ##############:
+
+############# /home/rho/Python/arduino/havsmolf/disp/testguipaths.py ##############:
+
+############# /home/rho/Python/arduino/havsmolf/disp/testguitable.py ##############:
+popUp menu does not exist: bad menu entry index "jdsfh"
+{'environment.depth.belowTransducer': {'min': 5.0, 'minPeriod': 1000, 'decimals': 1, 'units': 0, 'dispUnits': 0, 'label': 'DBT', 'bufSize': 0, 'bufFreq': 0}}
+{'navigation.courseRhumbline.nextPoint.distance': {'limit': 999, 'dispUnits': 1, 'decimals': 1, 'minPeriod': 4000, 'units': 0, 'label': 'DIS', 'bufSize': 0, 'bufFreq': 0}}
+{'environment.depth.belowTransducer': {'minPeriod': 1000, 'decimals': 1, 'units': 0, 'dispUnits': 0, 'label': 'DBT', 'bufSize': 0, 'bufFreq': 0, 'limit': 0}, 'navigation.speedOverGround': {'minPeriod': 500, 'decimals': 1, 'units': 10, 'dispUnits': 11, 'label': 'SOG', 'bufSize': 4, 'bufFreq': 4, 'limit': 0}, 'navigation.courseOverGroundTrue': {'minPeriod': 500, 'decimals': 0, 'units': 20, 'dispUnits': 21, 'label': 'COG', 'bufSize': 4, 'bufFreq': 4, 'limit': 0}, 'navigation.speedThroughWater': {'minPeriod': 2000, 'decimals': 1, 'units': 10, 'dispUnits': 11, 'label': 'STW', 'bufSize': 0, 'bufFreq': 0, 'limit': 0}, 'navigation.courseRhumbline.crossTrackError': {'minPeriod': 4000, 'decimals': 0, 'units': 0, 'dispUnits': 0, 'label': 'XTE', 'bufSize': 0, 'bufFreq': 0, 'limit': 0}, 'navigation.courseRhumbline.nextPoint.bearingTrue': {'minPeriod': 500, 'decimals': 0, 'units': 20, 'dispUnits': 21, 'label': 'BEA', 'bufSize': 4, 'bufFreq': 4, 'limit': 0}, 'navigation.courseRhumbline.nextPoint.distance': {'minPeriod': 4000, 'decimals': 0, 'units': 0, 'dispUnits': 0, 'label': 'DIS', 'bufSize': 0, 'bufFreq': 0, 'limit': 999, 't2|dispUnits': 1, 't2|decimals': 1}, 'navigation.courseRhumbline.nextPoint.ID': {'minPeriod': 4000, 'decimals': 0, 'label': 'ID', 'units': 99, 'dispUnits': 99, 'bufSize': 0, 'bufFreq': 0, 'limit': 0}}
+
+############# /home/rho/Python/arduino/havsmolf/disp/testAlarm.py ##############:
+Ok
+Ok
+Ok
+Ok
+
+############# /home/rho/Python/arduino/havsmolf/disp/testptr.py ##############:
+Paths->Path:navigation.courseRhumbline.nextPoint.distanceLabel->Paths->Path:navigation.courseRhumbline.nextPoint.distance
+{'minPeriod': 4000, 'decimals': 0, 'units': 0, 'dispUnits': 0, 'label': 'DIS', 'bufSize': 0, 'bufFreq': 0}
+8
+
+############# /home/rho/Python/arduino/havsmolf/disp/testconfval.py ##############:
+The conf errors
+
+Tre lists of fields:
+bufFreq,bufSize,broadcastPort
+Buf Freq,Buf Size,BC Port
+Buffer Frequence,Buffer Size,Broadcast Port
+33
+Server Configuration contain 4 errors!
+Field: Conf->BC Port contains illegal value: 9090
+Field: Conf->Paths->Path:navigation.courseRhumbline.nextPoint.distance->Label contains illegal value: 
+Conf->Alarms->Alarm:environment.depth.belowTransducer has no alarms
+Conf->Views->View:Default->Poss->Pos:navigation.speedThroughWaterXXX is missing from Conf->Paths
+
+############# /home/rho/Python/arduino/havsmolf/disp/testDisp.py ##############:
+###################################################Start test###################################################
+{"context": "*", "unsubscribe": [{"path": "*"}]}
+7.0
+bytearray(b'\x02\x01\x00\x00m\x00\x00\x00DBT70\x00')
+016
+bytearray(b'\x02\x00\x00\x00txt\x00ID\x00016')
+Size:4,FreqNo:4,Sum:19.44,No:1,Ix:1,fregIx:1,Last:None,Buff:[19.44, None, None, None]
+Size:4,FreqNo:4,Sum:29.160000000000004,No:2,Ix:2,fregIx:2,Last:None,Buff:[19.44, 9.72, None, None]
+Size:4,FreqNo:4,Sum:48.60000000000001,No:3,Ix:3,fregIx:3,Last:None,Buff:[19.44, 9.72, 19.44, None]
+Size:4,FreqNo:4,Sum:54.43200000000001,No:4,Ix:0,fregIx:0,Last:13.6,Buff:[19.44, 9.72, 19.44, 5.832000000000001]
+13.6
+bytearray(b'\x03\x01\x00\x00knotSOG136')
+Size:4,FreqNo:4,Sum:34.992000000000004,No:3,Ix:1,fregIx:1,Last:13.6,Buff:[None, 9.72, 19.44, 5.832000000000001]
+Size:4,FreqNo:4,Sum:25.272000000000006,No:2,Ix:2,fregIx:2,Last:13.6,Buff:[None, None, 19.44, 5.832000000000001]
+Size:4,FreqNo:4,Sum:5.832000000000004,No:1,Ix:3,fregIx:3,Last:13.6,Buff:[None, None, None, 5.832000000000001]
+Size:4,FreqNo:4,Sum:3.552713678800501e-15,No:0,Ix:0,fregIx:0,Last:None,Buff:[None, None, None, None]
+None
+bytearray(b'\x03\x01\x00\x00knotSOGNON')
+Size:4,FreqNo:4,Sum:178.76241405653172,No:1,Ix:1,fregIx:1,Last:None,Buff:[178.76241405653172, None, None, None]
+Size:4,FreqNo:4,Sum:357.52482811306345,No:2,Ix:2,fregIx:2,Last:None,Buff:[178.76241405653172, 178.76241405653172, None, None]
+Size:4,FreqNo:4,Sum:537.433155080214,No:3,Ix:3,fregIx:3,Last:None,Buff:[178.76241405653172, 178.76241405653172, 179.90832696715051, None]
+Size:4,FreqNo:4,Sum:717.3414820473645,No:4,Ix:0,fregIx:0,Last:179.0,Buff:[178.76241405653172, 178.76241405653172, 179.90832696715051, 179.90832696715051]
+179.0
+bytearray(b'\x00\x00\x00\x00deg\x00COG179')
+Size:4,FreqNo:4,Sum:357.52482811306345,No:1,Ix:1,fregIx:1,Last:None,Buff:[357.52482811306345, None, None, None]
+Size:4,FreqNo:4,Sum:715.0496562261269,No:2,Ix:2,fregIx:2,Last:None,Buff:[357.52482811306345, 357.52482811306345, None, None]
+Size:4,FreqNo:4,Sum:1075.049656226127,No:3,Ix:3,fregIx:3,Last:None,Buff:[357.52482811306345, 357.52482811306345, 360.0, None]
+Size:4,FreqNo:4,Sum:1435.049656226127,No:4,Ix:0,fregIx:0,Last:359.0,Buff:[357.52482811306345, 357.52482811306345, 360.0, 360.0]
+359.0
+bytearray(b'\x00\x00\x00\x00deg\x00COG359')
+-122.0
+bytearray(b'\x03\x00\x01\x00m\x00\x00\x00XTE122')
+122.0
+bytearray(b'\x02\x00\x00\x00m\x00\x00\x00XTE122')
+1928.0
+bytearray(b'\x01\x00\x00\x00m\x00\x00\x00XTE999')
+0.9
+bytearray(b'\x03\x01\x00\x00nm\x00\x00DIS09\x00')
+0.5
+bytearray(b'\x01\x01\x00\x00nm\x00\x00DIS05\x00')
+{'navigation.courseRhumbline.nextPoint.distance': DispData: value:-120.0,dec:0,label:DIS,unit:m,valueTxt:120,sign:True,isAlarm:False, 'navigation.speedThroughWater': DispData: value:4.1,dec:1,label:STW,unit:knot,valueTxt:41 ,sign:False,isAlarm:False}
+bytearray(b'\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
+10.149.169.255
+bytearray(b'\x01\x01\x00\x00m\x00\x00\x00SOG12\x00')
+bytearray(b'\x01\x01\x00\x00m\x00\x00\x00SOG12\x00')
+
+############# /home/rho/Python/arduino/havsmolf/disp/testguijsonfld.py ##############:
+10
+10
+
+############# /home/rho/Python/arduino/havsmolf/disp/testBuffer.py ##############:
+1.5
+Size:3,FreqNo:3,Sum:1.5,No:1,Ix:1,fregIx:1,Last:None,Buff:[1.5, None, None]
+None
+Size:3,FreqNo:3,Sum:1.5,No:1,Ix:2,fregIx:2,Last:None,Buff:[1.5, None, None]
+2.5
+Size:3,FreqNo:3,Sum:4.0,No:2,Ix:0,fregIx:0,Last:2.0,Buff:[1.5, None, 2.5]
+3
+Size:3,FreqNo:3,Sum:5.5,No:2,Ix:1,fregIx:1,Last:2.0,Buff:[3.0, None, 2.5]
+4
+Size:3,FreqNo:3,Sum:9.5,No:3,Ix:2,fregIx:2,Last:2.0,Buff:[3.0, 4.0, 2.5]
+5
+Size:3,FreqNo:3,Sum:12.0,No:3,Ix:0,fregIx:0,Last:4.0,Buff:[3.0, 4.0, 5.0]
+
+############# /home/rho/Python/arduino/havsmolf/disp/testDispBle.py ##############:
+{'navigation.speedOverGround': DispData: value:19.6,dec:1,label:SOG,unit:knot,valueTxt:196,sign:False,isAlarm:False, 'environment.depth.belowTransducer': DispData: value:None,dec:1,label:DBT,unit:m,valueTxt:NON,sign:False,isAlarm:False}
+Ble client id: b1, mac: 24:ec:4a:2c:50:09
+
+Server version 0.1
+Conncting to 24:ec:4a:2c:50:09 failed
+
+############# /home/rho/Python/arduino/havsmolf/disp/testguitable2.py ##############:
+environment.depth.belowTransducer
+
+############# /home/rho/Python/arduino/havsmolf/relay/testConv.py ##############:
+bytearray(b'\x03\x01')

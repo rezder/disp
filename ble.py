@@ -64,57 +64,54 @@ class Display:
             if not self.client.is_connected:
                 self.connTask = ass.create_task(self.delayConnect())
 
-    async def display(self, path: str, dds: dict[str, DispData]):
+    async def display(self, curPaths: set[str], dds: dict[str, DispData]):
         """
         Async! lock! Sends dispdata to display
         First time or after view change all paths is send.
         Second time only one path is send.
         """
         async with self.lock:
-            if not self.turnedOff and (path in self.view or self.isFullDD):
+            if not self.turnedOff:
                 self.checkConnTask()
                 if self.connTask is None:
                     try:
-                        buff = await self.client.read_gatt_char(self.pauseCharId)
-                        isPaused = bool(int.from_bytes(buff))
-                        if not isPaused:
-                            if self.isFullDD:
-                                poss: list[int] = list(range(4))
-                                for p, dd in dds.items():
-                                    pos = await self.disp_sendMsg(dd, p)
-                                    await ass.sleep(0.100)
-                                    if pos is not None:
-                                        poss.remove(pos)
-                                if len(poss) != 0:
-                                    for pos in poss:
-                                        await self.disp_sendClear(pos)
-                                        await ass.sleep(0.100)
-                                self.isFullDD = False
-                            else:
-                                await self.disp_sendMsg(dds[path], path)
+                        if self.isFullDD:
+                            await self.disp_sendClearAll()
+                            await ass.sleep(0.3)  # Cmd is after draw
+                            bmsg = bytearray()
+                            for p, dd in dds.items():
+                                if p in self.view:
+                                    pos = self.view[p][ff.pos.jId]
+                                    bmsg.extend(dd.encode(pos))
+                            await self.disp_sendMsg(bmsg)
+                            # TODO Test show this is the loop speed
+                            # seems high to me
+                            await ass.sleep(0.500)
+                            self.isFullDD = False
+                        else:
+                            bmsg = bytearray()
+                            for path in curPaths:
+                                if path in self.view:
+                                    pos = self.view[path][ff.pos.jId]
+                                    bmsg.extend(dds[path].encode(pos))
+                            await self.disp_sendMsg(bmsg)
 
                     except bleak.BleakCharacteristicNotFoundError as ex:
                         txt = "Lost bluetooth connection: {}".format(ex)
                         self.status.setTxt(txt)
 
-    async def disp_sendClear(self, pos):
-        buff = DispData.encodeClear(pos)
-        # print("Sending disp msg:{}".format(buff))
-        await self.client.write_gatt_char(self.dataCharId,
-                                          buff,
-                                          response=False)
+    async def disp_sendClearAll(self):
+        cmdClear = bytearray('C', "ascii")
+        await self.client.write_gatt_char(self.cmdCharId,
+                                          cmdClear,
+                                          response=True)
 
-    async def disp_sendMsg(self, dd: DispData, path: str) -> int | None:
-        pos = None
-        if path in self.view:
-            pos = self.view[path][ff.pos.jId]
-            buff = dd.encode(pos)
-            #  TODO remove
-            print("Sending disp msg:{}".format(buff))
+    async def disp_sendMsg(self, bmsg: bytearray) -> bytearray:
+        if len(bmsg) > 0:
+            print("Sending disp msg:{}".format(bmsg))
             await self.client.write_gatt_char(self.dataCharId,
-                                              buff,
+                                              bmsg,
                                               response=False)
-        return pos
 
     async def turnOff(self):
         """
@@ -139,3 +136,14 @@ class Display:
 
                 self.connTask = None
             self.turnedOff = True
+
+
+def pathsInView(view, paths) -> list[str]:
+    viewPaths: list[str] = list()
+    for path in paths:
+        if path in view:
+            viewPaths.append(path)
+    return viewPaths
+
+
+

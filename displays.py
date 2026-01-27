@@ -102,12 +102,12 @@ class Displays:
         return isNew
 
     async def display(self,
-                      path: str,
-                      dds: dict[str:DispData]):
+                      curPaths: set[str],
+                      allDDs: dict[str:DispData]):
         for ud in self.udpDisps.values():
-            ud.display(path, dds)
-        for dd in self.bleDisps.values():
-            await dd.display(path, dds)
+            ud.display(curPaths, allDDs)
+        for bd in self.bleDisps.values():
+            await bd.display(curPaths, allDDs)
 
     async def close(self) -> bool:
         ok = True

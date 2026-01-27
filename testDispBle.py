@@ -28,7 +28,7 @@ async def main():
     dd = creatDummyMsg(skData, path, 39, 0)
     dd = creatDummyMsg(skData, path, None, 0)
     dds[path] = dd
-    
+
     print(dds)
     id = "b1"
     mac = "24:ec:4a:2c:50:09"
@@ -36,11 +36,7 @@ async def main():
     view = conf.viewsGetView("Default")
     await display.setView(view)
     print(display)
-    await asyncio.sleep(2)
-    path = "navigation.speedThroughWater"
-    pos = view[path]
-    buff = DispData.encodeClear(pos)
-    print(buff)
+    await asyncio.sleep(3)
     display.checkConnTask()
     (ok, txt, _, _, _, _) = status.getStatus()
     print(txt)
@@ -48,11 +44,32 @@ async def main():
         print("Conncting to {} failed".format(mac))
         return
     ts = time.monotonic()
-    await display.display(path, dds)
+    curPaths = set()
+    curPaths.add(path)
+    await display.display(curPaths, dds)
     print(time.monotonic()-ts)
     (ok, txt, _, _, _, _) = status.getStatus()
     print(txt)
-    time.sleep(5)
+    sleepSec = 0.5
+    await asyncio.sleep(sleepSec)
+    b1 = b'\x03\x01\x00\x00knotSTW13\x00'
+    await display.disp_sendMsg(b1)
+    await asyncio.sleep(sleepSec)
+    b2 = b'\x00\x01\x00\x01m\x00\x00\x00DBT43\x00'
+    await display.disp_sendMsg(b2)
+    await asyncio.sleep(sleepSec)
+    b3 = b'\x01\x00\x00\x00deg\x00COG44\x00'
+    await display.disp_sendMsg(b3)
+    await asyncio.sleep(sleepSec)
+    b4 = b'\x02\x01\x00\x00knotSOG18\x00'
+    await display.disp_sendMsg(b4)
+
+    await asyncio.sleep(5.2)
+    await display.disp_sendClearAll()
+    await asyncio.sleep(0.200)
+    b = b'\x03\x01\x00\x00knotSTW13\x00\x00\x01\x00\x01m\x00\x00\x00DBT43\x00\x01\x00\x00\x00deg\x00COG43\x00\x02\x01\x00\x00knotSOG18\x00'
+    await display.disp_sendMsg(b)
+    await asyncio.sleep(10)
     await display.turnOff()
     # await asyncio.sleep(5)
 

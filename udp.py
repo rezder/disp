@@ -74,15 +74,15 @@ class Display:
                 self.status.setTxt(txt.format(self.id, ex))
                 self.connTask = ass.create_task(self.client.connect())
 
-    def display(self, path: str, dds: dict[str, DispData]):
-        if not self.turnedOff and (path in self.view or self.isFullDD):
+    def display(self, curPaths: set[str], dds: dict[str, DispData]):
+        if not self.turnedOff:
             self.checkConnTask()
             if self.connTask is None:
                 if self.isFullDD:
                     poss: list[int] = list(range(4))
-                    time.sleep(0.5)
                     for p, dd in dds.items():
                         pos = self.disp_sendMsg(dd, p)
+                        time.sleep(0.5)
                         if pos is not None:
                             poss.remove(pos)
                     for pos in poss:
@@ -90,7 +90,9 @@ class Display:
                         time.sleep(0.5)
                     self.isFullDD = False
                 else:
-                    _ = self.disp_sendMsg(dds[path], path)
+                    for path in curPaths:
+                        _ = self.disp_sendMsg(dds[path], path)
+                        time.sleep(0.5)
 
     def disp_sendClear(self, pos):
         buff = DispData.encodeClear(pos)

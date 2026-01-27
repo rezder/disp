@@ -76,11 +76,6 @@ async def guiMsg(ws: wsclient.ClientConnection,
             else:  # Change
                 newViewId = req.data
                 newView = conf.viewsGetView(newViewId)
-
-            # conf read is a problem as it could be change
-            # while wait on messages better to have all
-            # info in queue. if display not in mod conf or
-            # fail
             status.addDispOn(dispId, newViewId)
             txt = "Changing view on display: {} to view: {}"
             status.setTxt(txt.format(dispId, newViewId))
@@ -124,12 +119,14 @@ async def signalkMsg(ws, displays: Displays, skData, status):
     """
     Async function for handle websoket signal k incomming messages
     """
-    dds: dict[str, DispData] = dict()
+    allDDs: dict[str, DispData] = dict()
     async for jsonMsg in ws:
-        ddMsgs = parseSkUpdates(jsonMsg, skData, status)
-        for (dd, p) in ddMsgs:
-            dds[p] = dd
-            await displays.display(p, dds)
+        curDDs = parseSkUpdates(jsonMsg, skData, status)
+        curPaths: set[str] = set()
+        for (p, dd) in curDDs.items():
+            allDDs[p] = dd
+            curPaths.add(p)
+        await displays.display(curPaths, allDDs)
 
 
 def parseSkUpdates(skMsg: str,
@@ -144,7 +141,7 @@ def parseSkUpdates(skMsg: str,
     :return: Returns a list of display messages.
     :rtype: list[tuple[DispData,str]]
     """
-    ddMsgs = list()
+    ddMsgs: dict[str, DispData] = dict()
     jsObj = json.loads(skMsg)
     if "updates" in jsObj:
         for delta in jsObj["updates"]:
@@ -163,7 +160,7 @@ def parseSkUpdates(skMsg: str,
                     value = v["value"]
                     dispData = skData.getPath(pathId).createDispData(value)
                     if dispData is not None:
-                        ddMsgs.append((dispData, pathId))
+                        ddMsgs[pathId] = dispData
                 except KeyError:
                     t = "Faild to find path: {} on display"
                     status.setTxt(t.format(v["path"]))

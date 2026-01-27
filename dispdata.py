@@ -56,7 +56,7 @@ class DispData:
         res.extend(txt.encode("ascii"))
         return res
 
-    def encodeClear(pos: int):
+    def encodeClear(pos: int) -> bytearray:
         res = bytearray((pos,
                          0,
                          False,
